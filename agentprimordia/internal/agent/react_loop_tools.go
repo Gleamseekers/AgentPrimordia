@@ -248,6 +248,18 @@ func (a *ReActAgent) processToolResult(ctx context.Context, tc *ToolCall, result
 			}
 		}
 	}
+
+	// Task 12：DeadlockDetector 接入——记录工具级别连续失败/成功
+	// 当 planner 为 *planning.EnhancedPlanner 且 Deadlock 已配置时，
+	// 将每次工具执行结果反馈给死路检测器，用于后续计划级死路检测与自动恢复。
+	if ep := a.getEnhancedPlannerOrNil(); ep != nil && ep.Deadlock != nil {
+		if err != nil || (result != nil && result.IsError) {
+			ep.Deadlock.RecordFailure(tc.Name)
+		} else {
+			ep.Deadlock.RecordSuccess(tc.Name)
+		}
+	}
+
 	return toolCount
 }
 

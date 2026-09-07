@@ -20,6 +20,21 @@ func (a *ReActAgent) getPlannerOrNil() planning.Planner {
 	return a.capCache.planner
 }
 
+// getEnhancedPlannerOrNil 检查当前 planner 是否为 *planning.EnhancedPlanner。
+// 返回非 nil 表示 planner 已配置为增强规划器（含 Deadlock 检测器和 Recovery 策略）；
+// 返回 nil 表示未配置或非增强规划器，调用方应跳过死路检测逻辑（opt-in 语义）。
+func (a *ReActAgent) getEnhancedPlannerOrNil() *planning.EnhancedPlanner {
+	p := a.getPlannerOrNil()
+	if p == nil {
+		return nil
+	}
+	ep, ok := p.(*planning.EnhancedPlanner)
+	if !ok {
+		return nil
+	}
+	return ep
+}
+
 // extractUserInput 从 history 中取出最后一条 UserMessage 的内容
 func extractUserInput(history []Message) string {
 	for i := len(history) - 1; i >= 0; i-- {
@@ -88,6 +103,35 @@ func (a *ReActAgent) recordPlanRecovery(rec PlanRecovery) {
 	a.stats.PlanRecoveries = append(a.stats.PlanRecoveries, rec)
 	a.statsMu.Unlock()
 	a.logger.Warn("自愈动作已记录", "method", rec.Method, "success", rec.Success)
+}
+
+// tryDeadlockRecovery 死路检测触发后的自动恢复（fire-and-forget）。
+// 通过 EnhancedPlanner.Recovery.Recover 生成替代方案并记录恢复动作。
+// 恢复失败仅记录日志，不影响当前执行流程（当前子任务仍会失败返回，
+// 由上层 executePlanWithSelfHealing 做 replan/降级）。
+func (a *ReActAgent) tryDeadlockRecovery(ctx context.Context, plan *planning.Plan, failedSubTaskID string, ep *planning.EnhancedPlanner) {
+	if ep.Recovery == nil {
+		return
+	}
+	// 使用独立 background context，避免父 ctx 取消中断恢复
+	bgCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	go func() {
+		defer cancel()
+		newPlan, err := ep.Recovery.Recover(bgCtx, plan, failedSubTaskID)
+		if err != nil {
+			a.logger.Warn("死路恢复失败", "subtask", failedSubTaskID, "err", err)
+			return
+		}
+		a.logger.Info("死路恢复成功，已生成替代方案",
+			"subtask", failedSubTaskID,
+			"new_subtasks", len(newPlan.SubTasks),
+		)
+		a.recordPlanRecovery(PlanRecovery{
+			Method:  "deadlock_recovery",
+			Success: true,
+			Error:   "deadlock detected for subtask: " + failedSubTaskID,
+		})
+	}()
 }
 
 // executePlan 按依赖关系调度子任务，返回最终 Response。
@@ -233,6 +277,15 @@ func (a *ReActAgent) executePlanWithState(ctx context.Context, history []Message
 					"subtask_desc", st.Description,
 					"error", err,
 				)
+				// Task 12：DeadlockDetector 接入——子任务失败后检查死路
+				if ep := a.getEnhancedPlannerOrNil(); ep != nil && ep.Deadlock != nil {
+					if ep.Deadlock.RecordFailure(st.ID) {
+						a.logger.Warn("检测到子任务死路，触发自动恢复",
+							"subtask_id", st.ID,
+						)
+						a.tryDeadlockRecovery(ctx, plan, st.ID, ep)
+					}
+				}
 				// 保存 failed checkpoint（含已完成进度），供断点续跑
 				a.savePlanCheckpoint(ctx, history, pp, "failed")
 				return nil, fmt.Errorf("subtask %s failed: %w", st.ID, err)

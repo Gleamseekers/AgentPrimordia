@@ -21,6 +21,7 @@ import (
 	"agentprimordia/internal/observability"
 	"agentprimordia/internal/persist"
 	"agentprimordia/internal/tools"
+	"agentprimordia/internal/tools/intelligence"
 	"agentprimordia/pkg/logger"
 )
 
@@ -112,6 +113,10 @@ type ReActConfig struct {
 	// PlanRecoveryMode 计划失败时自动换路径（replan / 降级到 runLoop）：
 	// 空值或 "on" 表示启用（默认），"off" 表示关闭——默认故障恢复不依赖人工。
 	PlanRecoveryMode string
+
+	// ToolIntelligence 工具智能配置（Task 7：IntelligenceHook 桥接）
+	// 非 nil 时自动在 ReAct 循环中记录工具使用画像 + 缺口检测 + 自动创建工具
+	ToolIntelligence *ToolIntelligenceConfig
 }
 
 // ReActAgent implements the ReAct (Reasoning + Acting) pattern
@@ -257,6 +262,9 @@ type capabilityCache struct {
 
 	// v6.1：世界模型跟踪器（opt-in；nil = 不启用，默认路径零变化）
 	worldTracker *worldmodel.WorldModelTracker
+
+	// Task 7：工具智能 Hook（nil = 不启用）
+	intelligenceHook *intelligence.IntelligenceHook
 }
 
 // resolveCapabilities 一次性查找所有能力并填充到 capabilityCache。
@@ -290,6 +298,10 @@ func (a *ReActAgent) resolveCapabilities(requestID string) *capabilityCache {
 
 		// v6.1：世界模型跟踪器（接线点①；opt-in，未注入时为 nil）
 		worldTracker: a.getWorldModelTracker(),
+	}
+	// Task 7：工具智能 Hook——从配置构建 IntelligenceHook 实例
+	if ti := a.config.ToolIntelligence; ti != nil {
+		c.intelligenceHook = intelligence.NewIntelligenceHook(ti.Profiler, ti.Detector, ti.Creator)
 	}
 	// 缓存 labeled 记录器
 	if c.metricsRecorder != nil {

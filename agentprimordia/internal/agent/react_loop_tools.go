@@ -203,12 +203,20 @@ func (a *ReActAgent) processToolResult(ctx context.Context, tc *ToolCall, result
 		a.emitStream(cfg, StreamEvent{Type: StreamEventToolResult, Content: result.Content, Data: result})
 	}
 
+	// 构造完整的 HookContext，携带工具调用全量数据供下游 Hook 消费者使用
+	afterToolCtx := &HookContext{
+		ToolResult: result,
+		ToolCall:   tc,
+		Turn:       turn,
+		Duration:   latency,
+		Error:      err,
+	}
 	if cfg.stream {
 		if err == nil {
-			_ = a.fireHook(HookAfterTool, &HookContext{ToolResult: result, Turn: turn})
+			_ = a.fireHook(HookAfterTool, afterToolCtx)
 		}
 	} else {
-		_ = a.fireHook(HookAfterTool, &HookContext{ToolResult: result, Turn: turn})
+		_ = a.fireHook(HookAfterTool, afterToolCtx)
 		if a.hasEventSubscriber() {
 			a.publishEvent(EventToolResult, map[string]string{"tool": tc.Name})
 		}

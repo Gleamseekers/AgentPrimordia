@@ -89,6 +89,8 @@ func (a *ReActAgent) reactLoopEngine(ctx context.Context, input Message, cfg loo
 
 	// 优化（Task 2）：Run() 入口处一次性查找所有能力引用，避免每轮重复类型断言
 	a.capCache = a.resolveCapabilities(cfg.requestID)
+	// Task 7：注册 IntelligenceHook 桥接（幂等，将工具智能 Hook 适配到 HookManager）
+	a.setupIntelligenceBridge()
 
 	// v3.5-4：登记全链路关联——以 root span 的 trace_id 关联 trace/metrics/audit
 	if corr := a.capCache.observability; corr != nil {

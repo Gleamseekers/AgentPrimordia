@@ -535,7 +535,7 @@
       {"type": "file_exists", "target": "scripts/health-check.sh", "expect": ""},
       {"type": "file_contains", "target": "crontab.txt", "expect": "db-backup"},
       {"type": "file_contains", "target": "scripts/db-backup.sh", "expect": "flock"},
-      {"type": "file_contains", "target": "scripts/health-check.sh", "expect": "*/5"}
+      {"type": "file_contains", "target": "scripts/health-check.sh", "expect": "curl"}
     ]
   }
 ]

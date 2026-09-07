@@ -30,9 +30,13 @@ func (a *ReActAgent) executeToolCalls(ctx context.Context, history []Message, to
 // executeToolCallsSerial 串行执行tool（原始实现，保持 100% 行为兼容）
 func (a *ReActAgent) executeToolCallsSerial(ctx context.Context, history []Message, toolCalls []ToolCall, turn int, cfg loopConfig, tracer Tracer, turnSpan Span, totalToolLatency time.Duration, toolCount int) ([]Message, time.Duration, int) {
 	for _, tc := range toolCalls {
+		// Task 15：工具执行前快照状态图（供回溯校验 Validate 的 before 参数）
+		a.wmSnapshotBeforeTool()
 		result, err, latency := a.executeSingleTool(ctx, &tc, turn, cfg, tracer, turnSpan)
 		totalToolLatency += latency
 		toolCount = a.processToolResult(ctx, &tc, result, err, latency, turn, cfg, toolCount)
+		// Task 15：工具执行后回溯校验——预演 vs 实际差异记录进失败库
+		a.wmValidateAfterTool(ctx, turn)
 		history = append(history, result.ToMessage())
 		a.saveMemory(ctx, result.ToMessage())
 	}
@@ -65,6 +69,9 @@ func (a *ReActAgent) executeToolCallsParallel(ctx context.Context, history []Mes
 
 	// 简单的信号量：限制同时在飞的 goroutine 数量
 	sem := make(chan struct{}, maxParallel)
+
+	// Task 15：并行模式只取一次快照（所有 goroutine 共享同一 before 状态）
+	a.wmSnapshotBeforeTool()
 
 	for i := range toolCalls {
 		i := i // 显式捕获
@@ -101,6 +108,8 @@ func (a *ReActAgent) executeToolCallsParallel(ctx context.Context, history []Mes
 		r := results[i]
 		totalToolLatency += r.latency
 		toolCount = a.processToolResult(ctx, &toolCalls[i], r.result, r.err, r.latency, turn, cfg, toolCount)
+		// Task 15：并行模式每个工具处理后做回溯校验
+		a.wmValidateAfterTool(ctx, turn)
 		history = append(history, r.result.ToMessage())
 		a.saveMemory(ctx, r.result.ToMessage())
 	}

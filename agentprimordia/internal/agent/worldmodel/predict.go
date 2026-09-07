@@ -140,3 +140,16 @@ func Validate(predicted []StateDelta, before, after *StateGraph) []string {
 
 	return divergences
 }
+
+// GraphFromNodeIDs 由节点快照切片构造只读状态图（无边）。
+// 专用于回溯校验「before」快照：Validate 仅比较节点 ID 集合，
+// 边信息不参与分歧判定，因此重建时忽略原始边。
+func GraphFromNodeIDs(nodes []StateNode) *StateGraph {
+	g := NewStateGraph()
+	for _, n := range nodes {
+		// AddNode 以 (Kind, Summary) 派生确定性 ID，与原始节点 ID 一致；
+		// CreatedAtTurn 取原始值，但不影响 Validate 的节点存在性判定。
+		g.AddNode(n.Kind, n.Summary, n.CreatedAtTurn)
+	}
+	return g
+}

@@ -263,6 +263,14 @@ type capabilityCache struct {
 	// v6.1：世界模型跟踪器（opt-in；nil = 不启用，默认路径零变化）
 	worldTracker *worldmodel.WorldModelTracker
 
+	// Task 15：回溯校验——预演 vs 实际差异记录进失败库
+	// lastPrediction 当前批次待校验的状态增量预测（每轮 LLM 输出时设置）
+	lastPrediction []worldmodel.StateDelta
+	// graphBeforeTool 工具执行前的状态图快照（Validate 的 before 参数）
+	graphBeforeTool *worldmodel.StateGraph
+	// predictionIdx 当前批次内待校验预测索引（串行处理时递增）
+	predictionIdx int
+
 	// Task 7：工具智能 Hook（nil = 不启用）
 	intelligenceHook *intelligence.IntelligenceHook
 }

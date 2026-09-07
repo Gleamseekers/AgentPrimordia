@@ -253,6 +253,64 @@ func (a *ReActAgent) wmBackDiffCheck(ctx context.Context, turn int) {
 	a.wmRecordWorldModelAnomaly(ctx, turn, b.String(), auditActionWMBackDiff)
 }
 
+// wmValidatePrediction Task 15：回溯校验——预演 vs 实际差异记录进失败库。
+// 对单条工具调用的预测增量做 Validate，分歧逐条写入失败库（fire-and-forget）。
+// graphBefore 为工具执行前的状态图快照；当前图由 tracker 持有（执行后状态）。
+// 若无 tracker / 无预测 / 无 failureStore，安全跳过。
+func (a *ReActAgent) wmValidatePrediction(ctx context.Context, turn int, predicted []worldmodel.StateDelta, graphBefore *worldmodel.StateGraph) {
+	t := a.wmTracker()
+	if t == nil || len(predicted) == 0 || graphBefore == nil {
+		return
+	}
+	graphAfter := t.Graph()
+	divergences := worldmodel.Validate(predicted, graphBefore, graphAfter)
+	for _, d := range divergences {
+		detail := wmErrorPrefixBackDiff + " " + d
+		a.wmRecordWorldModelAnomaly(ctx, turn, detail, auditActionWMBackDiff)
+	}
+}
+
+// wmSnapshotBeforeTool Task 15：工具执行前快照当前状态图。
+// 将当前图节点快照存入 capCache.graphBeforeTool，供后续 Validate 使用。
+// 同时从 capCache.lastPrediction 中取出当前索引对应的预测。
+// tracker / capCache / prediction 均为 nil 时安全跳过。
+func (a *ReActAgent) wmSnapshotBeforeTool() {
+	t := a.wmTracker()
+	if t == nil || a.capCache == nil || len(a.capCache.lastPrediction) == 0 {
+		return
+	}
+	a.capCache.graphBeforeTool = worldmodel.GraphFromNodeIDs(t.Graph().Nodes())
+}
+
+// wmValidateAfterTool Task 15：工具执行后做回溯校验并消费预测。
+// 从 capCache 取出当前索引的预测（若存在）、配合 graphBeforeTool 调用
+// wmValidatePrediction；处理完毕后推进 predictionIdx 或清空预测状态。
+func (a *ReActAgent) wmValidateAfterTool(ctx context.Context, turn int) {
+	if a.capCache == nil {
+		return
+	}
+	c := a.capCache
+	if len(c.lastPrediction) == 0 || c.graphBeforeTool == nil {
+		return
+	}
+	idx := c.predictionIdx
+	if idx >= len(c.lastPrediction) {
+		// 预测已全部消费完毕；清空状态
+		c.lastPrediction = nil
+		c.graphBeforeTool = nil
+		c.predictionIdx = 0
+		return
+	}
+	a.wmValidatePrediction(ctx, turn, c.lastPrediction[idx:idx+1], c.graphBeforeTool)
+	c.predictionIdx++
+	if c.predictionIdx >= len(c.lastPrediction) {
+		// 全部预测已消费
+		c.lastPrediction = nil
+		c.graphBeforeTool = nil
+		c.predictionIdx = 0
+	}
+}
+
 // wmSaveWorldState state-checkpoint 协议（v6.1 切片三，提案 E7–E10）：
 // 把世界模型快照嵌入检查点（tracker 未注入时为 no-op，检查点无 WorldState
 // 字段——旧检查点/旧 agent 双向兼容）。序列化失败仅告警，不影响检查点保存。

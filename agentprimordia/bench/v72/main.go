@@ -155,9 +155,25 @@ func resolveProps(prop string) []string {
 	}
 }
 
+// propFile 将命题简写映射到任务文件名（不含 .json 后缀）。
+func propFile(prop string) string {
+	switch prop {
+	case "p1":
+		return "p1-worldmodel"
+	case "p2":
+		return "p2-planning"
+	case "p4":
+		return "p4-intelligence"
+	case "p5":
+		return "p5-multimodal"
+	default:
+		return prop
+	}
+}
+
 // runProp 运行单个命题的 A/B 实验并返回报告。
 func runProp(ctx context.Context, prov llm.Provider, prop string, limit int, pace time.Duration) benchReport {
-	tasks, err := eval.LoadV72Tasks(prop)
+	tasks, err := eval.LoadV72Tasks(propFile(prop))
 	if err != nil {
 		fmt.Printf("加载 %s 任务失败: %v\n", prop, err)
 		return benchReport{}

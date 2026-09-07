@@ -1,0 +1,643 @@
+[
+  {
+    "id": "p1-001",
+    "prop": "p1",
+    "task": "在以下 Go 项目中，经过一系列结构体修改后，回答：哪些文件中的结构体仍然引用了被重命名的字段 'Name'（重命名为 'Title'）？请列出所有未更新的文件路径。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "src/models/user.go", "content": "package models\n\ntype User struct {\n\tName  string\n\tEmail string\n}\n"},
+      {"path": "src/handlers/user_handler.go", "content": "package handlers\n\nimport \"models\"\n\nfunc GetUser() models.User {\n\treturn models.User{Name: \"test\"}\n}\n"},
+      {"path": "src/services/user_service.go", "content": "package services\n\nimport \"models\"\n\nfunc CreateUser() models.User {\n\tu := models.User{Name: \"new\"}\n\treturn u\n}\n"},
+      {"path": "src/repo/user_repo.go", "content": "package repo\n\nimport \"models\"\n\nfunc FindUser() models.User {\n\treturn models.User{Name: \"found\", Email: \"a@b.com\"}\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "user_handler.go"},
+      {"type": "file_contains", "target": "answer.txt", "expect": "user_service.go"},
+      {"type": "file_contains", "target": "answer.txt", "expect": "user_repo.go"}
+    ]
+  },
+  {
+    "id": "p1-002",
+    "prop": "p1",
+    "task": "给定一个包含 6 个 Go 源文件的项目。依次执行以下操作：1) 在 models/task.go 中新增字段 Priority int；2) 修改 handlers/task_handler.go 使用该字段；3) 删除 services/old_task.go；4) 将 utils/format.go 中的函数 FormatTask 重命名为 FormatTaskV2；5) 在 repo/task_repo.go 中添加对新字段 Priority 的查询。最终回答：哪些文件包含对 FormatTaskV2 的引用？哪些文件的 import 中包含 'utils' 包？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "src/models/task.go", "content": "package models\n\ntype Task struct {\n\tID   int\n\tName string\n}\n"},
+      {"path": "src/handlers/task_handler.go", "content": "package handlers\n\nimport \"models\"\n\nfunc HandleTask(t models.Task) {\n\t_ = t.Name\n}\n"},
+      {"path": "src/services/old_task.go", "content": "package services\n\nimport \"models\"\n\nfunc LegacyProcess(t models.Task) {}\n"},
+      {"path": "src/utils/format.go", "content": "package utils\n\nimport \"models\"\n\nfunc FormatTask(t models.Task) string {\n\treturn t.Name\n}\n"},
+      {"path": "src/repo/task_repo.go", "content": "package repo\n\nimport \"models\"\n\nfunc GetTask() models.Task {\n\treturn models.Task{ID: 1, Name: \"test\"}\n}\n"},
+      {"path": "src/main.go", "content": "package main\n\nimport (\n\t\"handlers\"\n\t\"services\"\n\t\"utils\"\n)\n\nfunc main() {\n\t_ = handlers.HandleTask\n\t_ = services.LegacyProcess\n\t_ = utils.FormatTask\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "FormatTaskV2"}
+    ]
+  },
+  {
+    "id": "p1-003",
+    "prop": "p1",
+    "task": "给定一个微服务配置文件集合（5个服务）。执行以下操作序列：1) 修改 service-a 的端口从 8080 改为 9090；2) 更新 service-b 的依赖列表，移除 service-c，添加 service-d；3) 将 service-c 的配置文件重命名（逻辑上标记为废弃）并创建 service-d 配置；4) 修改 service-e 的依赖，使其依赖 service-a 的新端口。回答：最终哪些服务依赖 service-a？哪些服务配置已被废弃或删除？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "services/service-a.yaml", "content": "name: service-a\nport: 8080\ndependencies: []\n"},
+      {"path": "services/service-b.yaml", "content": "name: service-b\nport: 8081\ndependencies: [service-a, service-c]\n"},
+      {"path": "services/service-c.yaml", "content": "name: service-c\nport: 8082\ndependencies: [service-a]\n"},
+      {"path": "services/service-d.yaml", "content": "name: service-d\nport: 8083\ndependencies: [service-a]\n"},
+      {"path": "services/service-e.yaml", "content": "name: service-e\nport: 8084\ndependencies: [service-a:8080, service-b]\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "service-c"}
+    ]
+  },
+  {
+    "id": "p1-004",
+    "prop": "p1",
+    "task": "给定一个包含 8 个配置文件的项目（3 个 JSON 配置 + 3 个 YAML 配置 + 2 个 ENV 文件）。执行以下操作：1) 修改 config/db.json 添加新字段 'max_connections'；2) 将 config/app.yaml 中的 'log_level: info' 改为 'log_level: debug'；3) 删除 config/cache.json；4) 在 config/auth.yaml 中添加新字段 'token_expiry'；5) 更新 config/env/dev.env 中的 DB_HOST；6) 将 config/db.json 中的 'host' 字段值改为新 IP。回答：当前存在哪些配置文件？哪些文件在最近 3 次操作中被修改过？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "config/db.json", "content": "{\n  \"host\": \"192.168.1.1\",\n  \"port\": 5432,\n  \"database\": \"myapp\"\n}\n"},
+      {"path": "config/app.yaml", "content": "app_name: myapp\nlog_level: info\nversion: 1.0\n"},
+      {"path": "config/cache.json", "content": "{\n  \"backend\": \"redis\",\n  \"ttl\": 300\n}\n"},
+      {"path": "config/auth.yaml", "content": "provider: oauth2\nclient_id: abc123\n"},
+      {"path": "config/api.json", "content": "{\n  \"rate_limit\": 100,\n  \"timeout\": 30\n}\n"},
+      {"path": "config/env/dev.env", "content": "DB_HOST=localhost\nDB_PORT=5432\nAPP_ENV=development\n"},
+      {"path": "config/env/prod.env", "content": "DB_HOST=prod-db.example.com\nDB_PORT=5432\nAPP_ENV=production\n"},
+      {"path": "config/metrics.yaml", "content": "enabled: true\ninterval: 60\nendpoint: /metrics\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_not_exists", "target": "config/cache.json", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "db.json"}
+    ]
+  },
+  {
+    "id": "p1-005",
+    "prop": "p1",
+    "task": "给定一个包含 7 个数据模型的项目。执行操作：1) 在 Order 模型中添加 CustomerID 字段；2) 创建 Customer 模型；3) 修改 OrderService 中的 CreateOrder 方法使其设置 CustomerID；4) 删除旧版本的 LegacyOrder 模型；5) 在 OrderRepository 中添加按 CustomerID 查询的方法；6) 修改 OrderHandler 使其从请求中提取 CustomerID；7) 在 Invoice 模型中添加与 Customer 的关联。回答：最终哪些模型/文件直接引用了 CustomerID？哪些模型之间存在关联关系？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "models/order.go", "content": "package models\n\ntype Order struct {\n\tID     int\n\tAmount float64\n}\n"},
+      {"path": "models/product.go", "content": "package models\n\ntype Product struct {\n\tID    int\n\tName  string\n\tPrice float64\n}\n"},
+      {"path": "models/legacy_order.go", "content": "package models\n\ntype LegacyOrder struct {\n\tID     int\n\tDetail string\n}\n"},
+      {"path": "services/order_service.go", "content": "package services\n\nimport \"models\"\n\nfunc CreateOrder(amount float64) models.Order {\n\treturn models.Order{Amount: amount}\n}\n"},
+      {"path": "repo/order_repo.go", "content": "package repo\n\nimport \"models\"\n\nfunc FindOrder(id int) models.Order {\n\treturn models.Order{ID: id}\n}\n"},
+      {"path": "handlers/order_handler.go", "content": "package handlers\n\nfunc HandleCreateOrder() string {\n\treturn \"creating order\"\n}\n"},
+      {"path": "models/invoice.go", "content": "package models\n\ntype Invoice struct {\n\tID      int\n\tOrderID int\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "CustomerID"}
+    ]
+  },
+  {
+    "id": "p1-006",
+    "prop": "p1",
+    "task": "给定一个包含 10 个接口定义和实现的项目。执行：1) 在 Storage 接口中添加 Delete 方法；2) 更新 MemoryStorage 实现该接口；3) 更新 FileStorage 实现该接口；4) 删除 NetworkStorage（标记为废弃）；5) 在 CacheStorage 中添加 Delete 实现但签名不一致（使用 DeleteAll 而非 Delete）；6) 修改使用 Storage 接口的 Service 层调用 Delete。回答：哪些实现类正确实现了 Delete 方法？哪些实现类存在签名不一致？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "interfaces/storage.go", "content": "package interfaces\n\ntype Storage interface {\n\tGet(key string) (string, error)\n\tSet(key, value string) error\n}\n"},
+      {"path": "impl/memory_storage.go", "content": "package impl\n\ntype MemoryStorage struct {\n\tdata map[string]string\n}\n\nfunc (m *MemoryStorage) Get(key string) (string, error) {\n\treturn m.data[key], nil\n}\n\nfunc (m *MemoryStorage) Set(key, value string) error {\n\tm.data[key] = value\n\treturn nil\n}\n"},
+      {"path": "impl/file_storage.go", "content": "package impl\n\ntype FileStorage struct {\n\tdir string\n}\n\nfunc (f *FileStorage) Get(key string) (string, error) {\n\treturn \"\", nil\n}\n\nfunc (f *FileStorage) Set(key, value string) error {\n\treturn nil\n}\n"},
+      {"path": "impl/network_storage.go", "content": "package impl\n\ntype NetworkStorage struct {\n\turl string\n}\n\nfunc (n *NetworkStorage) Get(key string) (string, error) {\n\treturn \"\", nil\n}\n\nfunc (n *NetworkStorage) Set(key, value string) error {\n\treturn nil\n}\n"},
+      {"path": "impl/cache_storage.go", "content": "package impl\n\ntype CacheStorage struct {\n\tinner *MemoryStorage\n}\n\nfunc (c *CacheStorage) Get(key string) (string, error) {\n\treturn c.inner.Get(key)\n}\n\nfunc (c *CacheStorage) Set(key, value string) error {\n\treturn c.inner.Set(key, value)\n}\n"},
+      {"path": "service/data_service.go", "content": "package service\n\nimport \"interfaces\"\n\ntype DataService struct {\n\tstore interfaces.Storage\n}\n\nfunc (s *DataService) Process(key string) error {\n\t_, err := s.store.Get(key)\n\treturn err\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "CacheStorage"}
+    ]
+  },
+  {
+    "id": "p1-007",
+    "prop": "p1",
+    "task": "给定一个包含 6 个数据表定义（SQL DDL）和 4 个查询文件的项目。执行：1) 在 users 表中添加 department_id 列；2) 创建 departments 表；3) 修改 queries/user_queries.sql 添加按 department 查询；4) 删除 queries/legacy_report.sql；5) 在 orders 表中添加 user_id 外键约束；6) 修改 queries/order_queries.sql 添加 JOIN users。回答：当前存在哪些查询文件？哪些表之间存在外键关系？哪些查询涉及 JOIN 操作？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "schema/users.sql", "content": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  email TEXT UNIQUE\n);\n"},
+      {"path": "schema/orders.sql", "content": "CREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  amount REAL,\n  status TEXT DEFAULT 'pending'\n);\n"},
+      {"path": "schema/products.sql", "content": "CREATE TABLE products (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  price REAL\n);\n"},
+      {"path": "schema/order_items.sql", "content": "CREATE TABLE order_items (\n  id INTEGER PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER\n);\n"},
+      {"path": "schema/reviews.sql", "content": "CREATE TABLE reviews (\n  id INTEGER PRIMARY KEY,\n  product_id INTEGER,\n  rating INTEGER\n);\n"},
+      {"path": "schema/sessions.sql", "content": "CREATE TABLE sessions (\n  id TEXT PRIMARY KEY,\n  user_id INTEGER,\n  expires_at DATETIME\n);\n"},
+      {"path": "queries/user_queries.sql", "content": "SELECT * FROM users WHERE id = ?;\nSELECT * FROM users ORDER BY name;\n"},
+      {"path": "queries/order_queries.sql", "content": "SELECT * FROM orders WHERE id = ?;\nSELECT * FROM orders WHERE status = 'pending';\n"},
+      {"path": "queries/product_queries.sql", "content": "SELECT * FROM products WHERE price > ?;\n"},
+      {"path": "queries/legacy_report.sql", "content": "SELECT u.name, COUNT(o.id) FROM users u, orders o GROUP BY u.name;\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_not_exists", "target": "queries/legacy_report.sql", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "department"}
+    ]
+  },
+  {
+    "id": "p1-008",
+    "prop": "p1",
+    "task": "给定一个包含 5 个微服务的 Docker Compose 配置。执行：1) 修改 api-gateway 的端口映射从 80:8080 改为 443:8443；2) 更新 user-service 的环境变量指向新的数据库地址；3) 移除 notification-service 并创建 messaging-service；4) 更新 api-gateway 的依赖，从 notification-service 改为 messaging-service；5) 在 payment-service 中添加新的环境变量 API_KEY；6) 修改 messaging-service 的端口为 8085。回答：最终运行哪些服务？哪些服务依赖 messaging-service？所有服务暴露的端口分别是什么？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "docker-compose.yml", "content": "version: '3'\nservices:\n  api-gateway:\n    image: api-gw:latest\n    ports: ['80:8080']\n    depends_on: [user-service, notification-service, payment-service]\n  user-service:\n    image: user-svc:latest\n    ports: ['8081:8080']\n    environment:\n      DB_HOST: old-db.internal\n  notification-service:\n    image: notify-svc:latest\n    ports: ['8082:8080']\n  payment-service:\n    image: pay-svc:latest\n    ports: ['8083:8080']\n    environment:\n      SECRET_KEY: abc123\n  worker:\n    image: worker:latest\n    environment:\n      QUEUE: default\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "messaging-service"},
+      {"type": "file_contains", "target": "answer.txt", "expect": "443:8443"}
+    ]
+  },
+  {
+    "id": "p1-009",
+    "prop": "p1",
+    "task": "给定一个 Go 项目包含 4 个包，每个包有 2-3 个文件。执行以下操作序列：1) 将 pkg/auth/login.go 中的 Login 函数签名从 Login(user, pass string) 改为 Login(creds Credentials)；2) 在 pkg/auth/ 下创建 credentials.go 定义 Credentials 结构体；3) 更新 pkg/api/handler.go 中的调用点；4) 更新 pkg/api/middleware.go 中的调用点；5) 在 pkg/web/routes.go 中添加新的登录路由但也使用旧签名 Login(user, pass string)；6) 删除 pkg/legacy/auth.go 中的旧登录逻辑。回答：哪些文件仍然使用旧的 Login 签名？哪些文件已迁移到新签名？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "pkg/auth/login.go", "content": "package auth\n\nfunc Login(user, pass string) (string, error) {\n\treturn \"token\", nil\n}\n"},
+      {"path": "pkg/auth/session.go", "content": "package auth\n\ntype Session struct {\n\tToken  string\n\tUserID int\n}\n\nfunc NewSession(token string) *Session {\n\treturn &Session{Token: token}\n}\n"},
+      {"path": "pkg/api/handler.go", "content": "package api\n\nimport \"auth\"\n\nfunc HandleLogin(user, pass string) {\n\ttoken, _ := auth.Login(user, pass)\n\t_ = token\n}\n"},
+      {"path": "pkg/api/middleware.go", "content": "package api\n\nimport \"auth\"\n\nfunc AuthMiddleware(user, pass string) bool {\n\t_, err := auth.Login(user, pass)\n\treturn err == nil\n}\n"},
+      {"path": "pkg/web/routes.go", "content": "package web\n\nimport \"auth\"\n\nfunc SetupRoutes() {\n\ttoken, _ := auth.Login(\"admin\", \"secret\")\n\t_ = token\n}\n"},
+      {"path": "pkg/web/static.go", "content": "package web\n\nfunc ServeStatic(path string) {}\n"},
+      {"path": "pkg/legacy/auth.go", "content": "package legacy\n\nfunc OldLogin(user, pass string) bool {\n\treturn user == \"admin\"\n}\n\nfunc OldLogout() {}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "routes.go"}
+    ]
+  },
+  {
+    "id": "p1-010",
+    "prop": "p1",
+    "task": "给定一个包含 8 个 API 端点定义的项目（4 个路由 + 4 个处理器）。执行：1) 修改 /api/users 路由指向新的 UserHandlerV2；2) 删除 /api/legacy/reports 路由和处理器；3) 在 /api/orders 处理器中添加新的状态码返回；4) 创建新的 /api/analytics 路由和处理器；5) 修改 UserHandlerV2 的响应格式从 XML 改为 JSON；6) 将 /api/products 路由从 ProductHandler 改为 ProductHandlerV2。回答：当前活跃的路由有哪些？哪些处理器已被废弃？哪些处理器经历了格式变更？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "routes/routes.go", "content": "package routes\n\nvar Routes = map[string]string{\n\t\"/api/users\":          \"UserHandler\",\n\t\"/api/orders\":         \"OrderHandler\",\n\t\"/api/products\":       \"ProductHandler\",\n\t\"/api/legacy/reports\": \"LegacyReportHandler\",\n}\n"},
+      {"path": "handlers/user_handler.go", "content": "package handlers\n\nfunc UserHandler() string {\n\treturn \"<user>xml</user>\"\n}\n"},
+      {"path": "handlers/order_handler.go", "content": "package handlers\n\nfunc OrderHandler() string {\n\treturn `{\"status\": \"ok\"}`\n}\n"},
+      {"path": "handlers/product_handler.go", "content": "package handlers\n\nfunc ProductHandler() string {\n\treturn `{\"products\": []}`\n}\n"},
+      {"path": "handlers/legacy_report_handler.go", "content": "package handlers\n\nfunc LegacyReportHandler() string {\n\treturn \"<report>legacy</report>\"\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "answer.txt", "expect": ""},
+      {"type": "file_contains", "target": "answer.txt", "expect": "/api/analytics"},
+      {"type": "file_contains", "target": "answer.txt", "expect": "LegacyReportHandler"}
+    ]
+  },
+  {
+    "id": "p1-011",
+    "prop": "p1",
+    "task": "给定一个 Go 项目，其中 handler.go 调用 service.go 的 ProcessOrder，service.go 调用 repo.go 的 FindOrder 和 SaveOrder，repo.go 使用 model.go 的 Order 结构体。如果将 model.go 中 Order 的 Amount 字段类型从 float64 改为 int64，列出所有需要修改的文件及其修改原因（因果链）。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "src/model/order.go", "content": "package model\n\ntype Order struct {\n\tID     int\n\tAmount float64\n\tStatus string\n}\n"},
+      {"path": "src/repo/order_repo.go", "content": "package repo\n\nimport \"model\"\n\nfunc FindOrder(id int) model.Order {\n\treturn model.Order{ID: id, Amount: 0}\n}\n\nfunc SaveOrder(o model.Order) error {\n\tif o.Amount < 0 {\n\t\treturn nil\n\t}\n\treturn nil\n}\n"},
+      {"path": "src/service/order_service.go", "content": "package service\n\nimport (\n\t\"model\"\n\t\"repo\"\n)\n\nfunc ProcessOrder(id int) error {\n\to := repo.FindOrder(id)\n\to.Status = \"processed\"\n\treturn repo.SaveOrder(o)\n}\n\nfunc CalculateTotal(orders []model.Order) float64 {\n\tvar total float64\n\tfor _, o := range orders {\n\t\ttotal += o.Amount\n\t}\n\treturn total\n}\n"},
+      {"path": "src/handler/order_handler.go", "content": "package handler\n\nimport (\n\t\"service\"\n\t\"fmt\"\n)\n\nfunc HandleProcessOrder(id int) string {\n\terr := service.ProcessOrder(id)\n\tif err != nil {\n\t\treturn fmt.Sprintf(\"error: %v\", err)\n\t}\n\treturn \"ok\"\n}\n\nfunc HandleGetTotal() string {\n\treturn \"total\"\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "impact_analysis.txt", "expect": ""},
+      {"type": "file_contains", "target": "impact_analysis.txt", "expect": "order_repo.go"},
+      {"type": "file_contains", "target": "impact_analysis.txt", "expect": "order_service.go"},
+      {"type": "file_contains", "target": "impact_analysis.txt", "expect": "order_handler.go"}
+    ]
+  },
+  {
+    "id": "p1-012",
+    "prop": "p1",
+    "task": "给定一个包含事件处理器链的项目：EventHandler -> EventProcessor -> EventStore -> EventBus。每个组件调用下一个。如果将 EventBus 的 Publish 方法签名从 Publish(event Event) 改为 Publish(event Event, priority int)，分析完整的因果链：哪些上游组件需要修改？每个组件需要的具体修改是什么？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "chain/event.go", "content": "package chain\n\ntype Event struct {\n\tType string\n\tData map[string]interface{}\n}\n"},
+      {"path": "chain/bus.go", "content": "package chain\n\ntype EventBus struct{}\n\nfunc (b *EventBus) Publish(event Event) error {\n\treturn nil\n}\n\nfunc (b *EventBus) Subscribe(topic string) {}\n"},
+      {"path": "chain/store.go", "content": "package chain\n\ntype EventStore struct {\n\tbus *EventBus\n}\n\nfunc (s *EventStore) Save(event Event) error {\n\treturn s.bus.Publish(event)\n}\n"},
+      {"path": "chain/processor.go", "content": "package chain\n\ntype EventProcessor struct {\n\tstore *EventStore\n}\n\nfunc (p *EventProcessor) Process(event Event) error {\n\tevent.Data[\"processed\"] = true\n\treturn p.store.Save(event)\n}\n"},
+      {"path": "chain/handler.go", "content": "package chain\n\ntype EventHandler struct {\n\tprocessor *EventProcessor\n}\n\nfunc (h *EventHandler) Handle(eventType string, data map[string]interface{}) error {\n\tevent := Event{Type: eventType, Data: data}\n\treturn h.processor.Process(event)\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "causal_chain.txt", "expect": ""},
+      {"type": "file_contains", "target": "causal_chain.txt", "expect": "EventStore"},
+      {"type": "file_contains", "target": "causal_chain.txt", "expect": "EventProcessor"},
+      {"type": "file_contains", "target": "causal_chain.txt", "expect": "EventHandler"}
+    ]
+  },
+  {
+    "id": "p1-013",
+    "prop": "p1",
+    "task": "给定一个配置传播链：base_config.yaml -> service_config.yaml -> deployment.yaml -> k8s-manifest.yaml。如果修改 base_config.yaml 中的 log_format 从 'text' 改为 'json'，追踪哪些下游文件需要更新。然后额外执行：在 base_config.yaml 中新增字段 'tracing_enabled: true'，追踪该字段如何传播到所有下游文件。列出最终每个文件中与变更相关的所有字段。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "config/base_config.yaml", "content": "app_name: myservice\nlog_format: text\nlog_level: info\nretry_count: 3\n"},
+      {"path": "config/service_config.yaml", "content": "service:\n  name: ${app_name}\n  logging:\n    format: ${log_format}\n    level: ${log_level}\n  retry: ${retry_count}\n"},
+      {"path": "deploy/deployment.yaml", "content": "deployment:\n  service: ${service.name}\n  log_format: ${service.logging.format}\n  replicas: 3\n  health_check: /health\n"},
+      {"path": "deploy/k8s-manifest.yaml", "content": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: ${deployment.service}\nspec:\n  replicas: ${deployment.replicas}\n  containers:\n    - env:\n        - LOG_FORMAT: ${deployment.log_format}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "propagation_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "propagation_report.txt", "expect": "json"},
+      {"type": "file_contains", "target": "propagation_report.txt", "expect": "tracing_enabled"}
+    ]
+  },
+  {
+    "id": "p1-014",
+    "prop": "p1",
+    "task": "给定一个数据库迁移链：v1_schema.sql -> v2_migration.sql -> v3_migration.sql，以及对应的 Go 代码 user_model_v1.go -> user_model_v2.go。如果新增 v4_migration.sql 将 email 字段从 TEXT 改为 CITEXT（大小写不敏感），追踪：1) 哪些现有迁移文件需要引用？2) Go 模型代码中哪些地方需要适配？3) 查询代码中哪些 SQL 语句可能受影响？列出完整的变更影响图。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "migrations/v1_schema.sql", "content": "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  name TEXT NOT NULL,\n  email TEXT UNIQUE\n);\n"},
+      {"path": "migrations/v2_migration.sql", "content": "ALTER TABLE users ADD COLUMN phone TEXT;\nALTER TABLE users ADD COLUMN address TEXT;\n"},
+      {"path": "migrations/v3_migration.sql", "content": "CREATE TABLE orders (\n  id SERIAL PRIMARY KEY,\n  user_id INTEGER REFERENCES users(id),\n  amount DECIMAL(10,2)\n);\nALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user';\n"},
+      {"path": "models/user.go", "content": "package models\n\ntype User struct {\n\tID      int\n\tName    string\n\tEmail   string\n\tPhone   string\n\tAddress string\n\tRole    string\n}\n"},
+      {"path": "repo/user_repo.go", "content": "package repo\n\nfunc FindByEmail(email string) {\n\t// SELECT * FROM users WHERE email = $1\n}\n\nfunc FindByName(name string) {\n\t// SELECT * FROM users WHERE name ILIKE $1\n}\n\nfunc UpdateEmail(id int, email string) {\n\t// UPDATE users SET email = $1 WHERE id = $2\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "migration_impact.txt", "expect": ""},
+      {"type": "file_contains", "target": "migration_impact.txt", "expect": "CITEXT"},
+      {"type": "file_contains", "target": "migration_impact.txt", "expect": "FindByEmail"}
+    ]
+  },
+  {
+    "id": "p1-015",
+    "prop": "p1",
+    "task": "给定一个 Go 项目，其中 interface Logger 被 5 个包使用。如果将 Logger 接口的 Info 方法从 Info(msg string) 改为 Info(msg string, fields ...Field)，分析完整的变更影响：哪些实现者需要修改签名？哪些调用者不需要修改（因为 variadic 参数可选）？列出所有需要修改和不需要修改的文件。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "pkg/logger/logger.go", "content": "package logger\n\ntype Logger interface {\n\tInfo(msg string)\n\tError(msg string)\n\tDebug(msg string)\n}\n\ntype Field struct {\n\tKey   string\n\tValue interface{}\n}\n"},
+      {"path": "pkg/logger/console.go", "content": "package logger\n\ntype ConsoleLogger struct{}\n\nfunc (c *ConsoleLogger) Info(msg string)  {}\nfunc (c *ConsoleLogger) Error(msg string) {}\nfunc (c *ConsoleLogger) Debug(msg string) {}\n"},
+      {"path": "pkg/logger/file.go", "content": "package logger\n\ntype FileLogger struct {\n\tpath string\n}\n\nfunc (f *FileLogger) Info(msg string)  {}\nfunc (f *FileLogger) Error(msg string) {}\nfunc (f *FileLogger) Debug(msg string) {}\n"},
+      {"path": "pkg/logger/json.go", "content": "package logger\n\ntype JSONLogger struct{}\n\nfunc (j *JSONLogger) Info(msg string)  {}\nfunc (j *JSONLogger) Error(msg string) {}\nfunc (j *JSONLogger) Debug(msg string) {}\n"},
+      {"path": "svc/auth.go", "content": "package svc\n\nimport \"pkg/logger\"\n\nfunc Init(l logger.Logger) {\n\tl.Info(\"auth service started\")\n}\n"},
+      {"path": "svc/payment.go", "content": "package svc\n\nimport \"pkg/logger\"\n\nfunc ProcessPayment(l logger.Logger, amount float64) {\n\tl.Info(\"processing payment\")\n}\n"},
+      {"path": "svc/notification.go", "content": "package svc\n\nimport \"pkg/logger\"\n\nfunc SendNotification(l logger.Logger, msg string) {\n\tl.Info(\"sending notification\")\n\tl.Debug(msg)\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "impact_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "impact_report.txt", "expect": "ConsoleLogger"},
+      {"type": "file_contains", "target": "impact_report.txt", "expect": "FileLogger"},
+      {"type": "file_contains", "target": "impact_report.txt", "expect": "JSONLogger"}
+    ]
+  },
+  {
+    "id": "p1-016",
+    "prop": "p1",
+    "task": "给定一个包含 6 个模块的 Go 项目，模块之间存在循环依赖风险。执行操作：1) 将 pkg/utils 中的 Validate 函数移到 pkg/validation；2) 更新 pkg/models 中的 import；3) 更新 pkg/service 中的 import；4) 在 pkg/validation 中添加新函数 Sanitize；5) 将 pkg/handler 中对 pkg/utils 的引用改为 pkg/validation；6) 删除 pkg/utils 中的 Validate 函数。回答：最终哪些包依赖 pkg/validation？pkg/utils 是否仍有包依赖？是否存在循环依赖？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "pkg/utils/utils.go", "content": "package utils\n\nfunc Validate(input string) bool {\n\treturn len(input) > 0\n}\n\nfunc Format(s string) string {\n\treturn s\n}\n"},
+      {"path": "pkg/models/user.go", "content": "package models\n\nimport \"pkg/utils\"\n\ntype User struct {\n\tName string\n}\n\nfunc (u *User) IsValid() bool {\n\treturn utils.Validate(u.Name)\n}\n"},
+      {"path": "pkg/service/user_svc.go", "content": "package service\n\nimport (\n\t\"pkg/utils\"\n\t\"pkg/models\"\n)\n\nfunc CreateUser(name string) models.User {\n\tif !utils.Validate(name) {\n\t\treturn models.User{}\n\t}\n\treturn models.User{Name: name}\n}\n"},
+      {"path": "pkg/handler/user_handler.go", "content": "package handler\n\nimport (\n\t\"pkg/utils\"\n\t\"pkg/service\"\n)\n\nfunc HandleCreate(name string) {\n\tif !utils.Validate(name) {\n\t\treturn\n\t}\n\t_ = service.CreateUser(name)\n}\n"},
+      {"path": "pkg/validation/validate.go", "content": "package validation\n\n// 新建的空包\n"},
+      {"path": "pkg/format/formatter.go", "content": "package format\n\nimport \"pkg/utils\"\n\nfunc FormatName(name string) string {\n\treturn utils.Format(name)\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "dependency_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "dependency_report.txt", "expect": "validation"}
+    ]
+  },
+  {
+    "id": "p1-017",
+    "prop": "p1",
+    "task": "给定一个数据管道：Extractor -> Transformer -> Validator -> Loader。每个阶段有明确的输入输出类型。执行：1) 修改 Extractor 输出增加 'timestamp' 字段；2) Transformer 添加新的转换逻辑处理 timestamp；3) Validator 添加 timestamp 格式校验；4) Loader 的数据库表需要新增 timestamp 列；5) 修改 Transformer 的另一个字段 'amount' 从 string 改为 float64。回答：经过所有变更后，每个阶段的输入输出 schema 分别是什么？哪些阶段的 schema 发生了不兼容变更？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "pipeline/extractor.go", "content": "package pipeline\n\ntype RawRecord struct {\n\tID   int\n\tName string\n}\n\nfunc Extract() []RawRecord {\n\treturn []RawRecord{{ID: 1, Name: \"test\"}}\n}\n"},
+      {"path": "pipeline/transformer.go", "content": "package pipeline\n\ntype TransformedRecord struct {\n\tID     int\n\tName   string\n\tAmount string\n}\n\nfunc Transform(raw []RawRecord) []TransformedRecord {\n\tresult := make([]TransformedRecord, len(raw))\n\tfor i, r := range raw {\n\t\tresult[i] = TransformedRecord{ID: r.ID, Name: r.Name, Amount: \"0\"}\n\t}\n\treturn result\n}\n"},
+      {"path": "pipeline/validator.go", "content": "package pipeline\n\nfunc Validate(records []TransformedRecord) []TransformedRecord {\n\tvar valid []TransformedRecord\n\tfor _, r := range records {\n\t\tif r.Name != \"\" {\n\t\t\tvalid = append(valid, r)\n\t\t}\n\t}\n\treturn valid\n}\n"},
+      {"path": "pipeline/loader.go", "content": "package pipeline\n\n// LoadSQL 是将记录加载到数据库的 SQL 模板\nconst LoadSQL = `INSERT INTO records (id, name, amount) VALUES ($1, $2, $3)`\n\nfunc Load(records []TransformedRecord) error {\n\tfor _, r := range records {\n\t\t_ = r.ID\n\t\t_ = r.Name\n\t\t_ = r.Amount\n\t}\n\treturn nil\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "schema_evolution.txt", "expect": ""},
+      {"type": "file_contains", "target": "schema_evolution.txt", "expect": "timestamp"},
+      {"type": "file_contains", "target": "schema_evolution.txt", "expect": "float64"}
+    ]
+  },
+  {
+    "id": "p1-018",
+    "prop": "p1",
+    "task": "给定一个权限系统：Role 定义在 roles.yaml 中，Permission 绑定在 permissions.yaml 中，中间件在 middleware.go 中检查权限。执行：1) 在 roles.yaml 中将 'editor' 角色添加 'delete' 权限；2) 在 permissions.yaml 中注册新权限 'delete:articles'；3) 修改 middleware.go 添加新权限检查逻辑；4) 将 'viewer' 角色的 'edit' 权限移除；5) 在 handler.go 中添加新端点需要 'delete:articles' 权限；6) 创建 'admin' 角色继承所有权限。回答：最终每个角色拥有哪些权限？哪些端点受权限变更影响？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "config/roles.yaml", "content": "roles:\n  viewer:\n    permissions: [read, edit]\n  editor:\n    permissions: [read, edit]\n  admin:\n    permissions: [read, edit, delete, manage]\n"},
+      {"path": "config/permissions.yaml", "content": "permissions:\n  read:\n    description: \"查看资源\"\n  edit:\n    description: \"编辑资源\"\n  delete:\n    description: \"删除资源\"\n  manage:\n    description: \"管理权限\"\n"},
+      {"path": "middleware/auth.go", "content": "package middleware\n\nfunc CheckPermission(role, permission string) bool {\n\trolePerms := map[string][]string{\n\t\t\"viewer\": {\"read\", \"edit\"},\n\t\t\"editor\": {\"read\", \"edit\"},\n\t\t\"admin\":  {\"read\", \"edit\", \"delete\", \"manage\"},\n\t}\n\tperms, ok := rolePerms[role]\n\tif !ok {\n\t\treturn false\n\t}\n\tfor _, p := range perms {\n\t\tif p == permission {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}\n"},
+      {"path": "handler/article_handler.go", "content": "package handler\n\nfunc ListArticles()  {}\nfunc EditArticle()   {}\nfunc DeleteArticle() {}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "permission_matrix.txt", "expect": ""},
+      {"type": "file_contains", "target": "permission_matrix.txt", "expect": "delete:articles"},
+      {"type": "file_contains", "target": "permission_matrix.txt", "expect": "viewer"}
+    ]
+  },
+  {
+    "id": "p1-019",
+    "prop": "p1",
+    "task": "给定一个包含状态机定义的项目（状态定义在 states.yaml，转换规则在 transitions.yaml，执行器在 executor.go）。执行：1) 添加新状态 'reviewing'；2) 添加从 'draft' 到 'reviewing' 的转换；3) 添加从 'reviewing' 到 'approved' 的转换；4) 移除从 'draft' 直接到 'approved' 的转换；5) 在 executor.go 中添加 'reviewing' 状态的进入动作；6) 修改 'approved' 状态的退出条件。回答：最终状态机有哪些状态和转换？从 'draft' 到 'approved' 是否还有直接路径？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "config/states.yaml", "content": "states:\n  - name: draft\n    type: initial\n  - name: approved\n    type: final\n  - name: rejected\n    type: final\n  - name: archived\n    type: terminal\n"},
+      {"path": "config/transitions.yaml", "content": "transitions:\n  - from: draft\n    to: approved\n    guard: has_enough_votes\n  - from: draft\n    to: rejected\n    guard: has_veto\n  - from: approved\n    to: archived\n    guard: past_retention\n  - from: rejected\n    to: draft\n    guard: can_resubmit\n"},
+      {"path": "engine/executor.go", "content": "package engine\n\ntype StateExecutor struct{}\n\nfunc (e *StateExecutor) OnEnter(state string) {}\nfunc (e *StateExecutor) OnExit(state string)  {}\nfunc (e *StateExecutor) Execute(from, to string) error {\n\treturn nil\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "state_machine_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "state_machine_report.txt", "expect": "reviewing"},
+      {"type": "file_contains", "target": "state_machine_report.txt", "expect": "draft"}
+    ]
+  },
+  {
+    "id": "p1-020",
+    "prop": "p1",
+    "task": "给定一个包含 4 个 goroutine 通信的并发项目。Channel 连接关系：GoroutineA -> chan1 -> GoroutineB -> chan2 -> GoroutineC -> chan3 -> GoroutineD。执行：1) 修改 GoroutineA 发送的消息类型从 string 改为 struct{ID int, Msg string}；2) GoroutineB 需要适配新消息类型并转发给 GoroutineC；3) GoroutineC 添加新的错误通道 chan_err；4) GoroutineD 同时监听 chan3 和 chan_err；5) 将 chan2 从无缓冲改为缓冲大小为 10。回答：最终所有 goroutine 之间的数据流关系是什么？哪些 goroutine 需要修改以适应类型变更？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "concurrent/worker_a.go", "content": "package concurrent\n\nfunc WorkerA(out chan<- string) {\n\tout <- \"hello\"\n}\n"},
+      {"path": "concurrent/worker_b.go", "content": "package concurrent\n\nfunc WorkerB(in <-chan string, out chan<- string) {\n\tfor msg := range in {\n\t\tout <- \"processed: \" + msg\n\t}\n}\n"},
+      {"path": "concurrent/worker_c.go", "content": "package concurrent\n\nfunc WorkerC(in <-chan string, out chan<- string) {\n\tfor msg := range in {\n\t\tout <- \"final: \" + msg\n\t}\n}\n"},
+      {"path": "concurrent/worker_d.go", "content": "package concurrent\n\nfunc WorkerD(in <-chan string) {\n\tfor msg := range in {\n\t\t_ = msg\n\t}\n}\n"},
+      {"path": "concurrent/main.go", "content": "package concurrent\n\nfunc RunPipeline() {\n\tchan1 := make(chan string)\n\tchan2 := make(chan string)\n\tchan3 := make(chan string)\n\n\tgo WorkerA(chan1)\n\tgo WorkerB(chan1, chan2)\n\tgo WorkerC(chan2, chan3)\n\tgo WorkerD(chan3)\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "dataflow_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "dataflow_report.txt", "expect": "struct"},
+      {"type": "file_contains", "target": "dataflow_report.txt", "expect": "chan_err"}
+    ]
+  },
+  {
+    "id": "p1-021",
+    "prop": "p1",
+    "task": "给定一个项目初始状态（5个 Go 文件 + 2 个配置文件）。执行一系列操作后，对比前后状态变化。操作序列：1) 修改 config.yaml 添加 'new_feature: true'；2) 在 models/user.go 中添加 Age 字段；3) 创建 models/profile.go；4) 修改 handlers/user.go 使用 Profile；5) 删除 utils/old_helper.go；6) 修改 services/user.go 创建 Profile 实例；7) 更新 config.yaml 添加 'profile_fields: [name, age, bio]'。回答：与初始状态相比，新增了哪些文件？删除了哪些文件？哪些文件的内容发生了变化？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "src/config.yaml", "content": "app_name: myapp\nversion: 1.0\n"},
+      {"path": "src/models/user.go", "content": "package models\n\ntype User struct {\n\tID   int\n\tName string\n}\n"},
+      {"path": "src/handlers/user.go", "content": "package handlers\n\nimport \"models\"\n\nfunc GetUser() models.User {\n\treturn models.User{ID: 1, Name: \"test\"}\n}\n"},
+      {"path": "src/services/user.go", "content": "package services\n\nimport \"models\"\n\nfunc CreateUser(name string) models.User {\n\treturn models.User{Name: name}\n}\n"},
+      {"path": "src/utils/old_helper.go", "content": "package utils\n\nfunc OldHelper(s string) string {\n\treturn s\n}\n"},
+      {"path": "src/utils/format.go", "content": "package utils\n\nfunc FormatName(name string) string {\n\treturn name\n}\n"},
+      {"path": "src/main.go", "content": "package main\n\nfunc main() {}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "diff_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "diff_report.txt", "expect": "profile.go"},
+      {"type": "file_contains", "target": "diff_report.txt", "expect": "old_helper.go"}
+    ]
+  },
+  {
+    "id": "p1-022",
+    "prop": "p1",
+    "task": "给定一个项目包含 3 层架构（handler -> service -> repository），每层有 2-3 个文件。执行操作后检测实体关系变化：1) 在 repository 层新增 CacheRepository；2) Service 层的 OrderService 增加对 CacheRepository 的依赖；3) Handler 层的 OrderHandler 新增一个使用 CacheRepository 的端点；4) 将原 Repository 中的 FindByID 重命名为 GetByID；5) 更新 Service 和 Handler 中的调用。回答：最终哪些组件之间存在依赖关系？哪些关系是新增的？哪些函数名发生了变更？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "handler/order_handler.go", "content": "package handler\n\nimport \"service\"\n\nfunc GetOrder(id int) {\n\t_ = service.GetOrder(id)\n}\n\nfunc ListOrders() {\n\t_ = service.ListOrders()\n}\n"},
+      {"path": "handler/user_handler.go", "content": "package handler\n\nimport \"service\"\n\nfunc GetUser(id int) {\n\t_ = service.GetUser(id)\n}\n"},
+      {"path": "service/order_service.go", "content": "package service\n\nimport \"repository\"\n\nfunc GetOrder(id int) {\n\t_ = repository.FindByID(id)\n}\n\nfunc ListOrders() {\n\t_ = repository.FindAll()\n}\n"},
+      {"path": "service/user_service.go", "content": "package service\n\nimport \"repository\"\n\nfunc GetUser(id int) {\n\t_ = repository.FindByID(id)\n}\n"},
+      {"path": "repository/order_repo.go", "content": "package repository\n\nfunc FindByID(id int) interface{} {\n\treturn nil\n}\n\nfunc FindAll() []interface{} {\n\treturn nil\n}\n"},
+      {"path": "repository/user_repo.go", "content": "package repository\n\nfunc FindUserByID(id int) interface{} {\n\treturn nil\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "relationship_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "relationship_report.txt", "expect": "CacheRepository"},
+      {"type": "file_contains", "target": "relationship_report.txt", "expect": "GetByID"}
+    ]
+  },
+  {
+    "id": "p1-023",
+    "prop": "p1",
+    "task": "给定一个包含 6 个 API schema 定义（OpenAPI 风格的 JSON）的项目。执行一系列变更后，检测 schema 之间的关联变化：1) 修改 /users endpoint 的 response 添加 'role' 字段；2) 修改 /orders endpoint 的 request body 添加 'user_role' 字段（引用 users 的 role）；3) 删除 /legacy/items endpoint；4) 创建 /inventory endpoint 并引用 /orders 的 item 定义；5) 修改 /products 的 response 引用 /inventory 的 schema。回答：最终哪些 endpoint 的 schema 之间存在引用关系？哪些 endpoint 被删除？新增的引用链是什么？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "api/users.json", "content": "{\n  \"path\": \"/users\",\n  \"response\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"id\": {\"type\": \"integer\"},\n      \"name\": {\"type\": \"string\"}\n    }\n  }\n}\n"},
+      {"path": "api/orders.json", "content": "{\n  \"path\": \"/orders\",\n  \"request\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"product_id\": {\"type\": \"integer\"},\n      \"quantity\": {\"type\": \"integer\"}\n    }\n  }\n}\n"},
+      {"path": "api/products.json", "content": "{\n  \"path\": \"/products\",\n  \"response\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"id\": {\"type\": \"integer\"},\n      \"name\": {\"type\": \"string\"},\n      \"price\": {\"type\": \"number\"}\n    }\n  }\n}\n"},
+      {"path": "api/legacy_items.json", "content": "{\n  \"path\": \"/legacy/items\",\n  \"response\": {\n    \"type\": \"array\",\n    \"items\": {\"type\": \"string\"}\n  }\n}\n"},
+      {"path": "api/health.json", "content": "{\n  \"path\": \"/health\",\n  \"response\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"status\": {\"type\": \"string\"}\n    }\n  }\n}\n"},
+      {"path": "api/auth.json", "content": "{\n  \"path\": \"/auth/login\",\n  \"request\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"username\": {\"type\": \"string\"},\n      \"password\": {\"type\": \"string\"}\n    }\n  }\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "schema_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "schema_report.txt", "expect": "role"},
+      {"type": "file_contains", "target": "schema_report.txt", "expect": "/legacy/items"}
+    ]
+  },
+  {
+    "id": "p1-024",
+    "prop": "p1",
+    "task": "给定一个 monorepo 项目包含 3 个模块（moduleA、moduleB、moduleC），每个模块有自己的 go.mod 和源文件。执行：1) moduleA 发布新版本，将导出函数签名变更；2) moduleB 更新依赖到 moduleA 新版本；3) moduleC 也更新依赖到 moduleA 新版本但同时被 moduleB 依赖；4) 删除 moduleA 中一个被 moduleB 和 moduleC 都使用的内部函数。回答：最终的模块依赖图是什么？哪些模块受到删除操作的影响？是否存在版本不一致风险？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "moduleA/go.mod", "content": "module example.com/moduleA\n\ngo 1.21\n"},
+      {"path": "moduleA/api.go", "content": "package moduleA\n\nfunc ProcessData(input string) string {\n\treturn input\n}\n\nfunc internalHelper(s string) string {\n\treturn s + \"_processed\"\n}\n\nfunc FormatOutput(s string) string {\n\treturn internalHelper(s)\n}\n"},
+      {"path": "moduleB/go.mod", "content": "module example.com/moduleB\n\ngo 1.21\n\nrequire example.com/moduleA v1.0.0\n"},
+      {"path": "moduleB/service.go", "content": "package moduleB\n\nimport \"example.com/moduleA\"\n\nfunc HandleRequest(input string) string {\n\treturn moduleA.ProcessData(input)\n}\n\nfunc FormatResult(s string) string {\n\treturn moduleA.FormatOutput(s)\n}\n"},
+      {"path": "moduleC/go.mod", "content": "module example.com/moduleC\n\ngo 1.21\n\nrequire (\n\texample.com/moduleA v1.0.0\n\texample.com/moduleB v1.0.0\n)\n"},
+      {"path": "moduleC/handler.go", "content": "package moduleC\n\nimport (\n\t\"example.com/moduleA\"\n\t\"example.com/moduleB\"\n)\n\nfunc Handle(input string) string {\n\tprocessed := moduleA.ProcessData(input)\n\treturn moduleB.HandleRequest(processed)\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "dependency_graph.txt", "expect": ""},
+      {"type": "file_contains", "target": "dependency_graph.txt", "expect": "moduleA"},
+      {"type": "file_contains", "target": "dependency_graph.txt", "expect": "moduleB"}
+    ]
+  },
+  {
+    "id": "p1-025",
+    "prop": "p1",
+    "task": "给定一个包含 Redis 缓存策略配置的项目。初始有 3 个缓存策略（user_cache、session_cache、config_cache），每个策略定义了 TTL、max_size 和 key_prefix。执行：1) 修改 user_cache 的 TTL 从 300 改为 600；2) 添加新的缓存策略 order_cache；3) 修改 session_cache 的 key_prefix 从 'sess:' 改为 'session:'；4) 删除 config_cache；5) 修改所有使用 config_cache 的代码改为使用内存缓存；6) 在 order_cache 中添加与 user_cache 的关联（通过 user_id）。回答：最终存在哪些缓存策略？哪些 key_prefix 发生了变更？哪些策略之间存在关联？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "cache/config.yaml", "content": "caches:\n  user_cache:\n    ttl: 300\n    max_size: 1000\n    key_prefix: \"user:\"\n  session_cache:\n    ttl: 3600\n    max_size: 5000\n    key_prefix: \"sess:\"\n  config_cache:\n    ttl: 86400\n    max_size: 100\n    key_prefix: \"cfg:\"\n"},
+      {"path": "cache/user_cache.go", "content": "package cache\n\nfunc GetUserCache() map[string]interface{} {\n\treturn map[string]interface{}{\n\t\t\"ttl\":        300,\n\t\t\"key_prefix\": \"user:\",\n\t}\n}\n"},
+      {"path": "cache/session_cache.go", "content": "package cache\n\nfunc GetSessionCache() map[string]interface{} {\n\treturn map[string]interface{}{\n\t\t\"ttl\":        3600,\n\t\t\"key_prefix\": \"sess:\",\n\t}\n}\n"},
+      {"path": "cache/config_cache.go", "content": "package cache\n\nfunc GetConfigCache() map[string]interface{} {\n\treturn map[string]interface{}{\n\t\t\"ttl\":        86400,\n\t\t\"key_prefix\": \"cfg:\",\n\t}\n}\n"},
+      {"path": "service/config_loader.go", "content": "package service\n\nimport \"cache\"\n\nfunc LoadConfig(key string) interface{} {\n\t_ = cache.GetConfigCache()\n\treturn nil\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "cache_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "cache_report.txt", "expect": "order_cache"},
+      {"type": "file_contains", "target": "cache_report.txt", "expect": "config_cache"}
+    ]
+  },
+  {
+    "id": "p1-026",
+    "prop": "p1",
+    "task": "给定一个事件驱动系统，包含 5 个事件生产者和 4 个事件消费者，通过事件名称关联。执行：1) 生产者 A 修改其发送的事件名从 'user.created' 改为 'user.signup'；2) 消费者 X（监听 'user.created'）需要更新；3) 生产者 B 添加新事件 'user.deleted'；4) 创建新的消费者 Z 监听 'user.deleted'；5) 消费者 Y 同时监听 'user.created' 和 'order.placed'；6) 删除消费者 W。回答：最终哪些生产者和消费者之间存在事件名匹配？哪些消费者需要更新以匹配新事件名？哪些消费者已被删除？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "events/producers.go", "content": "package events\n\nfunc ProducerA() string { return \"user.created\" }\nfunc ProducerB() string { return \"order.placed\" }\nfunc ProducerC() string { return \"payment.received\" }\nfunc ProducerD() string { return \"user.updated\" }\nfunc ProducerE() string { return \"order.shipped\" }\n"},
+      {"path": "events/consumers.go", "content": "package events\n\nvar Consumers = map[string][]string{\n\t\"ConsumerX\": {\"user.created\"},\n\t\"ConsumerY\": {\"user.created\", \"order.placed\"},\n\t\"ConsumerV\": {\"payment.received\"},\n\t\"ConsumerW\": {\"user.updated\", \"order.shipped\"},\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "event_mapping.txt", "expect": ""},
+      {"type": "file_contains", "target": "event_mapping.txt", "expect": "user.signup"},
+      {"type": "file_contains", "target": "event_mapping.txt", "expect": "ConsumerW"}
+    ]
+  },
+  {
+    "id": "p1-027",
+    "prop": "p1",
+    "task": "给定一个包含 4 个数据库表及其 ORM 模型的项目，表之间存在外键关系。执行：1) 在 users 表和 orders 表之间添加外键 orders.user_id -> users.id；2) 修改 Order 模型添加 User 关联字段；3) 在 OrderRepository 中添加按用户查询订单的方法；4) 删除旧的非规范化表 order_flat；5) 修改 OrderService 使用新的关联查询；6) 在 products 表和 order_items 表之间添加外键。回答：最终的数据库关系图是什么（哪些表通过什么字段关联）？哪些表被删除？哪些查询方法被新增？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "db/schema.sql", "content": "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  name TEXT NOT NULL\n);\n\nCREATE TABLE orders (\n  id SERIAL PRIMARY KEY,\n  total DECIMAL(10,2)\n);\n\nCREATE TABLE products (\n  id SERIAL PRIMARY KEY,\n  name TEXT NOT NULL,\n  price DECIMAL(10,2)\n);\n\nCREATE TABLE order_items (\n  id SERIAL PRIMARY KEY,\n  order_id INTEGER,\n  product_id INTEGER,\n  quantity INTEGER\n);\n\nCREATE TABLE order_flat (\n  id SERIAL PRIMARY KEY,\n  user_name TEXT,\n  product_name TEXT,\n  quantity INTEGER,\n  total DECIMAL(10,2)\n);\n"},
+      {"path": "models/order.go", "content": "package models\n\ntype Order struct {\n\tID    int\n\tTotal float64\n}\n"},
+      {"path": "models/user.go", "content": "package models\n\ntype User struct {\n\tID   int\n\tName string\n}\n"},
+      {"path": "repo/order_repo.go", "content": "package repo\n\nimport \"models\"\n\nfunc FindOrder(id int) models.Order {\n\treturn models.Order{}\n}\n\nfunc FindAllOrders() []models.Order {\n\treturn nil\n}\n"},
+      {"path": "service/order_service.go", "content": "package service\n\nimport \"repo\"\n\nfunc GetOrder(id int) {\n\t_ = repo.FindOrder(id)\n}\n\nfunc ListOrders() {\n\t_ = repo.FindAllOrders()\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "schema_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "schema_report.txt", "expect": "user_id"},
+      {"type": "file_contains", "target": "schema_report.txt", "expect": "order_flat"}
+    ]
+  },
+  {
+    "id": "p1-028",
+    "prop": "p1",
+    "task": "给定一个包含功能开关（feature flags）配置的项目，有 5 个功能开关控制不同的代码路径。执行：1) 开启 'new_checkout' 开关；2) 关闭 'legacy_search' 开关；3) 添加新开关 'dark_mode'；4) 修改 'new_checkout' 的实现从 v1 升级到 v2；5) 删除 'legacy_search' 关联的所有代码；6) 将 'dark_mode' 的默认值设为 true。回答：最终哪些功能开关处于开启状态？哪些代码路径已被清理？哪些开关的默认值发生了变化？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "config/feature_flags.yaml", "content": "flags:\n  new_checkout:\n    enabled: false\n    variant: v1\n  legacy_search:\n    enabled: true\n  beta_dashboard:\n    enabled: false\n  advanced_analytics:\n    enabled: true\n  experimental_api:\n    enabled: false\n"},
+      {"path": "handlers/checkout.go", "content": "package handlers\n\nfunc HandleCheckout(version string) string {\n\tif version == \"v1\" {\n\t\treturn \"legacy checkout\"\n\t}\n\treturn \"new checkout\"\n}\n"},
+      {"path": "handlers/search.go", "content": "package handlers\n\nfunc HandleSearch(legacy bool) string {\n\tif legacy {\n\t\treturn \"legacy search\"\n\t}\n\treturn \"new search\"\n}\n"},
+      {"path": "handlers/dashboard.go", "content": "package handlers\n\nfunc HandleDashboard() string {\n\treturn \"beta dashboard\"\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "flags_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "flags_report.txt", "expect": "new_checkout"},
+      {"type": "file_contains", "target": "flags_report.txt", "expect": "dark_mode"}
+    ]
+  },
+  {
+    "id": "p1-029",
+    "prop": "p1",
+    "task": "给定一个 gRPC 服务项目，包含 3 个 service 定义和对应的 handler 实现。执行：1) 在 UserService 中添加新的 RPC 方法 DeleteUser；2) 修改 OrderService 的 GetOrder 返回类型添加 'status' 字段；3) 删除 LegacyService 整个 service 定义；4) 修改所有引用 LegacyService 的客户端代码；5) 在 UserService 中修改 UpdateUser 的请求参数添加 'role' 字段；6) 创建新的 NotificationService 定义。回答：最终存在哪些 service 定义？每个 service 有哪些 RPC 方法？哪些客户端代码需要修改？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "proto/user_service.go", "content": "package proto\n\ntype UserServiceServer interface {\n\tGetUser(id int) (*User, error)\n\tUpdateUser(id int, name string) error\n\tCreateUser(name string) (*User, error)\n}\n\ntype User struct {\n\tID   int\n\tName string\n}\n"},
+      {"path": "proto/order_service.go", "content": "package proto\n\ntype OrderServiceServer interface {\n\tGetOrder(id int) (*Order, error)\n\tCreateOrder(userID int, amount float64) (*Order, error)\n}\n\ntype Order struct {\n\tID     int\n\tAmount float64\n}\n"},
+      {"path": "proto/legacy_service.go", "content": "package proto\n\ntype LegacyServiceServer interface {\n\tGetData(key string) (string, error)\n\tPutData(key, value string) error\n}\n"},
+      {"path": "client/user_client.go", "content": "package client\n\nimport \"proto\"\n\ntype UserClient struct {\n\tserver proto.UserServiceServer\n}\n\nfunc (c *UserClient) GetUser(id int) {\n\t_, _ = c.server.GetUser(id)\n}\n\nfunc (c *UserClient) UpdateUser(id int, name string) {\n\t_ = c.server.UpdateUser(id, name)\n}\n"},
+      {"path": "client/legacy_client.go", "content": "package client\n\nimport \"proto\"\n\ntype LegacyClient struct {\n\tserver proto.LegacyServiceServer\n}\n\nfunc (c *LegacyClient) GetData(key string) {\n\t_, _ = c.server.GetData(key)\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "service_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "service_report.txt", "expect": "DeleteUser"},
+      {"type": "file_contains", "target": "service_report.txt", "expect": "LegacyService"}
+    ]
+  },
+  {
+    "id": "p1-030",
+    "prop": "p1",
+    "task": "给定一个包含 5 个中间件的 HTTP 处理链（Auth -> CORS -> RateLimit -> Logging -> Recovery）。执行：1) 将 RateLimit 中间件移到 Auth 之前；2) 添加新的 Compression 中间件在 Logging 之后；3) 删除 Recovery 中间件；4) 修改 Auth 中间件的 token 验证逻辑；5) 修改 Logging 中间件添加请求耗时统计；6) 在 CORS 中间件中添加新的允许域名。回答：最终的中间件执行顺序是什么？哪些中间件的配置/逻辑发生了变更？哪些中间件被移除？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "middleware/chain.go", "content": "package middleware\n\n// MiddlewareOrder 定义中间件执行顺序\nvar MiddlewareOrder = []string{\"Auth\", \"CORS\", \"RateLimit\", \"Logging\", \"Recovery\"}\n"},
+      {"path": "middleware/auth.go", "content": "package middleware\n\nfunc Auth() func(string) bool {\n\treturn func(token string) bool {\n\t\treturn token == \"valid\"\n\t}\n}\n"},
+      {"path": "middleware/cors.go", "content": "package middleware\n\nvar AllowedOrigins = []string{\"https://example.com\"}\n\nfunc CORS() func(string) bool {\n\treturn func(origin string) bool {\n\t\tfor _, o := range AllowedOrigins {\n\t\t\tif o == origin {\n\t\t\t\treturn true\n\t\t\t}\n\t\t}\n\t\treturn false\n\t}\n}\n"},
+      {"path": "middleware/rate_limit.go", "content": "package middleware\n\nfunc RateLimit() func(int) bool {\n\treturn func(requestCount int) bool {\n\t\treturn requestCount < 100\n\t}\n}\n"},
+      {"path": "middleware/logging.go", "content": "package middleware\n\nfunc Logging() func(string) {\n\treturn func(msg string) {\n\t\t_ = msg\n\t}\n}\n"},
+      {"path": "middleware/recovery.go", "content": "package middleware\n\nfunc Recovery() func() {\n\treturn func() {\n\t\t// recover from panic\n\t}\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "middleware_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "middleware_report.txt", "expect": "RateLimit"},
+      {"type": "file_contains", "target": "middleware_report.txt", "expect": "Compression"}
+    ]
+  },
+  {
+    "id": "p1-031",
+    "prop": "p1",
+    "task": "给定一个 Go 项目中 3 个 struct 实现了同一个接口 Serializer，每个 struct 的 Serialize 方法返回不同格式（JSON、XML、YAML）。执行：1) 在 Serializer 接口中添加 Deserialize 方法；2) JSONSerializer 实现 Deserialize；3) XMLSerializer 实现 Deserialize 但使用不同的参数类型（错误）；4) YAMLSerializer 未实现 Deserialize；5) 修改使用 Serializer 的 Processor 调用 Deserialize。回答：哪些实现完整满足新接口？哪些存在编译错误？每个问题的具体原因是什么？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "serializer/interface.go", "content": "package serializer\n\ntype Serializer interface {\n\tSerialize(data interface{}) ([]byte, error)\n}\n"},
+      {"path": "serializer/json.go", "content": "package serializer\n\ntype JSONSerializer struct{}\n\nfunc (j *JSONSerializer) Serialize(data interface{}) ([]byte, error) {\n\treturn []byte(`{}`), nil\n}\n"},
+      {"path": "serializer/xml.go", "content": "package serializer\n\ntype XMLSerializer struct{}\n\nfunc (x *XMLSerializer) Serialize(data interface{}) ([]byte, error) {\n\treturn []byte(`<root/>`), nil\n}\n"},
+      {"path": "serializer/yaml.go", "content": "package serializer\n\ntype YAMLSerializer struct{}\n\nfunc (y *YAMLSerializer) Serialize(data interface{}) ([]byte, error) {\n\treturn []byte(`key: value`), nil\n}\n"},
+      {"path": "processor/processor.go", "content": "package processor\n\nimport \"serializer\"\n\ntype DataProcessor struct {\n\ts serializer.Serializer\n}\n\nfunc (p *DataProcessor) Process(data interface{}) error {\n\t_, err := p.s.Serialize(data)\n\treturn err\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "compliance_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "compliance_report.txt", "expect": "XMLSerializer"},
+      {"type": "file_contains", "target": "compliance_report.txt", "expect": "YAMLSerializer"}
+    ]
+  },
+  {
+    "id": "p1-032",
+    "prop": "p1",
+    "task": "给定一个包含 4 个 environment 配置的项目（dev、staging、prod、test），每个环境的配置定义了数据库连接、缓存地址、日志级别等。执行：1) 将 dev 的数据库从 sqlite 改为 postgres；2) 将 staging 的缓存从 memcached 改为 redis；3) 在 prod 中添加新的配置项 'max_connections'；4) 删除 test 环境并合并到 dev；5) 将所有环境的日志级别统一为 'warn'；6) 在 prod 中启用新的 'tracing' 功能。回答：最终存在哪些环境配置？每个环境的关键差异是什么？哪些环境被合并或删除？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "config/env/dev.yaml", "content": "database: sqlite\ncache: memcached\nlog_level: debug\nfeatures:\n  debug_mode: true\n"},
+      {"path": "config/env/staging.yaml", "content": "database: postgres\ncache: memcached\nlog_level: info\nfeatures:\n  debug_mode: false\n"},
+      {"path": "config/env/prod.yaml", "content": "database: postgres\ncache: redis\nlog_level: error\nfeatures:\n  debug_mode: false\n"},
+      {"path": "config/env/test.yaml", "content": "database: sqlite\ncache: none\nlog_level: debug\nfeatures:\n  debug_mode: true\n  test_mode: true\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "env_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "env_report.txt", "expect": "test"},
+      {"type": "file_contains", "target": "env_report.txt", "expect": "postgres"}
+    ]
+  },
+  {
+    "id": "p1-033",
+    "prop": "p1",
+    "task": "给定一个项目包含 6 个 Go 包，包之间存在复杂的 import 关系。执行一系列重构操作后，回答最终的依赖图：1) 将 pkg/shared/utils 拆分为 pkg/shared/stringutils 和 pkg/shared/mathutils；2) 更新所有引用 pkg/shared/utils 的包；3) 将 pkg/api 中对 pkg/db 的直接依赖改为通过 pkg/repository 接口；4) 删除 pkg/deprecated 包；5) 将 pkg/service 中的循环依赖（pkg/service -> pkg/api -> pkg/service）打破。回答：最终的包依赖图是什么？是否存在循环依赖？哪些包不再有依赖？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "pkg/shared/utils/utils.go", "content": "package utils\n\nfunc ToUpper(s string) string { return s }\nfunc Add(a, b int) int        { return a + b }\n"},
+      {"path": "pkg/api/handler.go", "content": "package api\n\nimport (\n\t\"pkg/shared/utils\"\n\t\"pkg/db\"\n)\n\nfunc Handle(id int) string {\n\t_ = db.Query(id)\n\treturn utils.ToUpper(\"ok\")\n}\n"},
+      {"path": "pkg/service/svc.go", "content": "package service\n\nimport (\n\t\"pkg/api\"\n\t\"pkg/shared/utils\"\n)\n\nfunc Process() string {\n\treturn utils.ToUpper(api.Handle(1))\n}\n"},
+      {"path": "pkg/db/connection.go", "content": "package db\n\nimport \"pkg/shared/utils\"\n\nfunc Query(id int) string {\n\t_ = utils.Add(id, 1)\n\treturn \"result\"\n}\n"},
+      {"path": "pkg/deprecated/old.go", "content": "package deprecated\n\nimport \"pkg/shared/utils\"\n\nfunc OldProcess() string {\n\treturn utils.ToUpper(\"old\")\n}\n"},
+      {"path": "pkg/web/router.go", "content": "package web\n\nimport (\n\t\"pkg/api\"\n\t\"pkg/service\"\n)\n\nfunc Route() {\n\t_ = api.Handle(1)\n\t_ = service.Process()\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "dep_graph.txt", "expect": ""},
+      {"type": "file_contains", "target": "dep_graph.txt", "expect": "stringutils"},
+      {"type": "file_contains", "target": "dep_graph.txt", "expect": "mathutils"},
+      {"type": "file_contains", "target": "dep_graph.txt", "expect": "deprecated"}
+    ]
+  },
+  {
+    "id": "p1-034",
+    "prop": "p1",
+    "task": "给定一个包含 5 个定时任务（cron jobs）配置的系统，每个任务有不同的 schedule、handler 和依赖。执行：1) 修改任务 A 的 schedule 从每小时改为每天凌晨 2 点；2) 将任务 B 的 handler 从 HandlerV1 改为 HandlerV2；3) 添加任务 F 依赖任务 A 和任务 C 的完成；4) 删除任务 D；5) 修改任务 E 使其在任务 C 完成后才能执行（添加依赖）；6) 将任务 C 的执行超时从 30 分钟改为 60 分钟。回答：最终存在哪些定时任务？它们的执行依赖关系是什么？哪些任务可以并行执行？",
+    "holdout": false,
+    "fixtures": [
+      {"path": "jobs/cron.yaml", "content": "jobs:\n  job_a:\n    schedule: \"0 * * * *\"\n    handler: HandlerA\n    timeout: 30m\n    depends_on: []\n  job_b:\n    schedule: \"*/15 * * * *\"\n    handler: HandlerV1\n    timeout: 10m\n    depends_on: []\n  job_c:\n    schedule: \"0 0 * * *\"\n    handler: HandlerC\n    timeout: 30m\n    depends_on: [job_a]\n  job_d:\n    schedule: \"0 6 * * *\"\n    handler: HandlerD\n    timeout: 15m\n    depends_on: []\n  job_e:\n    schedule: \"0 12 * * *\"\n    handler: HandlerE\n    timeout: 20m\n    depends_on: []\n"},
+      {"path": "jobs/handlers.go", "content": "package jobs\n\nfunc HandlerA() {}\nfunc HandlerV1() {}\nfunc HandlerV2() {}\nfunc HandlerC()  {}\nfunc HandlerD()  {}\nfunc HandlerE()  {}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "job_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "job_report.txt", "expect": "job_f"},
+      {"type": "file_contains", "target": "job_report.txt", "expect": "job_d"}
+    ]
+  },
+  {
+    "id": "p1-035",
+    "prop": "p1",
+    "task": "给定一个包含 3 个微服务的项目，每个服务有自己的 API 定义（JSON schema）、数据库模型（Go struct）和配置文件（YAML）。服务间通过 HTTP 调用通信。执行以下完整变更序列：1) 服务 A 的 User API 添加 'department' 字段；2) 服务 B 的 Order API 添加 'user_department' 字段并引用服务 A 的 department；3) 服务 A 的数据库模型添加 Department 字段；4) 服务 B 调用服务 A 的代码需要获取 department 信息；5) 服务 C 的 Report API 添加按 department 过滤的功能；6) 服务 C 调用服务 B 获取订单数据时需要传入 department 参数；7) 更新服务 A 的配置文件添加 'department_sync: true'；8) 更新服务 B 的配置文件添加 'fetch_user_dept: true'。回答：最终的跨服务数据流是什么（department 字段从哪个服务流向哪个服务）？哪些服务的配置被修改？哪些 API schema 包含 department 相关信息？",
+    "holdout": true,
+    "fixtures": [
+      {"path": "serviceA/api/user.json", "content": "{\n  \"path\": \"/api/users\",\n  \"response\": {\n    \"id\": \"integer\",\n    \"name\": \"string\",\n    \"email\": \"string\"\n  }\n}\n"},
+      {"path": "serviceA/model/user.go", "content": "package model\n\ntype User struct {\n\tID    int\n\tName  string\n\tEmail string\n}\n"},
+      {"path": "serviceA/config.yaml", "content": "service_name: user-service\nport: 8080\ndatabase: postgres\n"},
+      {"path": "serviceB/api/order.json", "content": "{\n  \"path\": \"/api/orders\",\n  \"request\": {\n    \"user_id\": \"integer\",\n    \"amount\": \"number\"\n  },\n  \"response\": {\n    \"id\": \"integer\",\n    \"status\": \"string\"\n  }\n}\n"},
+      {"path": "serviceB/model/order.go", "content": "package model\n\ntype Order struct {\n\tID     int\n\tUserID int\n\tAmount float64\n\tStatus string\n}\n"},
+      {"path": "serviceB/client/user_client.go", "content": "package client\n\ntype UserClient struct {\n\tbaseURL string\n}\n\nfunc (c *UserClient) GetUser(id int) map[string]interface{} {\n\treturn map[string]interface{}{\"id\": id}\n}\n"},
+      {"path": "serviceB/config.yaml", "content": "service_name: order-service\nport: 8081\ndatabase: postgres\nuser_service_url: http://localhost:8080\n"},
+      {"path": "serviceC/api/report.json", "content": "{\n  \"path\": \"/api/reports\",\n  \"request\": {\n    \"date_range\": \"string\"\n  },\n  \"response\": {\n    \"total\": \"number\",\n    \"count\": \"integer\"\n  }\n}\n"},
+      {"path": "serviceC/client/order_client.go", "content": "package client\n\ntype OrderClient struct {\n\tbaseURL string\n}\n\nfunc (c *OrderClient) GetOrders(userID int) []map[string]interface{} {\n\treturn nil\n}\n"},
+      {"path": "serviceC/config.yaml", "content": "service_name: report-service\nport: 8082\norder_service_url: http://localhost:8081\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "cross_service_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "cross_service_report.txt", "expect": "department"},
+      {"type": "file_contains", "target": "cross_service_report.txt", "expect": "serviceA"},
+      {"type": "file_contains", "target": "cross_service_report.txt", "expect": "serviceB"},
+      {"type": "file_contains", "target": "cross_service_report.txt", "expect": "serviceC"}
+    ]
+  }
+]

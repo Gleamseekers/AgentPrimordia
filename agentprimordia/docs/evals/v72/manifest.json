@@ -1,7 +1,28 @@
 {
   "version": "v7.2",
-  "sha256": "",
-  "files": ["p1-worldmodel.json", "p2-planning.json", "p4-intelligence.json", "p5-multimodal.json"],
-  "frozen_at": "",
-  "holdout_ratio": 0.3
+  "files": [
+    {
+      "path": "p1-worldmodel.json",
+      "hash": "4e7c618e1ac93a7028be409f7e310ddd188b33e004a2db775ea29e16d1fdd0e1",
+      "count": 35
+    },
+    {
+      "path": "p2-planning.json",
+      "hash": "0ef5a97f08deb049663ac4122378d3461006f1a89a78a2748f3ae3f01f7a00e6",
+      "count": 35
+    },
+    {
+      "path": "p4-intelligence.json",
+      "hash": "941401052f009c20e32e44aabdaeed110be90083daaa555737f98b05479abfae",
+      "count": 35
+    },
+    {
+      "path": "p5-multimodal.json",
+      "hash": "331b04c1634a79730ff5824ccf74e783c3e7314a937be028245f4142108f9797",
+      "count": 35
+    }
+  ],
+  "holdout_ratio": 0.3,
+  "sha256": "7b72bd4bb5afd4a97fdc1f8a6145e52998fe480c342920f7e2753669420d13f5",
+  "frozen_at": "2026-09-07"
 }

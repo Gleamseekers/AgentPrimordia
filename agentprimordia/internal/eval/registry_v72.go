@@ -15,13 +15,20 @@ import (
 	"runtime"
 )
 
+// V72ManifestFile 清单中的单个文件条目（含哈希与任务数）。
+type V72ManifestFile struct {
+	Path  string `json:"path"`
+	Hash  string `json:"hash"`
+	Count int    `json:"count"`
+}
+
 // V72Manifest v7.2 任务集清单（docs/evals/v72/manifest.json 的内存表示）。
 type V72Manifest struct {
-	Version      string   `json:"version"`
-	SHA256       string   `json:"sha256"`
-	Files        []string `json:"files"`
-	FrozenAt     string   `json:"frozen_at"`
-	HoldoutRatio float64  `json:"holdout_ratio"`
+	Version      string            `json:"version"`
+	SHA256       string            `json:"sha256"`
+	Files        []V72ManifestFile `json:"files"`
+	FrozenAt     string            `json:"frozen_at"`
+	HoldoutRatio float64           `json:"holdout_ratio"`
 }
 
 // V72Task v7.2 单条硬任务。
@@ -34,11 +41,14 @@ type V72Task struct {
 	Asserts  []V72Assert  `json:"asserts"`  // 验收断言
 }
 
-// V72Fixture 任务初始环境文件（路径 + 内联内容）。
-// 注意：与 registry.go 中的 Fixture 结构不同，v7.2 使用简化版。
+// V72Fixture 任务初始环境文件。
+// 文本类任务使用 Path + Content；多模态任务使用 Path + ContentType + Source + Description。
 type V72Fixture struct {
-	Path    string `json:"path"`    // 沙箱内相对路径
-	Content string `json:"content"` // 文件内容（内联）
+	Path        string `json:"path"`
+	Content     string `json:"content,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+	Source      string `json:"source,omitempty"`
+	Description string `json:"description,omitempty"`
 }
 
 // V72Assert 任务验收断言。

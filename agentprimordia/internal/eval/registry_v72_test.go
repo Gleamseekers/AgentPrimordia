@@ -25,22 +25,24 @@ func TestV72RegistryFrozen(t *testing.T) {
 
 	root := v72ModuleRoot()
 	for _, f := range m.Files {
-		abs := filepath.Join(root, "docs", "evals", "v72", f)
+		abs := filepath.Join(root, "docs", "evals", "v72", f.Path)
 		if _, err := os.Stat(abs); err != nil {
-			t.Errorf("清单登记的文件缺失: %s", f)
+			t.Errorf("清单登记的文件缺失: %s", f.Path)
 			continue
 		}
 		got, err := FileSHA256(abs)
 		if err != nil {
-			t.Errorf("计算 %s 哈希失败: %v", f, err)
+			t.Errorf("计算 %s 哈希失败: %v", f.Path, err)
 			continue
 		}
-		// 当前清单 sha256 字段为空占位；文件加入后此处需与清单记录比对
-		if m.SHA256 != "" && got != m.SHA256 {
-			t.Errorf("题面漂移 %s: 清单 %s 实际 %s", f, m.SHA256[:12], got[:12])
+		if got != f.Hash {
+			t.Errorf("题面漂移 %s: 清单 %s 实际 %s", f.Path, f.Hash[:12], got[:12])
+		}
+		if f.Count <= 0 {
+			t.Errorf("文件 %s 任务数 = %d, 应 > 0", f.Path, f.Count)
 		}
 	}
-	t.Logf("v7.2 冻结门通过：版本 %s / 登记文件 %d 个", m.Version, len(m.Files))
+	t.Logf("v7.2 冻结门通过：版本 %s / 登记文件 %d 个 / 总任务 %d", m.Version, len(m.Files), totalTasks(m))
 }
 
 // TestLoadV72TasksMissing 任务文件不存在时应返回明确错误
@@ -125,8 +127,23 @@ func TestV72LoadManifestFields(t *testing.T) {
 			t.Error("清单存在空字段")
 		}
 	}
-	if len(m.Files) != 0 {
-		t.Errorf("初始骨架 files 应为空, 得 %d", len(m.Files))
+	if len(m.Files) != 4 {
+		t.Errorf("冻结后 files 应为 4 个, 得 %d", len(m.Files))
+	}
+	if m.SHA256 == "" {
+		t.Error("冻结后 sha256 不应为空")
+	}
+	if m.FrozenAt == "" {
+		t.Error("冻结后 frozen_at 不应为空")
 	}
 	_ = fmt.Sprintf("manifest loaded: %v", m.Version)
+}
+
+// totalTasks 返回清单中所有文件的任务总数。
+func totalTasks(m *V72Manifest) int {
+	n := 0
+	for _, f := range m.Files {
+		n += f.Count
+	}
+	return n
 }

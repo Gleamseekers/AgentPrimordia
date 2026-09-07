@@ -1,0 +1,503 @@
+[
+  {
+    "id": "p5-001",
+    "prop": "p5",
+    "task": "查看 fixtures/bar-chart-sales.png 中的柱状图，提取每个产品类别的销售额数据值，保存到 output.txt，格式为 '类别: 值（万元）'，按数值从大到小排序。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "bar-chart-sales.png", "content_type": "image/png", "source": "generated", "description": "柱状图：横轴为5个产品类别（电子产品、服装、食品、家居、运动），纵轴为销售额（万元），各柱高度对应数值分别为：电子产品 850、服装 620、食品 480、家居 370、运动 290"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "电子产品"},
+      {"type": "file_contains", "target": "output.txt", "expect": "850"},
+      {"type": "file_contains", "target": "output.txt", "expect": "运动"}
+    ]
+  },
+  {
+    "id": "p5-002",
+    "prop": "p5",
+    "task": "查看 fixtures/line-chart-temperature.png 中的折线图，提取每天的最低温和最高温数据点，保存到 output.txt，格式为 '日期: 最低温°C / 最高温°C'。计算这一周的日均温差。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "line-chart-temperature.png", "content_type": "image/png", "source": "generated", "description": "双折线图：横轴为周一到周日，两条折线分别为最低温和最高温。数据：周一(12/22)、周二(14/25)、周三(11/20)、周四(13/23)、周五(15/27)、周六(10/19)、周日(16/28)"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "周一"},
+      {"type": "file_contains", "target": "output.txt", "expect": "周日"},
+      {"type": "file_contains", "target": "output.txt", "expect": "温差"}
+    ]
+  },
+  {
+    "id": "p5-003",
+    "prop": "p5",
+    "task": "查看 fixtures/pie-chart-market.png 中的饼图，识别每个扇区的公司名称和市场份额百分比，保存到 output.txt，格式为 '公司名: 份额%'。验证所有份额之和是否为 100%，在文件末尾注明验证结果。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "pie-chart-market.png", "content_type": "image/png", "source": "generated", "description": "饼图：显示6家公司的市场份额，华为 32%、苹果 25%、小米 15%、OPPO 12%、vivo 10%、其他 6%。每个扇区有图例标注"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "华为"},
+      {"type": "file_contains", "target": "output.txt", "expect": "100%"}
+    ]
+  },
+  {
+    "id": "p5-004",
+    "prop": "p5",
+    "task": "查看 fixtures/stacked-bar-revenue.png 中的堆叠柱状图，提取每个地区在 Q1-Q4 的收入数据，保存到 output.txt，格式为 '地区: Q1=x Q2=x Q3=x Q4=x 年度合计=x'（单位：百万元）。找出年度收入最高的地区。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "stacked-bar-revenue.png", "content_type": "image/png", "source": "generated", "description": "堆叠柱状图：横轴为4个地区（华东、华南、华北、西部），每个柱子分为4段代表Q1-Q4。华东(120/135/150/180)、华南(90/110/125/140)、华北(80/95/100/120)、西部(60/75/85/95)"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "华东"},
+      {"type": "file_contains", "target": "output.txt", "expect": "年度合计"},
+      {"type": "file_contains", "target": "output.txt", "expect": "585"}
+    ]
+  },
+  {
+    "id": "p5-005",
+    "prop": "p5",
+    "task": "查看 fixtures/multi-line-products.png 中的多折线图，提取三款产品在 1-6 月的月度销量数据，保存到 output.txt。计算哪款产品的月均增长率最高，在文件中说明。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "multi-line-products.png", "content_type": "image/png", "source": "generated", "description": "多折线图（3条线）：横轴1-6月，纵轴销量（件）。产品A(100/120/135/160/180/210)、产品B(200/195/190/185/180/175)、产品C(80/110/150/200/260/330)。图例标注三款产品名"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "产品"},
+      {"type": "file_contains", "target": "output.txt", "expect": "增长率"}
+    ]
+  },
+  {
+    "id": "p5-006",
+    "prop": "p5",
+    "task": "查看 fixtures/scatter-plot.png 中的散点图，提取所有数据点的 (X, Y) 坐标值，保存到 output.txt，每行格式为 'x=值, y=值'。根据数据点分布判断两组变量之间是正相关、负相关还是无相关，在文件末尾写明结论。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "scatter-plot.png", "content_type": "image/png", "source": "generated", "description": "散点图：横轴为身高(cm) 150-190，纵轴为体重(kg) 45-90。约20个数据点呈正相关分布，坐标包括(155,50)(160,55)(165,60)(168,65)(170,68)(172,70)(175,72)(178,76)(180,78)(182,80)(185,83)(188,87)等"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "x="},
+      {"type": "file_contains", "target": "output.txt", "expect": "正相关"}
+    ]
+  },
+  {
+    "id": "p5-007",
+    "prop": "p5",
+    "task": "查看 fixtures/dual-axis-chart.png 中的双轴图，左轴为温度（°C），右轴为降水量（mm），横轴为月份（1-12月）。提取每个月的温度和降水量数据，保存到 output.txt，格式为 '月份: 温度=xx°C, 降水=xxmm'。找出温度最高和降水最多的月份是否相同。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "dual-axis-chart.png", "content_type": "image/png", "source": "generated", "description": "双轴图：柱状图为降水量（右轴mm），折线为温度（左轴°C）。1月(2/20)、2月(5/30)、3月(10/45)、4月(16/60)、5月(22/80)、6月(26/150)、7月(30/200)、8月(29/180)、9月(24/100)、10月(18/60)、11月(10/35)、12月(4/22)"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "温度"},
+      {"type": "file_contains", "target": "output.txt", "expect": "降水"},
+      {"type": "file_contains", "target": "output.txt", "expect": "7月"}
+    ]
+  },
+  {
+    "id": "p5-008",
+    "prop": "p5",
+    "task": "查看 fixtures/horizontal-bar-survey.png 中的水平条形图，提取员工满意度调查各维度的评分（1-5分），保存到 output.txt，格式为 '维度: 评分'。按评分从高到低排序，找出最需改进的维度。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "horizontal-bar-survey.png", "content_type": "image/png", "source": "generated", "description": "水平条形图：纵轴为6个满意度维度（薪酬福利、工作环境、团队协作、职业发展、管理层沟通、工作生活平衡），横轴为评分1-5。数值：薪酬3.2、工作环境4.1、团队协作4.5、职业发展3.0、管理层沟通3.5、工作生活平衡3.8"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "团队协作"},
+      {"type": "file_contains", "target": "output.txt", "expect": "最需改进"}
+    ]
+  },
+  {
+    "id": "p5-009",
+    "prop": "p5",
+    "task": "查看 fixtures/waterfall-chart.png 中的瀑布图，提取从年初股价到年末股价的各项增减变动（利润增长、分红减少、增发减少、市场波动等），保存到 output.txt，格式为 '项目: +/−值（元）'，并验证初始值加减各项是否等于最终值。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "waterfall-chart.png", "content_type": "image/png", "source": "generated", "description": "瀑布图：起点年初股价50元。依次：利润增长+12、分红−5、增发−3、市场波动+8、汇率影响−2、其他+1，终点年末股价61元。每个中间步骤以悬浮柱显示"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "利润增长"},
+      {"type": "file_contains", "target": "output.txt", "expect": "61"}
+    ]
+  },
+  {
+    "id": "p5-010",
+    "prop": "p5",
+    "task": "查看 fixtures/histogram-scores.png 中的直方图，提取各分数段的学生人数分布，保存到 output.txt，格式为 '分数段: 人数'。计算总学生数和中位数所在分数段。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "histogram-scores.png", "content_type": "image/png", "source": "generated", "description": "直方图：横轴为分数段（0-59/60-69/70-79/80-89/90-100），纵轴为学生人数。各段人数：0-59: 5人、60-69: 12人、70-79: 25人、80-89: 18人、90-100: 10人，总计70人"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "70-79"},
+      {"type": "file_contains", "target": "output.txt", "expect": "70"},
+      {"type": "file_contains", "target": "output.txt", "expect": "中位数"}
+    ]
+  },
+  {
+    "id": "p5-011",
+    "prop": "p5",
+    "task": "查看 fixtures/radar-chart.png 中的雷达图，提取两位候选人（A 和 B）在 6 个能力维度上的评分（0-100），保存到 output.txt，格式为 '维度: 候选人A=x, 候选人B=x'。计算谁的总分更高，各维度中谁有明显短板。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "radar-chart.png", "content_type": "image/png", "source": "generated", "description": "雷达图（六边形）：6个维度分别为沟通能力、技术能力、领导力、创新力、执行力、学习力。候选人A(80/90/65/75/85/80)=总分475、候选人B(70/75/85/90/70/75)=总分465。两个不同颜色区域"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "沟通能力"},
+      {"type": "file_contains", "target": "output.txt", "expect": "总分"}
+    ]
+  },
+  {
+    "id": "p5-012",
+    "prop": "p5",
+    "task": "查看 fixtures/grouped-bar-quarterly.png 中的分组柱状图，提取三个线上渠道（APP、小程序、网站）在 Q1-Q4 的订单量，保存到 output.txt，格式为 '渠道: Q1=x Q2=x Q3=x Q4=x'。找出增长最快的渠道并计算其 Q4 相对 Q1 的增长率。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "grouped-bar-quarterly.png", "content_type": "image/png", "source": "generated", "description": "分组柱状图：横轴Q1-Q4，每季度3根柱子代表3个渠道。APP(5000/5500/6200/7000)、小程序(3000/4200/5800/8000)、网站(4000/3800/3500/3200)。图例标注各渠道"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "小程序"},
+      {"type": "file_contains", "target": "output.txt", "expect": "增长率"}
+    ]
+  },
+  {
+    "id": "p5-013",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-dashboard.png 中的数据看板截图，找出布局中存在的对齐问题（至少 3 处），将问题列表保存到 output.txt，每行格式为 '问题N: 位置描述 → 问题说明'。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-dashboard.png", "content_type": "image/png", "source": "generated", "description": "数据看板 UI 截图：包含顶部导航栏、3个KPI卡片（但中间卡片比其他两个窄2px）、左侧图表区与右侧数据列表区上下边距不一致（左侧上边距16px、右侧上边距20px）、底部表格的列与上方卡片左边未对齐（偏差4px）"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "问题1"},
+      {"type": "file_contains", "target": "output.txt", "expect": "对齐"}
+    ]
+  },
+  {
+    "id": "p5-014",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-settings.png 中的设置页面截图，列出页面中所有 UI 组件的层级结构，保存到 output.txt，格式为缩进列表（如 '页面 > 头部 > 标题文字'）。至少包含 4 层嵌套。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-settings.png", "content_type": "image/png", "source": "generated", "description": "设置页面 UI 截图：页面结构为 导航栏(返回按钮+标题\"设置\") > 内容区 > 分组1\"通用设置\"(开关-深色模式、开关-通知、选择器-语言) > 分组2\"账号\"(头像、昵称输入框、邮箱输入框) > 底部按钮\"保存更改\""}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "设置"},
+      {"type": "file_contains", "target": "output.txt", "expect": ">"}
+    ]
+  },
+  {
+    "id": "p5-015",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-mobile-form.png 中的移动端表单截图，识别所有可点击的交互元素（按钮、输入框、链接、开关等），保存到 output.txt，格式为 '元素类型: 标签/文字 → 位置（上/中/下）'。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "ui-mobile-form.png", "content_type": "image/png", "source": "generated", "description": "移动端注册表单截图：顶部导航（返回箭头+标题\"注册\"）、姓名输入框、手机号输入框、验证码输入框+获取验证码按钮（红色）、密码输入框+显示/隐藏密码图标、服务协议勾选框+可点击链接\"用户协议\"、底部注册按钮（蓝色满宽）"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "输入框"},
+      {"type": "file_contains", "target": "output.txt", "expect": "按钮"}
+    ]
+  },
+  {
+    "id": "p5-016",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-responsive-compare.png 中的响应式对比截图（同一页面在手机和桌面两种断点下的渲染效果），列出至少 4 处布局差异，保存到 output.txt，格式为 '差异N: 手机端表现 → 桌面端表现'。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-responsive-compare.png", "content_type": "image/png", "source": "generated", "description": "响应式对比截图：左侧为手机端（375px）、右侧为桌面端（1440px）。差异包括：①导航栏手机端为汉堡菜单、桌面端为水平菜单；②卡片区手机端单列、桌面端3列网格；③图片手机端全宽、桌面端固定宽度600px；④页脚手机端纵向堆叠、桌面端横向4列"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "差异1"},
+      {"type": "file_contains", "target": "output.txt", "expect": "手机"}
+    ]
+  },
+  {
+    "id": "p5-017",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-nav-menu.png 中的导航菜单截图（展开状态），提取完整的菜单项层级结构，保存到 output.txt，包含所有一级菜单和二级子菜单项，格式为缩进列表。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-nav-menu.png", "content_type": "image/png", "source": "generated", "description": "展开状态的网站主导航截图：一级菜单5项（首页、产品中心、解决方案、客户案例、关于我们）。其中\"产品中心\"下拉展开含3个二级项（云服务器、对象存储、CDN加速）；\"解决方案\"下拉展开含4个二级项（电商方案、金融方案、教育平台、游戏部署）"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "产品中心"},
+      {"type": "file_contains", "target": "output.txt", "expect": "云服务器"}
+    ]
+  },
+  {
+    "id": "p5-018",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-color-contrast.png 中的 UI 截图，检查是否存在颜色对比度不足的可读性问题（文字与背景颜色相近的区域），保存到 output.txt，列出所有可疑区域及涉及的元素。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "ui-color-contrast.png", "content_type": "image/png", "source": "generated", "description": "UI 截图存在对比度问题：①禁用按钮文字#999在#eee背景上（对比度约1.6:1）；②次要说明文字#aaa在白色#fff背景上（对比度约2.4:1）；③输入框placeholder文字#ccc在#f5f5f5背景上（对比度约1.4:1）；正常区域如主文字#333在白色上（对比度12.6:1）"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "对比度"},
+      {"type": "file_contains", "target": "output.txt", "expect": "按钮"}
+    ]
+  },
+  {
+    "id": "p5-019",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-data-table.png 中的数据表格截图，提取完整的表格结构（表头、所有数据行、合并单元格），保存到 output.txt，用制表符分隔列，保持表格原始结构。注意合并单元格的行跨和列跨关系。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-data-table.png", "content_type": "image/png", "source": "generated", "description": "数据表格截图：表头为部门/姓名/职位/入职日期/薪资。共6行数据，其中\"技术部\"合并了2行（张三-前端工程师-2023-03-15-18k、李四-后端工程师-2023-05-20-22k），\"市场部\"合并了3行，第3个市场岗位为空（显示\"—\"）"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "技术部"},
+      {"type": "file_contains", "target": "output.txt", "expect": "张三"}
+    ]
+  },
+  {
+    "id": "p5-020",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-modal-dialog.png 中的模态对话框截图，描述对话框的完整交互模式，包括触发方式暗示、遮罩层、焦点状态、按钮组布局、关闭方式，保存到 output.txt。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-modal-dialog.png", "content_type": "image/png", "source": "generated", "description": "模态对话框截图：半透明黑色遮罩覆盖背景页面，居中白色弹窗，标题\"确认删除\"，提示文字\"确定要删除项目'测试数据'吗？此操作不可恢复。\"，底部右对齐两个按钮：灰色\"取消\"（次要）+红色\"删除\"（主要危险操作）。右上角有×关闭按钮。焦点在\"取消\"按钮上"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "删除"},
+      {"type": "file_contains", "target": "output.txt", "expect": "遮罩"}
+    ]
+  },
+  {
+    "id": "p5-021",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-card-layout.png 中的卡片布局截图，找出卡片之间的间距不一致问题，保存到 output.txt，列出每个间距差异：'差异N: 位置描述 — 实测间距约为Xpx，应为Ypx'。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "ui-card-layout.png", "content_type": "image/png", "source": "generated", "description": "卡片布局截图：3×2网格共6张卡片。问题：第1行卡片间距为24px，第2行卡片间距为20px（不一致）；左侧列与容器左边距为32px，右侧列与容器右边距为28px（不对称）；第1行与第2行间距为16px但卡片内部padding为20px"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "间距"},
+      {"type": "file_contains", "target": "output.txt", "expect": "差异"}
+    ]
+  },
+  {
+    "id": "p5-022",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-mobile-tabbar.png 中的移动端底部导航栏截图，识别每个 Tab 的图标和文字标签，判断当前选中的 Tab，分析选中态与未选中态的视觉差异，保存到 output.txt。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-mobile-tabbar.png", "content_type": "image/png", "source": "generated", "description": "移动端底部 Tab 栏截图：5个 Tab（首页/发现/消息/购物车/我的）。当前选中\"首页\"Tab，选中态图标为实心蓝色+文字蓝色，未选中态为空心灰色图标+灰色文字。消息 Tab 图标右上角有红色数字气泡\"3\""}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "首页"},
+      {"type": "file_contains", "target": "output.txt", "expect": "选中"}
+    ]
+  },
+  {
+    "id": "p5-023",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-icon-buttons.png 中的工具栏截图，识别每个图标按钮的功能（根据图标形状和上下文），对有 Tooltip 的按钮记录 Tooltip 文字，保存到 output.txt，格式为 '按钮N: 图标描述 → 功能/Tooltip'。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ui-icon-buttons.png", "content_type": "image/png", "source": "generated", "description": "富文本编辑器工具栏截图：从左到右依次为加粗(B)、斜体(I)、下划线(U)、删除线(S)、有序列表、无序列表、居左对齐、居中、居右、插入链接（链接图标）、插入图片（山形图标）、代码块、撤销（左弯箭头）、重做（右弯箭头）。其中加粗按钮有凹陷按压态，插入链接按钮有悬浮Tooltip\"插入链接 Ctrl+K\""}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "加粗"},
+      {"type": "file_contains", "target": "output.txt", "expect": "Tooltip"}
+    ]
+  },
+  {
+    "id": "p5-024",
+    "prop": "p5",
+    "task": "查看 fixtures/ui-dark-mode.png 中的深色模式设置页截图，对比深色和浅色两种主题下各 UI 元素的颜色变化，保存到 output.txt，列出至少 5 个元素在两种模式下的背景色和前景色差异。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "ui-dark-mode.png", "content_type": "image/png", "source": "generated", "description": "深色/浅色模式对比截图：上下分屏显示同一设置页面。浅色模式（上）：白色#fff背景、#333文字、#1890ff链接色、#f5f5f5卡片背景、#e8e8e8分割线。深色模式（下）：#1a1a1a背景、#e0e0e0文字、#40a9ff链接色、#2a2a2a卡片背景、#444分割线"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "深色"},
+      {"type": "file_contains", "target": "output.txt", "expect": "背景"}
+    ]
+  },
+  {
+    "id": "p5-025",
+    "prop": "p5",
+    "task": "查看 fixtures/handwritten-notes.png 中的手写会议笔记图片，提取所有待办事项（通常用星号或圆点标记），保存到 output.txt，格式为 '待办N: [责任人] 任务内容 — 截止日期'。如果有无法辨识的字迹，用 [?] 标注。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "handwritten-notes.png", "content_type": "image/png", "source": "generated", "description": "手写会议笔记图片：蓝色圆珠笔手写在白色方格纸上。内容包括会议日期（2026.9.10）和4条待办：★ 张三 完成需求文档 — 9/15、★ 李四 接口联调 — 9/20、● 王五 性能测试报告 — 9/18、★ 赵六 上线部署方案 — 9/25。字迹略潦但可辨"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "张三"},
+      {"type": "file_contains", "target": "output.txt", "expect": "待办"}
+    ]
+  },
+  {
+    "id": "p5-026",
+    "prop": "p5",
+    "task": "查看 fixtures/receipt.png 中的购物小票图片，提取所有商品名称、单价和数量，计算商品总价。将明细和汇总保存到 output.txt，格式为每行 '商品名 × 数量 = 小计'，末尾包含合计金额和找零信息。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "receipt.png", "content_type": "image/png", "source": "generated", "description": "购物小票照片（热敏纸打印，略褶皱）：超市名\"万家超市\"，日期2026-09-12 14:23。商品：农夫山泉×2 ¥3.5/瓶、乐事薯片×1 ¥8.9、蒙牛纯牛奶×3 ¥5.5/盒、光明面包×1 ¥12.0、双汇火腿×2 ¥4.5/包。合计¥53.8，微信支付，收银员编号003"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "农夫山泉"},
+      {"type": "file_contains", "target": "output.txt", "expect": "合计"}
+    ]
+  },
+  {
+    "id": "p5-027",
+    "prop": "p5",
+    "task": "查看 fixtures/handwritten-schedule.png 中的手写课程表图片，提取完整的课程安排，保存到 output.txt，格式为 '星期X 第N节: 课程名（教室）'。注意横向表头（节次）和纵向表头（星期）的对应关系。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "handwritten-schedule.png", "content_type": "image/png", "source": "generated", "description": "手写课程表图片：彩色马克笔手绘在A4纸上。横轴节次1-5，纵轴周一到周五。关键课程：周一第1节高等数学(A301)、周一第3节大学英语(B205)、周二第2节线性代数(A102)、周三第1节大学物理(C401)、周三第4节体育(操场)、周四第3节数据结构(A305)、周五第2节概率论(A201)"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "高等数学"},
+      {"type": "file_contains", "target": "output.txt", "expect": "星期一"}
+    ]
+  },
+  {
+    "id": "p5-028",
+    "prop": "p5",
+    "task": "查看 fixtures/periodic-table.png 中的元素周期表局部截图，提取图中可见元素的原子序数、元素符号、元素名称和原子量，保存到 output.txt，格式为 '原子序数 符号 名称 原子量'。找出图中原子量最大的元素。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "periodic-table.png", "content_type": "image/png", "source": "generated", "description": "元素周期表第3-4周期截图（K到Kr区域）：显示18个元素的局部，每个格子含原子序数、符号、名称、原子量。包括：19 K 钾 39.10、20 Ca 钙 40.08、…、26 Fe 铁 55.85、…、29 Cu 铜 63.55、…、36 Kr 氪 83.80"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "Fe"},
+      {"type": "file_contains", "target": "output.txt", "expect": "Kr"}
+    ]
+  },
+  {
+    "id": "p5-029",
+    "prop": "p5",
+    "task": "查看 fixtures/business-cards.png 中的两张名片照片，提取每张名片上所有联系信息（姓名、职位、公司、电话、邮箱、地址），保存到 output.txt，每张名片一个段落，字段逐行列出。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "business-cards.png", "content_type": "image/png", "source": "generated", "description": "两张名片照片并排：名片1（白底蓝框）：张伟 技术总监 | 星云科技有限公司 | 电话: 138-0000-1234 | 邮箱: zhangwei@xingyun.com | 地址: 北京市海淀区中关村大街1号。名片2（灰底金边）：陈敏 市场经理 | 蓝海集团 | 电话: 021-5678-9012 | 邮箱: chenmin@lanhai.cn | 地址: 上海市浦东新区陆家嘴环路100号"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "张伟"},
+      {"type": "file_contains", "target": "output.txt", "expect": "陈敏"},
+      {"type": "file_contains", "target": "output.txt", "expect": "邮箱"}
+    ]
+  },
+  {
+    "id": "p5-030",
+    "prop": "p5",
+    "task": "查看 fixtures/whiteboard-arch.png 中的白板架构图照片，提取其中的模块和箭头连接关系，转换为 Mermaid 格式的流程图代码，保存到 output.txt。注意区分实线箭头（数据流）和虚线箭头（控制流）。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "whiteboard-arch.png", "content_type": "image/png", "source": "generated", "description": "白板架构图照片：马克笔手绘，略有透视变形。模块：用户端→API网关→认证服务（虚线返回鉴权结果）、API网关→业务服务→数据库（实线双向）、业务服务→缓存（Redis）、业务服务→消息队列→异步 worker→数据库。底部有\"v2.0\"标注"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "graph"},
+      {"type": "file_contains", "target": "output.txt", "expect": "API网关"}
+    ]
+  },
+  {
+    "id": "p5-031",
+    "prop": "p5",
+    "task": "查看 fixtures/annual-report.png 中的年报数据页截图，提取关键财务指标（营收、净利润、毛利率、净利率、ROE）的年度数值和同比增长率，保存到 output.txt，格式为 '指标: 本年值 / 上年值 / 同比变化%'。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "annual-report.png", "content_type": "image/png", "source": "generated", "description": "年报数据页截图（印刷体）：表格形式展示。营收 2025年 ¥850亿 / 2024年 ¥720亿 / +18.1%；净利润 ¥128亿 / ¥98亿 / +30.6%；毛利率 42.5% / 39.8% / +2.7pp；净利率 15.1% / 13.6% / +1.5pp；ROE 22.3% / 19.8% / +2.5pp"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "营收"},
+      {"type": "file_contains", "target": "output.txt", "expect": "18.1%"},
+      {"type": "file_contains", "target": "output.txt", "expect": "ROE"}
+    ]
+  },
+  {
+    "id": "p5-032",
+    "prop": "p5",
+    "task": "查看 fixtures/transcript.png 中的成绩单照片，提取所有课程的成绩，计算加权平均分（学分×成绩之和÷总学分），判断是否达到毕业要求（平均分≥70），保存到 output.txt。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "transcript.png", "content_type": "image/png", "source": "generated", "description": "大学成绩单照片（打印体+公章）：学生李明 计算机专业。课程及成绩：高等数学(5学分)85、大学英语(3学分)78、数据结构(4学分)92、操作系统(3学分)88、计算机网络(3学分)76、数据库原理(4学分)90、软件工程(3学分)82、毕业设计(8学分)91。总学分33"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "数据结构"},
+      {"type": "file_contains", "target": "output.txt", "expect": "加权平均"},
+      {"type": "file_contains", "target": "output.txt", "expect": "毕业"}
+    ]
+  },
+  {
+    "id": "p5-033",
+    "prop": "p5",
+    "task": "查看 fixtures/recipe-handwriting.png 中的手写菜谱图片，提取所有食材及其用量，按照使用顺序排列，保存到 output.txt，格式为 '食材名: 用量（处理要求）'。如果有步骤编号也一并提取。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "recipe-handwriting.png", "content_type": "image/png", "source": "generated", "description": "手写菜谱图片：标题\"红烧肉\"。食材：五花肉500g（切块）、生姜3片（切片）、大葱2段（切段）、八角2个、桂皮1小块、冰糖30g、生抽2勺、老抽1勺、料酒2勺、清水适量。步骤：①五花肉焯水去血沫 ②锅中放冰糖炒糖色 ③放入肉块翻炒上色 ④加调料和清水大火烧开转小火炖1小时"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "五花肉"},
+      {"type": "file_contains", "target": "output.txt", "expect": "500g"},
+      {"type": "file_contains", "target": "output.txt", "expect": "步骤"}
+    ]
+  },
+  {
+    "id": "p5-034",
+    "prop": "p5",
+    "task": "查看 fixtures/brainstorm-stickynotes.png 中的便利贴头脑风暴照片（多色便利贴贴在白板上），将所有便利贴的内容按颜色分类提取，保存到 output.txt，格式为 '颜色: 内容列表'。统计每种颜色的便利贴数量。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "brainstorm-stickynotes.png", "content_type": "image/png", "source": "generated", "description": "白板上的便利贴头脑风暴照片：黄色便利贴4张（\"用户增长\"、\"SEO优化\"、\"社交媒体推广\"、\"KOL合作\"）、蓝色便利贴3张（\"产品改版\"、\"UI重构\"、\"性能优化\"）、粉色便利贴3张（\"客服系统升级\"、\"用户反馈收集\"、\"NPS提升\"）、绿色便利贴2张（\"数据埋点\"、\"AB测试平台\"）"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "黄色"},
+      {"type": "file_contains", "target": "output.txt", "expect": "用户增长"},
+      {"type": "file_contains", "target": "output.txt", "expect": "绿色"}
+    ]
+  },
+  {
+    "id": "p5-035",
+    "prop": "p5",
+    "task": "查看 fixtures/postal-envelope.png 中的信封照片，提取寄件人和收件人的完整地址信息（姓名、省市区、街道、门牌号、邮编），保存到 output.txt，格式分别为 '寄件人: 姓名 地址 邮编' 和 '收件人: 姓名 地址 邮编'。注意手写地址的字迹辨识。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "postal-envelope.png", "content_type": "image/png", "source": "generated", "description": "信封照片（标准7号信封）：左上角寄件人区域手写：刘洋 广东省深圳市南山区科技园南路88号 518000。中间收件人区域打印体：王先生 江苏省南京市鼓楼区中山北路256号 210009。右上角邮票为6元面值，邮戳日期2026-09-08"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "output.txt", "expect": ""},
+      {"type": "file_contains", "target": "output.txt", "expect": "寄件人"},
+      {"type": "file_contains", "target": "output.txt", "expect": "收件人"},
+      {"type": "file_contains", "target": "output.txt", "expect": "518000"}
+    ]
+  }
+]

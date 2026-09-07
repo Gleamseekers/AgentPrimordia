@@ -1,7 +1,7 @@
 {
   "version": "v7.2",
   "sha256": "",
-  "files": [],
+  "files": ["p1-worldmodel.json", "p2-planning.json"],
   "frozen_at": "",
   "holdout_ratio": 0.3
 }

@@ -1,0 +1,561 @@
+[
+  {
+    "id": "p2-001",
+    "prop": "p2",
+    "task": "构建一个数据处理 pipeline：1) 从 fixtures/data.csv 读取原始数据 2) 清洗空值和异常值（value 为负数或空的行） 3) 按 category 分组聚合，计算每组的 count 和 sum(value) 4) 生成汇总报告到 report.txt 5) 验证报告中的总行数与清洗后数据行数一致。如果步骤 3 失败（分组字段不存在），回退到按行号分组。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "data.csv", "content": "id,name,category,value\n1,A,cat1,10\n2,B,cat2,20\n3,C,,30\n4,D,cat1,40\n5,E,cat2,\n6,F,cat3,60\n7,G,cat1,-5\n8,H,cat3,70\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "report.txt", "expect": ""},
+      {"type": "file_contains", "target": "report.txt", "expect": "cat1"},
+      {"type": "file_contains", "target": "report.txt", "expect": "total"}
+    ]
+  },
+  {
+    "id": "p2-002",
+    "prop": "p2",
+    "task": "构建一个日志分析 pipeline：1) 从 app.log 读取原始日志 2) 过滤出 ERROR 和 WARN 级别日志 3) 按错误类型分组统计 4) 按时间戳排序 5) 生成 summary.json 包含每种错误类型的计数和时间范围 6) 验证 JSON 格式正确性。如果日志格式不符合预期（缺少时间戳），回退到按行号顺序。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "app.log", "content": "2026-01-01T10:00:00 INFO 服务启动\n2026-01-01T10:01:00 ERROR DB连接失败: timeout\n2026-01-01T10:02:00 WARN 内存使用率超过80%\n2026-01-01T10:03:00 ERROR DB连接失败: refused\n2026-01-01T10:04:00 INFO 请求处理正常\n2026-01-01T10:05:00 ERROR 文件不存在: /tmp/data\n2026-01-01T10:06:00 WARN CPU使用率超过90%\n2026-01-01T10:07:00 ERROR DB连接失败: timeout\n2026-01-01T10:08:00 INFO 健康检查通过\n2026-01-01T10:09:00 ERROR 权限不足: /etc/config\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "summary.json", "expect": ""},
+      {"type": "file_contains", "target": "summary.json", "expect": "DB连接失败"},
+      {"type": "file_contains", "target": "summary.json", "expect": "count"}
+    ]
+  },
+  {
+    "id": "p2-003",
+    "prop": "p2",
+    "task": "构建一个用户数据迁移 pipeline：1) 从 users.json 读取用户列表 2) 验证每个用户的 email 格式有效性 3) 将无效 email 的用户提取到 invalid_users.json 4) 对有效用户按 domain 分组 5) 生成 migration_report.txt 包含迁移统计 6) 验证有效用户数 + 无效用户数 = 原始总数。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "users.json", "content": "[\n  {\"id\": 1, \"name\": \"Alice\", \"email\": \"alice@example.com\"},\n  {\"id\": 2, \"name\": \"Bob\", \"email\": \"bob@gmail.com\"},\n  {\"id\": 3, \"name\": \"Charlie\", \"email\": \"invalid-email\"},\n  {\"id\": 4, \"name\": \"Diana\", \"email\": \"diana@example.com\"},\n  {\"id\": 5, \"name\": \"Eve\", \"email\": \"\"},\n  {\"id\": 6, \"name\": \"Frank\", \"email\": \"frank@gmail.com\"},\n  {\"id\": 7, \"name\": \"Grace\", \"email\": \"grace@company.org\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "invalid_users.json", "expect": ""},
+      {"type": "file_exists", "target": "migration_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "migration_report.txt", "expect": "5"},
+      {"type": "file_contains", "target": "invalid_users.json", "expect": "Charlie"}
+    ]
+  },
+  {
+    "id": "p2-004",
+    "prop": "p2",
+    "task": "构建一个多格式配置文件合并 pipeline：1) 读取 config_a.json、config_b.yaml、config_c.env 三种不同格式的配置文件 2) 将所有配置统一转换为 JSON 格式 3) 检测并标记冲突的键（同名不同值） 4) 按优先级（env > yaml > json）合并配置 5) 生成 merged.json 和 conflicts.txt 6) 验证合并后的键数量 >= 每个源文件的键数量。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "config_a.json", "content": "{\n  \"database\": {\"host\": \"localhost\", \"port\": 5432},\n  \"app\": {\"name\": \"myapp\", \"debug\": false},\n  \"cache\": {\"ttl\": 300}\n}"},
+      {"path": "config_b.yaml", "content": "database:\n  host: prod-db.example.com\n  port: 5432\n  ssl: true\napp:\n  name: myapp\n  log_level: info\ncache:\n  backend: redis\n"},
+      {"path": "config_c.env", "content": "DATABASE_HOST=override-db\nAPP_DEBUG=true\nCACHE_TTL=600\nNEW_FEATURE=enabled\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "merged.json", "expect": ""},
+      {"type": "file_exists", "target": "conflicts.txt", "expect": ""},
+      {"type": "file_contains", "target": "conflicts.txt", "expect": "conflict"},
+      {"type": "file_contains", "target": "merged.json", "expect": "database"}
+    ]
+  },
+  {
+    "id": "p2-005",
+    "prop": "p2",
+    "task": "构建一个代码质量分析 pipeline：1) 扫描 src/ 目录下所有 .go 文件 2) 统计每个文件的函数数量、行数、import 数量 3) 识别超过 50 行的大函数 4) 检测未使用的 import 5) 生成 quality_report.txt 包含文件评分 6) 生成 improvements.json 列出改进建议。如果某个文件无法解析，跳过并记录到 errors.txt。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "src/main.go", "content": "package main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tfmt.Println(\"hello\")\n\tos.Exit(0)\n}\n\nfunc helper() {\n\tfmt.Println(\"helper\")\n}\n"},
+      {"path": "src/handler.go", "content": "package main\n\nimport (\n\t\"net/http\"\n\t\"fmt\"\n)\n\nfunc HandleRequest(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintf(w, \"ok\")\n}\n\nfunc HandlePost(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintf(w, \"posted\")\n}\n\nfunc HandleDelete(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintf(w, \"deleted\")\n}\n"},
+      {"path": "src/utils.go", "content": "package main\n\nimport \"strings\"\n\nfunc FormatName(s string) string {\n\treturn strings.TrimSpace(s)\n}\n\nfunc ValidateEmail(s string) bool {\n\treturn strings.Contains(s, \"@\")\n}\n\nfunc ParseCSV(line string) []string {\n\treturn strings.Split(line, \",\")\n}\n\nfunc JoinPath(parts ...string) string {\n\treturn strings.Join(parts, \"/\")\n}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "quality_report.txt", "expect": ""},
+      {"type": "file_exists", "target": "improvements.json", "expect": ""},
+      {"type": "file_contains", "target": "quality_report.txt", "expect": "main.go"},
+      {"type": "file_contains", "target": "improvements.json", "expect": "函数"}
+    ]
+  },
+  {
+    "id": "p2-006",
+    "prop": "p2",
+    "task": "构建一个销售数据处理 pipeline：1) 从 sales_q1.csv 和 sales_q2.csv 读取两个季度的数据 2) 清洗重复订单（相同 order_id 视为重复，保留第二条） 3) 计算每个 product 的总销售额 4) 按销售额降序排序 5) 生成 top_products.txt 列出前 3 名 6) 生成 sales_summary.json 包含季度对比。如果某个 CSV 缺少必要列，回退到按文件名区分季度。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "sales_q1.csv", "content": "order_id,product,amount,quantity\n1001,Widget A,29.99,5\n1002,Widget B,49.99,3\n1003,Widget C,9.99,10\n1004,Widget A,29.99,2\n1005,Widget D,99.99,1\n"},
+      {"path": "sales_q2.csv", "content": "order_id,product,amount,quantity\n2001,Widget A,29.99,8\n2002,Widget B,49.99,6\n2003,Widget E,19.99,4\n2004,Widget C,9.99,15\n1001,Widget A,29.99,5\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "top_products.txt", "expect": ""},
+      {"type": "file_exists", "target": "sales_summary.json", "expect": ""},
+      {"type": "file_contains", "target": "top_products.txt", "expect": "Widget"},
+      {"type": "file_contains", "target": "sales_summary.json", "expect": "q1"}
+    ]
+  },
+  {
+    "id": "p2-007",
+    "prop": "p2",
+    "task": "构建一个 API 响应数据 ETL pipeline：1) 从 api_responses.json 读取多个 API 的响应数据 2) 验证每个响应的 status_code 是否为 200 3) 提取成功响应中的 data 字段 4) 将不同 API 的数据统一为标准格式 {source, timestamp, payload} 5) 去重（基于 payload 的 hash） 6) 生成 unified_data.json 和 error_report.txt。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "api_responses.json", "content": "[\n  {\"api\": \"user-service\", \"status_code\": 200, \"data\": {\"users\": [{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]}, \"timestamp\": \"2026-01-01T10:00:00Z\"},\n  {\"api\": \"order-service\", \"status_code\": 500, \"data\": null, \"timestamp\": \"2026-01-01T10:01:00Z\", \"error\": \"internal server error\"},\n  {\"api\": \"product-service\", \"status_code\": 200, \"data\": {\"products\": [{\"id\": 101, \"name\": \"Widget\"}]}, \"timestamp\": \"2026-01-01T10:02:00Z\"},\n  {\"api\": \"user-service\", \"status_code\": 200, \"data\": {\"users\": [{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]}, \"timestamp\": \"2026-01-01T10:00:00Z\"},\n  {\"api\": \"payment-service\", \"status_code\": 403, \"data\": null, \"timestamp\": \"2026-01-01T10:03:00Z\", \"error\": \"forbidden\"},\n  {\"api\": \"analytics-service\", \"status_code\": 200, \"data\": {\"metrics\": [{\"name\": \"page_views\", \"value\": 1500}]}, \"timestamp\": \"2026-01-01T10:04:00Z\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "unified_data.json", "expect": ""},
+      {"type": "file_exists", "target": "error_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "error_report.txt", "expect": "500"},
+      {"type": "file_contains", "target": "unified_data.json", "expect": "user-service"}
+    ]
+  },
+  {
+    "id": "p2-008",
+    "prop": "p2",
+    "task": "构建一个文本语料库处理 pipeline：1) 从 documents/ 目录读取 5 个文本文件 2) 对每个文档进行词频统计 3) 计算 TF-IDF（文档频率基于全部文档） 4) 提取每个文档的 top 5 关键词 5) 生成 keywords_index.json 包含所有文档的关键词索引 6) 生成 similarity_matrix.txt 显示文档间的余弦相似度。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "documents/doc1.txt", "content": "机器学习是人工智能的一个子领域。机器学习算法通过数据训练模型，从而进行预测和决策。深度学习是机器学习中的一种方法。"},
+      {"path": "documents/doc2.txt", "content": "深度学习使用神经网络来处理复杂的模式识别任务。卷积神经网络常用于图像处理。循环神经网络适合处理序列数据。"},
+      {"path": "documents/doc3.txt", "content": "自然语言处理是人工智能的重要应用方向。文本分类、情感分析和机器翻译都属于自然语言处理的任务。大语言模型推动了自然语言处理的发展。"},
+      {"path": "documents/doc4.txt", "content": "数据工程涉及数据的采集、存储、转换和分析。数据管道是数据工程的核心组件。实时数据处理是现代数据工程的重要需求。"},
+      {"path": "documents/doc5.txt", "content": "人工智能正在改变各行各业。医疗、金融、制造业都在应用人工智能技术。机器学习是人工智能最活跃的研究方向之一。"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "keywords_index.json", "expect": ""},
+      {"type": "file_exists", "target": "similarity_matrix.txt", "expect": ""},
+      {"type": "file_contains", "target": "keywords_index.json", "expect": "doc1"},
+      {"type": "file_contains", "target": "similarity_matrix.txt", "expect": "doc"}
+    ]
+  },
+  {
+    "id": "p2-009",
+    "prop": "p2",
+    "task": "构建一个依赖关系分析 pipeline：1) 从 go.mod 和 imports.json 读取项目的模块依赖 2) 解析每个 .go 文件的 import 声明 3) 构建模块依赖图 4) 检测循环依赖 5) 按依赖深度排序模块 6) 生成 dependency_graph.txt（邻接表格式）和 circular_deps.txt（如果有循环依赖）。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "imports.json", "content": "{\n  \"files\": {\n    \"agent/loop.go\": [\"llm\", \"memory\", \"tools\"],\n    \"agent/planning.go\": [\"llm\", \"agent\"],\n    \"llm/openai.go\": [\"config\"],\n    \"memory/sqlite.go\": [\"config\"],\n    \"tools/executor.go\": [\"config\", \"security\"],\n    \"config/loader.go\": [],\n    \"security/acl.go\": [\"config\"],\n    \"pool/manager.go\": [\"agent\", \"tools\", \"memory\"]\n  }\n}"},
+      {"path": "modules.txt", "content": "agent\nllm\nmemory\ntools\nconfig\nsecurity\npool\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "dependency_graph.txt", "expect": ""},
+      {"type": "file_exists", "target": "circular_deps.txt", "expect": ""},
+      {"type": "file_contains", "target": "dependency_graph.txt", "expect": "agent"},
+      {"type": "file_contains", "target": "circular_deps.txt", "expect": "循环"}
+    ]
+  },
+  {
+    "id": "p2-010",
+    "prop": "p2",
+    "task": "构建一个测试覆盖率分析 pipeline：1) 从 coverage_report.json 读取各模块的覆盖率数据 2) 识别覆盖率低于 60% 的模块 3) 按包路径聚合覆盖率 4) 计算整体覆盖率 5) 与上次报告 coverage_baseline.json 对比，标记退步的模块 6) 生成 coverage_trend.txt 和 low_coverage_modules.json。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "coverage_report.json", "content": "{\n  \"modules\": [\n    {\"package\": \"internal/agent\", \"statements\": 450, \"covered\": 360},\n    {\"package\": \"internal/llm\", \"statements\": 200, \"covered\": 150},\n    {\"package\": \"internal/memory\", \"statements\": 300, \"covered\": 165},\n    {\"package\": \"internal/tools\", \"statements\": 500, \"covered\": 425},\n    {\"package\": \"internal/pool\", \"statements\": 180, \"covered\": 90},\n    {\"package\": \"internal/config\", \"statements\": 120, \"covered\": 108},\n    {\"package\": \"internal/security\", \"statements\": 250, \"covered\": 100}\n  ]\n}"},
+      {"path": "coverage_baseline.json", "content": "{\n  \"modules\": [\n    {\"package\": \"internal/agent\", \"coverage\": 78},\n    {\"package\": \"internal/llm\", \"coverage\": 80},\n    {\"package\": \"internal/memory\", \"coverage\": 60},\n    {\"package\": \"internal/tools\", \"coverage\": 82},\n    {\"package\": \"internal/pool\", \"coverage\": 55},\n    {\"package\": \"internal/config\", \"coverage\": 92},\n    {\"package\": \"internal/security\", \"coverage\": 45}\n  ]\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "coverage_trend.txt", "expect": ""},
+      {"type": "file_exists", "target": "low_coverage_modules.json", "expect": ""},
+      {"type": "file_contains", "target": "coverage_trend.txt", "expect": "internal/"},
+      {"type": "file_contains", "target": "low_coverage_modules.json", "expect": "pool"}
+    ]
+  },
+  {
+    "id": "p2-011",
+    "prop": "p2",
+    "task": "构建一个数据库 Schema 迁移验证 pipeline：1) 从 schema_current.sql 读取当前数据库结构 2) 从 schema_target.sql 读取目标结构 3) 解析表定义、字段、索引 4) 计算 diff（新增表、删除表、修改字段、新增索引） 5) 生成迁移脚本 migration.sql 6) 生成迁移计划 migration_plan.txt。如果字段类型不兼容（如 TEXT 变 INT），标记为需要数据转换。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "schema_current.sql", "content": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  email TEXT UNIQUE,\n  created_at TEXT\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER REFERENCES users(id),\n  amount REAL,\n  status TEXT DEFAULT 'pending'\n);\n\nCREATE TABLE legacy_logs (\n  id INTEGER PRIMARY KEY,\n  message TEXT,\n  level TEXT\n);\n"},
+      {"path": "schema_target.sql", "content": "CREATE TABLE users (\n  id INTEGER PRIMARY KEY,\n  name TEXT NOT NULL,\n  email TEXT UNIQUE,\n  phone TEXT,\n  created_at TEXT,\n  updated_at TEXT\n);\n\nCREATE TABLE orders (\n  id INTEGER PRIMARY KEY,\n  user_id INTEGER REFERENCES users(id),\n  amount INTEGER,\n  status TEXT DEFAULT 'pending',\n  shipping_address TEXT\n);\n\nCREATE TABLE audit_log (\n  id INTEGER PRIMARY KEY,\n  action TEXT,\n  user_id INTEGER,\n  created_at TEXT\n);\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "migration.sql", "expect": ""},
+      {"type": "file_exists", "target": "migration_plan.txt", "expect": ""},
+      {"type": "file_contains", "target": "migration.sql", "expect": "ALTER"},
+      {"type": "file_contains", "target": "migration_plan.txt", "expect": "legacy_logs"}
+    ]
+  },
+  {
+    "id": "p2-012",
+    "prop": "p2",
+    "task": "构建一个多语言项目本地化 pipeline：1) 从 locales/en.json 读取英文翻译基准 2) 读取 locales/zh.json 和 locales/ja.json 的目标翻译 3) 检测缺失的翻译键 4) 检测空翻译值 5) 计算每个语言的翻译完成率 6) 生成 localization_report.txt 包含每种语言的缺失键列表和完成率。如果有超过 20% 的键缺失，额外生成 fallback_needed.txt 列出需要优先翻译的模块。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "locales/en.json", "content": "{\n  \"common\": {\n    \"save\": \"Save\",\n    \"cancel\": \"Cancel\",\n    \"delete\": \"Delete\",\n    \"edit\": \"Edit\",\n    \"search\": \"Search\"\n  },\n  \"auth\": {\n    \"login\": \"Log in\",\n    \"logout\": \"Log out\",\n    \"signup\": \"Sign up\",\n    \"forgot_password\": \"Forgot password?\"\n  },\n  \"dashboard\": {\n    \"welcome\": \"Welcome\",\n    \"overview\": \"Overview\",\n    \"settings\": \"Settings\",\n    \"notifications\": \"Notifications\"\n  }\n}"},
+      {"path": "locales/zh.json", "content": "{\n  \"common\": {\n    \"save\": \"保存\",\n    \"cancel\": \"取消\",\n    \"delete\": \"删除\",\n    \"edit\": \"编辑\",\n    \"search\": \"搜索\"\n  },\n  \"auth\": {\n    \"login\": \"登录\",\n    \"logout\": \"登出\",\n    \"signup\": \"\",\n    \"forgot_password\": \"忘记密码？\"\n  },\n  \"dashboard\": {\n    \"welcome\": \"欢迎\",\n    \"overview\": \"概览\"\n  }\n}"},
+      {"path": "locales/ja.json", "content": "{\n  \"common\": {\n    \"save\": \"保存\",\n    \"cancel\": \"キャンセル\",\n    \"delete\": \"削除\"\n  },\n  \"auth\": {\n    \"login\": \"ログイン\",\n    \"logout\": \"ログアウト\"\n  }\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "localization_report.txt", "expect": ""},
+      {"type": "file_exists", "target": "fallback_needed.txt", "expect": ""},
+      {"type": "file_contains", "target": "localization_report.txt", "expect": "ja"},
+      {"type": "file_contains", "target": "fallback_needed.txt", "expect": "dashboard"}
+    ]
+  },
+  {
+    "id": "p2-013",
+    "prop": "p2",
+    "task": "根据 inventory.json 中的库存数据执行智能补货决策：1) 读取当前库存和销售速率 2) 如果某商品库存 < 安全库存（7天用量），生成紧急补货单到 urgent_orders.txt 3) 如果库存 >= 安全库存但 < 14天用量，生成常规补货建议到 regular_orders.txt 4) 如果库存充足，记录到 stock_adequate.txt 5) 生成总决策报告 decisions.json 包含每个商品的决策路径。如果销售速率为 0（滞销品），标记为「暂停补货」并记录原因。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "inventory.json", "content": "[\n  {\"sku\": \"SKU001\", \"name\": \"Widget Alpha\", \"stock\": 50, \"daily_sales\": 15},\n  {\"sku\": \"SKU002\", \"name\": \"Widget Beta\", \"stock\": 200, \"daily_sales\": 8},\n  {\"sku\": \"SKU003\", \"name\": \"Widget Gamma\", \"stock\": 10, \"daily_sales\": 20},\n  {\"sku\": \"SKU004\", \"name\": \"Widget Delta\", \"stock\": 500, \"daily_sales\": 0},\n  {\"sku\": \"SKU005\", \"name\": \"Widget Epsilon\", \"stock\": 80, \"daily_sales\": 10},\n  {\"sku\": \"SKU006\", \"name\": \"Widget Zeta\", \"stock\": 5, \"daily_sales\": 25}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "urgent_orders.txt", "expect": ""},
+      {"type": "file_exists", "target": "regular_orders.txt", "expect": ""},
+      {"type": "file_exists", "target": "decisions.json", "expect": ""},
+      {"type": "file_contains", "target": "urgent_orders.txt", "expect": "SKU003"},
+      {"type": "file_contains", "target": "decisions.json", "expect": "暂停补货"}
+    ]
+  },
+  {
+    "id": "p2-014",
+    "prop": "p2",
+    "task": "根据 server_metrics.json 中的服务器指标执行自动扩缩容决策：1) 读取 CPU、内存、磁盘使用率 2) 如果 CPU > 80% 且内存 > 70%，决策为「扩容」并计算需要增加的实例数 3) 如果 CPU < 20% 且内存 < 30% 持续标记，决策为「缩容」 4) 如果磁盘 > 90%，决策为「磁盘告警」并建议清理策略 5) 生成 scaling_plan.json 和 alerts.txt。如果同时触发扩容和磁盘告警，优先生成磁盘处理方案。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "server_metrics.json", "content": "[\n  {\"server\": \"web-01\", \"cpu_pct\": 85, \"memory_pct\": 72, \"disk_pct\": 45, \"requests_per_sec\": 1200},\n  {\"server\": \"web-02\", \"cpu_pct\": 92, \"memory_pct\": 88, \"disk_pct\": 60, \"requests_per_sec\": 1500},\n  {\"server\": \"db-01\", \"cpu_pct\": 15, \"memory_pct\": 25, \"disk_pct\": 92, \"requests_per_sec\": 300},\n  {\"server\": \"cache-01\", \"cpu_pct\": 10, \"memory_pct\": 20, \"disk_pct\": 15, \"requests_per_sec\": 5000},\n  {\"server\": \"worker-01\", \"cpu_pct\": 78, \"memory_pct\": 65, \"disk_pct\": 30, \"requests_per_sec\": 0}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "scaling_plan.json", "expect": ""},
+      {"type": "file_exists", "target": "alerts.txt", "expect": ""},
+      {"type": "file_contains", "target": "scaling_plan.json", "expect": "扩容"},
+      {"type": "file_contains", "target": "alerts.txt", "expect": "db-01"}
+    ]
+  },
+  {
+    "id": "p2-015",
+    "prop": "p2",
+    "task": "根据 ci_results.json 中的 CI 构建结果执行发布决策：1) 读取每个构建阶段的通过/失败状态 2) 如果所有阶段通过，生成发布批准文件 release_approved.txt 3) 如果测试阶段失败，生成回滚建议 rollback_plan.txt 4) 如果 lint 阶段失败但测试通过，生成修复建议 fix_suggestions.txt 5) 生成发布决策矩阵 release_decision.json。如果构建阶段本身失败，不进入任何后续分支，直接生成紧急报告。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "ci_results.json", "content": "{\n  \"build_id\": \"build-20260101-042\",\n  \"stages\": {\n    \"compile\": {\"status\": \"passed\", \"duration_sec\": 120},\n    \"lint\": {\"status\": \"failed\", \"duration_sec\": 30, \"errors\": [\"unused import in handler.go:5\", \"missing error check in service.go:42\"]},\n    \"unit_test\": {\"status\": \"passed\", \"duration_sec\": 180, \"coverage\": 78.5},\n    \"integration_test\": {\"status\": \"passed\", \"duration_sec\": 300},\n    \"security_scan\": {\"status\": \"passed\", \"duration_sec\": 60, \"vulnerabilities\": 0}\n  },\n  \"branch\": \"release/v2.1.0\",\n  \"commit\": \"abc123def\"\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "release_decision.json", "expect": ""},
+      {"type": "file_exists", "target": "fix_suggestions.txt", "expect": ""},
+      {"type": "file_not_exists", "target": "release_approved.txt", "expect": ""},
+      {"type": "file_contains", "target": "fix_suggestions.txt", "expect": "unused import"}
+    ]
+  },
+  {
+    "id": "p2-016",
+    "prop": "p2",
+    "task": "根据用户行为数据 user_events.json 执行用户分群策略：1) 读取用户事件日志 2) 统计每个用户的登录次数、购买次数、活跃天数 3) 如果购买次数 >= 3，分类为「高价值用户」 4) 如果登录次数 >= 5 但购买为 0，分类为「潜力用户」 5) 如果最后活跃 > 30天前，分类为「流失风险」 6) 生成 segments.json 和 segment_report.txt。如果一个用户同时满足多个条件，按优先级（高价值 > 潜力 > 流失）分配。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "user_events.json", "content": "[\n  {\"user_id\": \"U001\", \"event\": \"login\", \"timestamp\": \"2026-09-01T10:00:00Z\"},\n  {\"user_id\": \"U001\", \"event\": \"purchase\", \"timestamp\": \"2026-09-01T10:05:00Z\"},\n  {\"user_id\": \"U001\", \"event\": \"purchase\", \"timestamp\": \"2026-09-05T14:00:00Z\"},\n  {\"user_id\": \"U001\", \"event\": \"purchase\", \"timestamp\": \"2026-09-10T09:00:00Z\"},\n  {\"user_id\": \"U002\", \"event\": \"login\", \"timestamp\": \"2026-09-01T08:00:00Z\"},\n  {\"user_id\": \"U002\", \"event\": \"login\", \"timestamp\": \"2026-09-03T08:00:00Z\"},\n  {\"user_id\": \"U002\", \"event\": \"login\", \"timestamp\": \"2026-09-05T08:00:00Z\"},\n  {\"user_id\": \"U002\", \"event\": \"login\", \"timestamp\": \"2026-09-07T08:00:00Z\"},\n  {\"user_id\": \"U002\", \"event\": \"login\", \"timestamp\": \"2026-09-09T08:00:00Z\"},\n  {\"user_id\": \"U003\", \"event\": \"login\", \"timestamp\": \"2026-07-01T12:00:00Z\"},\n  {\"user_id\": \"U003\", \"event\": \"purchase\", \"timestamp\": \"2026-07-01T12:30:00Z\"},\n  {\"user_id\": \"U004\", \"event\": \"login\", \"timestamp\": \"2026-09-10T16:00:00Z\"},\n  {\"user_id\": \"U004\", \"event\": \"purchase\", \"timestamp\": \"2026-09-10T16:10:00Z\"},\n  {\"user_id\": \"U005\", \"event\": \"login\", \"timestamp\": \"2026-06-15T09:00:00Z\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "segments.json", "expect": ""},
+      {"type": "file_exists", "target": "segment_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "segments.json", "expect": "高价值用户"},
+      {"type": "file_contains", "target": "segments.json", "expect": "U002"}
+    ]
+  },
+  {
+    "id": "p2-017",
+    "prop": "p2",
+    "task": "根据 API 请求日志 traffic.json 执行流量路由决策：1) 读取每个 API 端点的请求量和错误率 2) 如果错误率 > 5%，该端点标记为「熔断」并路由到降级服务 3) 如果请求量 > 1000/min 且错误率 < 1%，标记为「正常高流量」 4) 如果请求量 < 10/min，标记为「低流量，可合并」 5) 生成 routing_rules.json 和 circuit_breaker.txt。如果超过半数端点触发熔断，生成全局告警 global_alert.txt。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "traffic.json", "content": "[\n  {\"endpoint\": \"/api/users\", \"requests_per_min\": 1500, \"error_rate_pct\": 0.3, \"avg_latency_ms\": 45},\n  {\"endpoint\": \"/api/orders\", \"requests_per_min\": 800, \"error_rate_pct\": 12.5, \"avg_latency_ms\": 230},\n  {\"endpoint\": \"/api/products\", \"requests_per_min\": 2000, \"error_rate_pct\": 0.1, \"avg_latency_ms\": 30},\n  {\"endpoint\": \"/api/analytics\", \"requests_per_min\": 5, \"error_rate_pct\": 0.0, \"avg_latency_ms\": 500},\n  {\"endpoint\": \"/api/payments\", \"requests_per_min\": 300, \"error_rate_pct\": 8.2, \"avg_latency_ms\": 180},\n  {\"endpoint\": \"/api/notifications\", \"requests_per_min\": 3, \"error_rate_pct\": 0.0, \"avg_latency_ms\": 15},\n  {\"endpoint\": \"/api/search\", \"requests_per_min\": 1200, \"error_rate_pct\": 0.5, \"avg_latency_ms\": 85}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "routing_rules.json", "expect": ""},
+      {"type": "file_exists", "target": "circuit_breaker.txt", "expect": ""},
+      {"type": "file_contains", "target": "circuit_breaker.txt", "expect": "/api/orders"},
+      {"type": "file_contains", "target": "routing_rules.json", "expect": "熔断"}
+    ]
+  },
+  {
+    "id": "p2-018",
+    "prop": "p2",
+    "task": "根据代码审查数据 code_reviews.json 执行审查优先级分配：1) 读取待审查的 PR 列表 2) 根据变更文件数、影响模块数、是否有安全相关修改计算优先级分数 3) 分数 > 80 为「紧急审查」，分配给高级工程师 4) 分数 40-80 为「常规审查」，分配给团队成员 5) 分数 < 40 为「低优先级」，可自动合并 6) 生成 review_assignments.json 和 priority_report.txt。如果某 PR 包含安全相关修改（文件路径含 security/auth/crypto），无论如何优先级不低于 70。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "code_reviews.json", "content": "[\n  {\"pr_id\": \"PR-101\", \"title\": \"重构用户认证模块\", \"changed_files\": 12, \"affected_modules\": [\"auth\", \"api\", \"middleware\"], \"has_security_changes\": true, \"author\": \"dev-a\"},\n  {\"pr_id\": \"PR-102\", \"title\": \"修复文档 typo\", \"changed_files\": 1, \"affected_modules\": [\"docs\"], \"has_security_changes\": false, \"author\": \"dev-b\"},\n  {\"pr_id\": \"PR-103\", \"title\": \"新增支付功能\", \"changed_files\": 8, \"affected_modules\": [\"payment\", \"api\", \"db\"], \"has_security_changes\": true, \"author\": \"dev-c\"},\n  {\"pr_id\": \"PR-104\", \"title\": \"优化日志格式\", \"changed_files\": 3, \"affected_modules\": [\"logging\"], \"has_security_changes\": false, \"author\": \"dev-a\"},\n  {\"pr_id\": \"PR-105\", \"title\": \"更新依赖版本\", \"changed_files\": 2, \"affected_modules\": [\"deps\"], \"has_security_changes\": false, \"author\": \"dev-d\"},\n  {\"pr_id\": \"PR-106\", \"title\": \"修复加密密钥轮换\", \"changed_files\": 5, \"affected_modules\": [\"crypto\", \"config\"], \"has_security_changes\": true, \"author\": \"dev-b\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "review_assignments.json", "expect": ""},
+      {"type": "file_exists", "target": "priority_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "review_assignments.json", "expect": "PR-101"},
+      {"type": "file_contains", "target": "priority_report.txt", "expect": "紧急"}
+    ]
+  },
+  {
+    "id": "p2-019",
+    "prop": "p2",
+    "task": "根据数据库查询性能数据 query_stats.json 执行查询优化决策：1) 读取每条查询的执行时间、调用次数、扫描行数 2) 如果平均执行时间 > 1000ms，分类为「慢查询，需优化」 3) 如果调用次数 > 10000 且执行时间 > 100ms，分类为「高频慢查询，紧急优化」 4) 如果扫描行数/返回行数 > 100，分类为「索引缺失」 5) 生成 optimization_plan.txt 和 index_recommendations.json。如果某查询同时满足多个条件，选择最严重的分类。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "query_stats.json", "content": "[\n  {\"query_id\": \"Q001\", \"sql\": \"SELECT * FROM orders WHERE user_id = ?\", \"avg_time_ms\": 1500, \"calls_per_hour\": 5000, \"rows_scanned\": 500000, \"rows_returned\": 50},\n  {\"query_id\": \"Q002\", \"sql\": \"SELECT id, name FROM users WHERE id = ?\", \"avg_time_ms\": 2, \"calls_per_hour\": 20000, \"rows_scanned\": 1, \"rows_returned\": 1},\n  {\"query_id\": \"Q003\", \"sql\": \"SELECT * FROM products WHERE category = ? AND price > ?\", \"avg_time_ms\": 800, \"calls_per_hour\": 3000, \"rows_scanned\": 100000, \"rows_returned\": 200},\n  {\"query_id\": \"Q004\", \"sql\": \"SELECT COUNT(*) FROM logs WHERE created_at > ?\", \"avg_time_ms\": 3000, \"calls_per_hour\": 100, \"rows_scanned\": 10000000, \"rows_returned\": 1},\n  {\"query_id\": \"Q005\", \"sql\": \"SELECT * FROM sessions WHERE token = ?\", \"avg_time_ms\": 5, \"calls_per_hour\": 50000, \"rows_scanned\": 1, \"rows_returned\": 1}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "optimization_plan.txt", "expect": ""},
+      {"type": "file_exists", "target": "index_recommendations.json", "expect": ""},
+      {"type": "file_contains", "target": "optimization_plan.txt", "expect": "Q001"},
+      {"type": "file_contains", "target": "index_recommendations.json", "expect": "索引"}
+    ]
+  },
+  {
+    "id": "p2-020",
+    "prop": "p2",
+    "task": "根据微服务依赖拓扑 service_topology.json 和数据流 data_flows.json 执行服务治理决策：1) 读取服务依赖关系和数据流 2) 计算每个服务的扇入（被依赖数）和扇出（依赖数） 3) 如果扇入 > 3 且无负载均衡标记，建议添加负载均衡 4) 如果扇出 > 5，建议拆分为聚合层 5) 如果存在单点故障（某服务被所有其他服务依赖），标记为关键服务 6) 生成 governance_report.txt 和 risk_assessment.json。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "service_topology.json", "content": "{\n  \"services\": [\"api-gateway\", \"user-service\", \"order-service\", \"payment-service\", \"notification-service\", \"inventory-service\", \"analytics-service\"],\n  \"dependencies\": [\n    [\"api-gateway\", \"user-service\"],\n    [\"api-gateway\", \"order-service\"],\n    [\"api-gateway\", \"payment-service\"],\n    [\"order-service\", \"user-service\"],\n    [\"order-service\", \"inventory-service\"],\n    [\"order-service\", \"payment-service\"],\n    [\"order-service\", \"notification-service\"],\n    [\"payment-service\", \"user-service\"],\n    [\"payment-service\", \"notification-service\"],\n    [\"analytics-service\", \"user-service\"],\n    [\"analytics-service\", \"order-service\"]\n  ]\n}"},
+      {"path": "data_flows.json", "content": "[\n  {\"from\": \"api-gateway\", \"to\": \"user-service\", \"protocol\": \"gRPC\", \"has_load_balancer\": true},\n  {\"from\": \"api-gateway\", \"to\": \"order-service\", \"protocol\": \"gRPC\", \"has_load_balancer\": false},\n  {\"from\": \"order-service\", \"to\": \"user-service\", \"protocol\": \"HTTP\", \"has_load_balancer\": false},\n  {\"from\": \"order-service\", \"to\": \"payment-service\", \"protocol\": \"gRPC\", \"has_load_balancer\": true},\n  {\"from\": \"payment-service\", \"to\": \"user-service\", \"protocol\": \"HTTP\", \"has_load_balancer\": false}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "governance_report.txt", "expect": ""},
+      {"type": "file_exists", "target": "risk_assessment.json", "expect": ""},
+      {"type": "file_contains", "target": "governance_report.txt", "expect": "user-service"},
+      {"type": "file_contains", "target": "risk_assessment.json", "expect": "单点"}
+    ]
+  },
+  {
+    "id": "p2-021",
+    "prop": "p2",
+    "task": "根据团队技能矩阵 team_skills.json 和项目需求 project_requirements.json 执行任务分配决策：1) 读取团队成员的技能评分（0-10） 2) 读取项目任务的需求技能 3) 为每个任务匹配技能最合适的成员（技能分 >= 7） 4) 如果某任务无人满足要求（所有相关技能 < 7），标记为「需外包」或「需培训」 5) 检查成员负载均衡，单人最多分配 3 个任务 6) 生成 task_assignments.json 和 skill_gaps.txt。如果关键任务（priority=high）无人胜任，额外生成 escalation.txt。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "team_skills.json", "content": "[\n  {\"name\": \"张三\", \"skills\": {\"go\": 9, \"docker\": 7, \"kubernetes\": 5, \"react\": 3}},\n  {\"name\": \"李四\", \"skills\": {\"go\": 6, \"docker\": 8, \"kubernetes\": 8, \"react\": 4}},\n  {\"name\": \"王五\", \"skills\": {\"go\": 4, \"docker\": 5, \"kubernetes\": 3, \"react\": 9}},\n  {\"name\": \"赵六\", \"skills\": {\"go\": 7, \"docker\": 6, \"kubernetes\": 4, \"react\": 7}}\n]"},
+      {"path": "project_requirements.json", "content": "[\n  {\"task\": \"T1: 后端API开发\", \"required_skills\": [\"go\", \"docker\"], \"priority\": \"high\"},\n  {\"task\": \"T2: K8s部署配置\", \"required_skills\": [\"kubernetes\", \"docker\"], \"priority\": \"high\"},\n  {\"task\": \"T3: 前端Dashboard\", \"required_skills\": [\"react\"], \"priority\": \"medium\"},\n  {\"task\": \"T4: 全栈开发\", \"required_skills\": [\"go\", \"react\"], \"priority\": \"medium\"},\n  {\"task\": \"T5: 机器学习Pipeline\", \"required_skills\": [\"python\", \"tensorflow\"], \"priority\": \"high\"},\n  {\"task\": \"T6: 性能测试\", \"required_skills\": [\"go\", \"docker\"], \"priority\": \"low\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "task_assignments.json", "expect": ""},
+      {"type": "file_exists", "target": "skill_gaps.txt", "expect": ""},
+      {"type": "file_exists", "target": "escalation.txt", "expect": ""},
+      {"type": "file_contains", "target": "task_assignments.json", "expect": "T1"},
+      {"type": "file_contains", "target": "escalation.txt", "expect": "T5"}
+    ]
+  },
+  {
+    "id": "p2-022",
+    "prop": "p2",
+    "task": "根据功能开关配置 feature_flags.json 和用户分群 user_segments.json 执行灰度发布决策：1) 读取各功能开关状态和目标用户群 2) 如果功能开关 enabled=true 且 target=beta，仅向 beta 用户群开放 3) 如果 enabled=true 且 target=all，向所有用户开放 4) 如果 enabled=false 但 rollout_pct > 0，按百分比随机分配（此处用固定规则：user_id hash % 100 < rollout_pct） 5) 生成 rollout_plan.json 和 user_access_matrix.txt。如果新功能影响支付流程（tag 含 payment），必须有回滚方案。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "feature_flags.json", "content": "[\n  {\"flag\": \"new_dashboard\", \"enabled\": true, \"target\": \"beta\", \"tags\": [\"ui\", \"dashboard\"]},\n  {\"flag\": \"dark_mode\", \"enabled\": true, \"target\": \"all\", \"tags\": [\"ui\"]},\n  {\"flag\": \"new_checkout\", \"enabled\": false, \"rollout_pct\": 10, \"tags\": [\"payment\", \"checkout\"]},\n  {\"flag\": \"ai_recommendations\", \"enabled\": false, \"rollout_pct\": 5, \"tags\": [\"ai\", \"personalization\"]},\n  {\"flag\": \"batch_export\", \"enabled\": true, \"target\": \"internal\", \"tags\": [\"admin\"]}\n]"},
+      {"path": "user_segments.json", "content": "[\n  {\"user_id\": \"U001\", \"segment\": \"beta\", \"tier\": \"premium\"},\n  {\"user_id\": \"U002\", \"segment\": \"internal\", \"tier\": \"staff\"},\n  {\"user_id\": \"U003\", \"segment\": \"ga\", \"tier\": \"free\"},\n  {\"user_id\": \"U004\", \"segment\": \"beta\", \"tier\": \"premium\"},\n  {\"user_id\": \"U005\", \"segment\": \"ga\", \"tier\": \"premium\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "rollout_plan.json", "expect": ""},
+      {"type": "file_exists", "target": "user_access_matrix.txt", "expect": ""},
+      {"type": "file_contains", "target": "rollout_plan.json", "expect": "new_checkout"},
+      {"type": "file_contains", "target": "rollout_plan.json", "expect": "回滚"}
+    ]
+  },
+  {
+    "id": "p2-023",
+    "prop": "p2",
+    "task": "根据成本分析数据 cloud_costs.json 执行成本优化决策：1) 读取各云资源的月度费用 2) 如果某资源利用率 < 20% 且月费 > $100，建议降配或释放 3) 如果使用 reserved instance 可节省 > 30%，建议转换计费方式 4) 如果某服务月费同比增长 > 50%，标记为「费用异常」 5) 生成 cost_optimization_plan.txt 和 savings_estimate.json。如果总费用超过预算 budget_limit.json，按优先级排序削减建议。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "cloud_costs.json", "content": "[\n  {\"resource\": \"prod-db-cluster\", \"type\": \"database\", \"monthly_cost_usd\": 2500, \"utilization_pct\": 75, \"last_month_cost\": 2400, \"reserved\": false},\n  {\"resource\": \"staging-env\", \"type\": \"compute\", \"monthly_cost_usd\": 800, \"utilization_pct\": 12, \"last_month_cost\": 800, \"reserved\": false},\n  {\"resource\": \"cdn-traffic\", \"type\": \"network\", \"monthly_cost_usd\": 1200, \"utilization_pct\": 60, \"last_month_cost\": 700, \"reserved\": false},\n  {\"resource\": \"dev-cluster\", \"type\": \"compute\", \"monthly_cost_usd\": 450, \"utilization_pct\": 8, \"last_month_cost\": 450, \"reserved\": false},\n  {\"resource\": \"prod-compute\", \"type\": \"compute\", \"monthly_cost_usd\": 3000, \"utilization_pct\": 85, \"last_month_cost\": 2900, \"reserved\": false},\n  {\"resource\": \"backup-storage\", \"type\": \"storage\", \"monthly_cost_usd\": 600, \"utilization_pct\": 40, \"last_month_cost\": 600, \"reserved\": false}\n]"},
+      {"path": "budget_limit.json", "content": "{\"monthly_budget_usd\": 8000, \"quarterly_budget_usd\": 24000}\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "cost_optimization_plan.txt", "expect": ""},
+      {"type": "file_exists", "target": "savings_estimate.json", "expect": ""},
+      {"type": "file_contains", "target": "cost_optimization_plan.txt", "expect": "staging-env"},
+      {"type": "file_contains", "target": "savings_estimate.json", "expect": "节省"}
+    ]
+  },
+  {
+    "id": "p2-024",
+    "prop": "p2",
+    "task": "根据代码变更影响分析 change_impact.json 执行发布策略决策：1) 读取变更文件列表及其影响的模块 2) 根据变更涉及的模块数量判断影响范围（< 3 模块为小变更，3-5 为中变更，> 5 为大变更） 3) 小变更可直接部署到生产 4) 中变更需要先部署到 staging 验证 5) 大变更需要灰度发布（1% -> 10% -> 50% -> 100%） 6) 生成 release_strategy.txt 和 rollback_checklist.json。如果变更涉及数据库 schema（type=schema_change），无论范围大小都需要数据迁移验证步骤。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "change_impact.json", "content": "{\n  \"changes\": [\n    {\"file\": \"internal/agent/loop.go\", \"type\": \"code_change\", \"modules_affected\": [\"agent\", \"pool\", \"tools\"]},\n    {\"file\": \"internal/llm/openai.go\", \"type\": \"code_change\", \"modules_affected\": [\"llm\", \"agent\"]},\n    {\"file\": \"internal/memory/schema.go\", \"type\": \"schema_change\", \"modules_affected\": [\"memory\", \"agent\", \"persist\", \"tools\", \"pool\", \"admin\"]},\n    {\"file\": \"internal/config/defaults.go\", \"type\": \"code_change\", \"modules_affected\": [\"config\"]},\n    {\"file\": \"internal/security/acl.go\", \"type\": \"code_change\", \"modules_affected\": [\"security\", \"agent\", \"admin\"]},\n    {\"file\": \"internal/tools/builtin/shell.go\", \"type\": \"code_change\", \"modules_affected\": [\"tools\", \"security\"]},\n    {\"file\": \"internal/persist/checkpoint.go\", \"type\": \"code_change\", \"modules_affected\": [\"persist\", \"agent\"]}\n  ]\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "release_strategy.txt", "expect": ""},
+      {"type": "file_exists", "target": "rollback_checklist.json", "expect": ""},
+      {"type": "file_contains", "target": "release_strategy.txt", "expect": "灰度"},
+      {"type": "file_contains", "target": "rollback_checklist.json", "expect": "schema"}
+    ]
+  },
+  {
+    "id": "p2-025",
+    "prop": "p2",
+    "task": "执行一个多步文件整理任务，其中某些步骤可能失败：1) 扫描 raw_data/ 目录下所有 CSV 文件 2) 对每个文件验证表头是否包含必要列（id, name, value） 3) 对验证通过的文件计算统计摘要 4) 将验证失败的文件移动到 rejected/ 目录（创建目录并复制文件内容） 5) 将统计结果合并到 final_report.txt。如果 raw_data/ 目录为空或不存在，生成错误报告 error_log.txt 说明原因。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "raw_data/sales.csv", "content": "id,name,value\n1,Product A,100\n2,Product B,200\n3,Product C,150\n"},
+      {"path": "raw_data/inventory.csv", "content": "sku,item,quantity\nS001,Widget,50\nS002,Gadget,30\n"},
+      {"path": "raw_data/users.csv", "content": "id,name,value\n1,Alice,90\n2,Bob,85\n3,Charlie,78\n4,Diana,92\n"},
+      {"path": "raw_data/corrupted.csv", "content": "this is not a valid csv\nrandom data here\nno structure at all\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "final_report.txt", "expect": ""},
+      {"type": "file_exists", "target": "rejected/inventory.csv", "expect": ""},
+      {"type": "file_exists", "target": "rejected/corrupted.csv", "expect": ""},
+      {"type": "file_contains", "target": "final_report.txt", "expect": "sales.csv"}
+    ]
+  },
+  {
+    "id": "p2-026",
+    "prop": "p2",
+    "task": "执行一个带重试和回退机制的配置部署任务：1) 尝试读取 primary_config.json 作为主配置 2) 验证主配置必须包含 required 字段（app_name, port, database） 3) 如果主配置验证失败，回退到 backup_config.json 4) 使用有效配置生成部署脚本 deploy.sh 5) 生成部署报告 deployment_report.txt 包含使用了哪个配置源以及原因。如果两个配置都无效，生成 critical_failure.txt 并列出所有缺失字段。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "primary_config.json", "content": "{\n  \"app_name\": \"myapp\",\n  \"port\": 8080,\n  \"log_level\": \"info\"\n}"},
+      {"path": "backup_config.json", "content": "{\n  \"app_name\": \"myapp-backup\",\n  \"port\": 9090,\n  \"database\": {\n    \"host\": \"localhost\",\n    \"port\": 5432,\n    \"name\": \"myapp_db\"\n  },\n  \"log_level\": \"debug\"\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "deploy.sh", "expect": ""},
+      {"type": "file_exists", "target": "deployment_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "deployment_report.txt", "expect": "backup"},
+      {"type": "file_contains", "target": "deploy.sh", "expect": "myapp"}
+    ]
+  },
+  {
+    "id": "p2-027",
+    "prop": "p2",
+    "task": "执行一个多源数据合并任务，其中某些数据源可能不可用：1) 尝试读取 source_a.json（完整数据） 2) 尝试读取 source_b.json（补充数据，可能与 A 有重叠） 3) 尝试读取 source_c.csv（额外数据） 4) 合并所有成功读取的数据源，去重（基于 id 字段） 5) 生成合并报告 merge_report.txt，列出成功/失败的数据源 6) 生成最终数据 merged_data.json。如果所有数据源都失败，生成 empty_merge.txt 说明无法完成合并。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "source_a.json", "content": "[\n  {\"id\": 1, \"name\": \"Item A1\", \"value\": 100, \"source\": \"a\"},\n  {\"id\": 2, \"name\": \"Item A2\", \"value\": 200, \"source\": \"a\"},\n  {\"id\": 3, \"name\": \"Item A3\", \"value\": 150, \"source\": \"a\"}\n]"},
+      {"path": "source_b.json", "content": "[\n  {\"id\": 2, \"name\": \"Item B2\", \"value\": 250, \"source\": \"b\"},\n  {\"id\": 4, \"name\": \"Item B4\", \"value\": 300, \"source\": \"b\"},\n  {\"id\": 5, \"name\": \"Item B5\", \"value\": 175, \"source\": \"b\"}\n]"},
+      {"path": "source_c_invalid.csv", "content": "not_a_valid_csv_at_all\njust some random text\n"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "merged_data.json", "expect": ""},
+      {"type": "file_exists", "target": "merge_report.txt", "expect": ""},
+      {"type": "file_contains", "target": "merge_report.txt", "expect": "source_a"},
+      {"type": "file_contains", "target": "merged_data.json", "expect": "Item B4"}
+    ]
+  },
+  {
+    "id": "p2-028",
+    "prop": "p2",
+    "task": "执行一个带超时和降级的服务编排模拟任务：1) 读取 service_chain.json 定义的服务调用链 2) 按顺序模拟调用每个服务（读取响应时间模拟） 3) 如果某服务响应时间 > threshold_ms，标记为超时并触发降级策略 4) 降级策略：尝试备用服务 fallback_service.json，如果备用也不可用则跳过该步骤 5) 生成执行日志 execution_log.txt 6) 生成最终输出 chain_result.json。如果超过 2 个服务超时，生成 partial_result.txt 说明结果不完整。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "service_chain.json", "content": "{\n  \"chain\": [\n    {\"step\": 1, \"service\": \"auth\", \"timeout_ms\": 500, \"actual_ms\": 200},\n    {\"step\": 2, \"service\": \"validation\", \"timeout_ms\": 300, \"actual_ms\": 450},\n    {\"step\": 3, \"service\": \"processing\", \"timeout_ms\": 1000, \"actual_ms\": 800},\n    {\"step\": 4, \"service\": \"notification\", \"timeout_ms\": 200, \"actual_ms\": 350},\n    {\"step\": 5, \"service\": \"analytics\", \"timeout_ms\": 500, \"actual_ms\": 100}\n  ],\n  \"fallback_enabled\": true\n}"},
+      {"path": "fallback_service.json", "content": "{\n  \"validation\": {\"fallback\": \"validation-lite\", \"actual_ms\": 150},\n  \"notification\": {\"fallback\": \"notification-queue\", \"actual_ms\": 50}\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "execution_log.txt", "expect": ""},
+      {"type": "file_exists", "target": "chain_result.json", "expect": ""},
+      {"type": "file_contains", "target": "execution_log.txt", "expect": "超时"},
+      {"type": "file_contains", "target": "chain_result.json", "expect": "validation-lite"}
+    ]
+  },
+  {
+    "id": "p2-029",
+    "prop": "p2",
+    "task": "执行一个带数据校验和回滚的数据迁移任务：1) 读取 source_data.json 待迁移数据 2) 读取 migration_rules.json 中的校验规则 3) 逐条校验数据是否符合迁移规则 4) 将符合规则的数据写入 migrated_data.json 5) 生成校验失败记录 validation_failures.txt 6) 计算迁移成功率。如果成功率 < 50%，触发回滚：删除 migrated_data.json 并生成 rollback_report.txt。如果有循环引用（id 引用了不存在的记录），标记为数据损坏。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "source_data.json", "content": "[\n  {\"id\": 1, \"type\": \"user\", \"name\": \"Alice\", \"email\": \"alice@example.com\", \"parent_id\": null},\n  {\"id\": 2, \"type\": \"user\", \"name\": \"Bob\", \"email\": \"invalid-email\", \"parent_id\": null},\n  {\"id\": 3, \"type\": \"order\", \"amount\": 100, \"user_id\": 1, \"parent_id\": null},\n  {\"id\": 4, \"type\": \"order\", \"amount\": -50, \"user_id\": 2, \"parent_id\": null},\n  {\"id\": 5, \"type\": \"user\", \"name\": \"\", \"email\": \"empty@example.com\", \"parent_id\": null},\n  {\"id\": 6, \"type\": \"order\", \"amount\": 200, \"user_id\": 99, \"parent_id\": null},\n  {\"id\": 7, \"type\": \"user\", \"name\": \"Grace\", \"email\": \"grace@example.com\", \"parent_id\": 1}\n]"},
+      {"path": "migration_rules.json", "content": "{\n  \"rules\": [\n    {\"field\": \"email\", \"type\": \"user\", \"validation\": \"must_contain_at\"},\n    {\"field\": \"name\", \"type\": \"user\", \"validation\": \"not_empty\"},\n    {\"field\": \"amount\", \"type\": \"order\", \"validation\": \"positive_number\"},\n    {\"field\": \"user_id\", \"type\": \"order\", \"validation\": \"reference_exists\"}\n  ]\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "migrated_data.json", "expect": ""},
+      {"type": "file_exists", "target": "validation_failures.txt", "expect": ""},
+      {"type": "file_contains", "target": "validation_failures.txt", "expect": "id"},
+      {"type": "file_contains", "target": "migrated_data.json", "expect": "Alice"}
+    ]
+  },
+  {
+    "id": "p2-030",
+    "prop": "p2",
+    "task": "执行一个带分支和合并的数据处理任务：1) 读取 input_tasks.json 中的任务列表 2) 按 priority 字段将任务分为高/中/低三组 3) 对高优先级任务立即处理，生成 high_priority_output.json 4) 对中优先级任务排队处理（按 created_at 排序），生成 queue.json 5) 对低优先级任务标记为批处理，生成 batch_list.txt 6) 汇总所有处理结果到 processing_summary.txt。如果某个优先级的任务列表为空，跳过该分支并在 summary 中注明「无任务」。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "input_tasks.json", "content": "[\n  {\"id\": \"T001\", \"priority\": \"high\", \"title\": \"修复支付漏洞\", \"created_at\": \"2026-01-01T10:00:00Z\"},\n  {\"id\": \"T002\", \"priority\": \"low\", \"title\": \"更新 README\", \"created_at\": \"2026-01-01T09:00:00Z\"},\n  {\"id\": \"T003\", \"priority\": \"medium\", \"title\": \"优化查询性能\", \"created_at\": \"2026-01-01T11:00:00Z\"},\n  {\"id\": \"T004\", \"priority\": \"high\", \"title\": \"处理安全告警\", \"created_at\": \"2026-01-01T08:00:00Z\"},\n  {\"id\": \"T005\", \"priority\": \"medium\", \"title\": \"重构日志模块\", \"created_at\": \"2026-01-01T07:00:00Z\"},\n  {\"id\": \"T006\", \"priority\": \"low\", \"title\": \"清理过期测试\", \"created_at\": \"2026-01-01T12:00:00Z\"},\n  {\"id\": \"T007\", \"priority\": \"low\", \"title\": \"添加更多注释\", \"created_at\": \"2026-01-01T06:00:00Z\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "high_priority_output.json", "expect": ""},
+      {"type": "file_exists", "target": "queue.json", "expect": ""},
+      {"type": "file_exists", "target": "batch_list.txt", "expect": ""},
+      {"type": "file_exists", "target": "processing_summary.txt", "expect": ""},
+      {"type": "file_contains", "target": "high_priority_output.json", "expect": "T001"},
+      {"type": "file_contains", "target": "processing_summary.txt", "expect": "high"}
+    ]
+  },
+  {
+    "id": "p2-031",
+    "prop": "p2",
+    "task": "执行一个带依赖检查的构建流水线模拟：1) 读取 build_deps.json 定义构建任务及其依赖 2) 进行拓扑排序，确定构建顺序 3) 按顺序模拟构建每个组件 4) 如果某组件构建失败，其所有下游依赖也标记为失败 5) 生成构建顺序 build_order.txt 和构建结果 build_results.json。如果关键路径上的任务失败，生成 critical_failure.txt。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "build_deps.json", "content": "{\n  \"tasks\": [\n    {\"name\": \"compile-proto\", \"depends_on\": [], \"status\": \"success\"},\n    {\"name\": \"compile-core\", \"depends_on\": [\"compile-proto\"], \"status\": \"success\"},\n    {\"name\": \"compile-api\", \"depends_on\": [\"compile-core\"], \"status\": \"fail\"},\n    {\"name\": \"compile-web\", \"depends_on\": [\"compile-core\"], \"status\": \"success\"},\n    {\"name\": \"compile-cli\", \"depends_on\": [\"compile-api\"], \"status\": \"pending\"},\n    {\"name\": \"run-tests\", \"depends_on\": [\"compile-api\", \"compile-web\"], \"status\": \"pending\"},\n    {\"name\": \"package\", \"depends_on\": [\"run-tests\"], \"status\": \"pending\"},\n    {\"name\": \"deploy\", \"depends_on\": [\"package\"], \"status\": \"pending\"}\n  ]\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "build_order.txt", "expect": ""},
+      {"type": "file_exists", "target": "build_results.json", "expect": ""},
+      {"type": "file_exists", "target": "critical_failure.txt", "expect": ""},
+      {"type": "file_contains", "target": "build_results.json", "expect": "compile-cli"},
+      {"type": "file_contains", "target": "critical_failure.txt", "expect": "compile-api"}
+    ]
+  },
+  {
+    "id": "p2-032",
+    "prop": "p2",
+    "task": "执行一个带条件聚合和异常处理的数据分析任务：1) 读取 sales_transactions.json 2) 按日期分组计算每日销售额 3) 检测异常交易（单笔 > 日均值 3 倍标准差） 4) 将异常交易提取到 anomalies.txt 5) 生成清洗后的日销售报告 daily_sales.json 6) 生成异常分析摘要 anomaly_summary.txt。如果某天的交易数为 0（无交易），在报告中标记为空交易日而非报错。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "sales_transactions.json", "content": "[\n  {\"id\": 1, \"date\": \"2026-01-01\", \"amount\": 100, \"category\": \"electronics\"},\n  {\"id\": 2, \"date\": \"2026-01-01\", \"amount\": 150, \"category\": \"books\"},\n  {\"id\": 3, \"date\": \"2026-01-01\", \"amount\": 5000, \"category\": \"electronics\"},\n  {\"id\": 4, \"date\": \"2026-01-02\", \"amount\": 200, \"category\": \"clothing\"},\n  {\"id\": 5, \"date\": \"2026-01-02\", \"amount\": 180, \"category\": \"books\"},\n  {\"id\": 6, \"date\": \"2026-01-03\", \"amount\": 120, \"category\": \"electronics\"},\n  {\"id\": 7, \"date\": \"2026-01-03\", \"amount\": 90, \"category\": \"books\"},\n  {\"id\": 8, \"date\": \"2026-01-03\", \"amount\": 300, \"category\": \"clothing\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "daily_sales.json", "expect": ""},
+      {"type": "file_exists", "target": "anomalies.txt", "expect": ""},
+      {"type": "file_exists", "target": "anomaly_summary.txt", "expect": ""},
+      {"type": "file_contains", "target": "anomalies.txt", "expect": "5000"},
+      {"type": "file_contains", "target": "daily_sales.json", "expect": "2026-01-01"}
+    ]
+  },
+  {
+    "id": "p2-033",
+    "prop": "p2",
+    "task": "执行一个多阶段审批工作流模拟：1) 读取 approval_requests.json 中的审批请求 2) 对每个请求按金额分级：> $10000 需要三级审批，> $1000 需要二级审批，其余一级审批 3) 读取 approvers.json 获取审批人列表 4) 按分级分配对应级别的审批人 5) 模拟审批过程（状态为 approved/rejected/pending） 6) 生成审批结果 approval_results.json 和待处理列表 pending_approvals.txt。如果某请求缺少必要字段（amount, requester），标记为无效请求。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "approval_requests.json", "content": "[\n  {\"id\": \"REQ001\", \"requester\": \"张三\", \"amount\": 500, \"description\": \"办公用品采购\"},\n  {\"id\": \"REQ002\", \"requester\": \"李四\", \"amount\": 5000, \"description\": \"软件许可续费\"},\n  {\"id\": \"REQ003\", \"requester\": \"王五\", \"amount\": 25000, \"description\": \"服务器采购\"},\n  {\"id\": \"REQ004\", \"requester\": \"赵六\", \"description\": \"未定金额采购\"},\n  {\"id\": \"REQ005\", \"requester\": \"孙七\", \"amount\": 8000, \"description\": \"咨询服务费\"},\n  {\"id\": \"REQ006\", \"requester\": \"周八\", \"amount\": 150000, \"description\": \"办公室装修\"}\n]"},
+      {"path": "approvers.json", "content": "[\n  {\"name\": \"经理A\", \"level\": 1, \"status\": \"available\"},\n  {\"name\": \"经理B\", \"level\": 1, \"status\": \"available\"},\n  {\"name\": \"总监C\", \"level\": 2, \"status\": \"available\"},\n  {\"name\": \"VP-D\", \"level\": 3, \"status\": \"on_leave\"}\n]"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "approval_results.json", "expect": ""},
+      {"type": "file_exists", "target": "pending_approvals.txt", "expect": ""},
+      {"type": "file_contains", "target": "approval_results.json", "expect": "REQ001"},
+      {"type": "file_contains", "target": "approval_results.json", "expect": "无效"}
+    ]
+  },
+  {
+    "id": "p2-034",
+    "prop": "p2",
+    "task": "执行一个带版本冲突处理的依赖升级任务：1) 读取 current_deps.json 当前依赖版本 2) 读取 target_deps.json 目标版本 3) 检查版本兼容性（major 版本不同为不兼容，minor/patch 不同为兼容升级） 4) 对兼容升级直接生成升级计划 5) 对不兼容升级检查是否有替代方案 alternatives.json 6) 生成 upgrade_plan.txt 和 breaking_changes.txt。如果某依赖在目标版本中已废弃，标记为需要替换。",
+    "holdout": false,
+    "fixtures": [
+      {"path": "current_deps.json", "content": "[\n  {\"name\": \"framework-a\", \"version\": \"1.5.2\"},\n  {\"name\": \"library-b\", \"version\": \"2.3.0\"},\n  {\"name\": \"tool-c\", \"version\": \"0.9.1\"},\n  {\"name\": \"sdk-d\", \"version\": \"3.1.0\"},\n  {\"name\": \"util-e\", \"version\": \"1.2.3\"}\n]"},
+      {"path": "target_deps.json", "content": "[\n  {\"name\": \"framework-a\", \"version\": \"2.0.0\"},\n  {\"name\": \"library-b\", \"version\": \"2.5.0\"},\n  {\"name\": \"tool-c\", \"version\": \"1.0.0\"},\n  {\"name\": \"sdk-d\", \"version\": \"3.1.5\"},\n  {\"name\": \"util-e\", \"version\": \"1.2.3\"}\n]"},
+      {"path": "alternatives.json", "content": "{\n  \"framework-a\": {\"alternative\": \"framework-a-v1-bridge\", \"version\": \"1.9.0\", \"migration_effort\": \"low\"},\n  \"tool-c\": {\"alternative\": \"tool-c-next\", \"version\": \"1.0.0\", \"migration_effort\": \"high\"}\n}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "upgrade_plan.txt", "expect": ""},
+      {"type": "file_exists", "target": "breaking_changes.txt", "expect": ""},
+      {"type": "file_contains", "target": "upgrade_plan.txt", "expect": "library-b"},
+      {"type": "file_contains", "target": "breaking_changes.txt", "expect": "framework-a"}
+    ]
+  },
+  {
+    "id": "p2-035",
+    "prop": "p2",
+    "task": "执行一个带完整性校验的批量文件转换任务：1) 读取 manifest.json 获取待转换文件列表及其预期 checksum 2) 逐个验证文件完整性（计算内容长度作为简单校验） 3) 对验证通过的文件从 JSON 转换为 YAML 格式 4) 将转换结果写入 converted/ 目录 5) 生成转换报告 conversion_report.txt 包含成功/失败数 6) 生成失败清单 failed_conversions.txt。如果 manifest.json 本身格式错误，生成 fatal_error.txt 并终止任务。",
+    "holdout": true,
+    "fixtures": [
+      {"path": "manifest.json", "content": "{\n  \"files\": [\n    {\"name\": \"config1.json\", \"expected_keys\": 5, \"content\": {\"db_host\": \"localhost\", \"db_port\": 5432, \"app_name\": \"test\", \"log_level\": \"info\", \"timeout\": 30}},\n    {\"name\": \"config2.json\", \"expected_keys\": 3, \"content\": {\"api_key\": \"abc123\", \"endpoint\": \"https://api.example.com\", \"retry\": 3}},\n    {\"name\": \"config3.json\", \"expected_keys\": 4, \"content\": {\"cache_ttl\": 300, \"max_size\": 1000}}\n  ]\n}"},
+      {"path": "data/valid1.json", "content": "{\"users\": [{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]}"},
+      {"path": "data/valid2.json", "content": "{\"products\": [{\"id\": 101, \"name\": \"Widget\", \"price\": 29.99}]}"}
+    ],
+    "asserts": [
+      {"type": "file_exists", "target": "conversion_report.txt", "expect": ""},
+      {"type": "file_exists", "target": "failed_conversions.txt", "expect": ""},
+      {"type": "file_contains", "target": "conversion_report.txt", "expect": "转换"}
+    ]
+  }
+]

@@ -1,0 +1,46 @@
+{"task_id":"p5-001","prop":"p5","arm":"A","success":false,"turns":6,"duration_sec":118,"failed_assert":"file_contains(output.txt) 不包含 电子产品"}
+{"task_id":"p5-001","prop":"p5","arm":"B","success":false,"turns":3,"duration_sec":23,"failed_assert":"file_exists(output.txt)"}
+{"task_id":"p5-002","prop":"p5","arm":"A","success":true,"turns":9,"duration_sec":188}
+{"task_id":"p5-002","prop":"p5","arm":"B","success":false,"turns":0,"duration_sec":400,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p5-004","prop":"p5","arm":"A","success":false,"turns":18,"duration_sec":173,"failed_assert":"file_exists(output.txt)"}
+{"task_id":"p5-004","prop":"p5","arm":"B","success":false,"turns":0,"duration_sec":135,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p5-005","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p5-005","prop":"p5","arm":"B","success":true,"turns":18,"duration_sec":251}
+{"task_id":"p5-007","prop":"p5","arm":"A","success":false,"turns":8,"duration_sec":121,"failed_assert":"file_contains(output.txt) 不包含 7月"}
+{"task_id":"p5-007","prop":"p5","arm":"B","success":false,"turns":10,"duration_sec":91,"failed_assert":"file_contains(output.txt) 不包含 7月"}
+{"task_id":"p5-008","prop":"p5","arm":"A","success":false,"turns":15,"duration_sec":424,"failed_assert":"file_contains(output.txt) 不包含 团队协作"}
+{"task_id":"p5-008","prop":"p5","arm":"B","success":false,"turns":0,"duration_sec":116,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p5-010","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":183,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p5-010","prop":"p5","arm":"B","success":false,"turns":0,"duration_sec":239,"error":"max turns exceeded"}
+{"task_id":"p5-011","prop":"p5","arm":"A","success":false,"turns":25,"duration_sec":330,"failed_assert":"file_contains(output.txt) 不包含 沟通能力"}
+{"task_id":"p5-011","prop":"p5","arm":"B","success":true,"turns":9,"duration_sec":128}
+{"task_id":"p5-013","prop":"p5","arm":"A","success":true,"turns":19,"duration_sec":510}
+{"task_id":"p5-013","prop":"p5","arm":"B","success":true,"turns":15,"duration_sec":215}
+{"task_id":"p5-014","prop":"p5","arm":"A","success":true,"turns":11,"duration_sec":77}
+{"task_id":"p5-014","prop":"p5","arm":"B","success":true,"turns":8,"duration_sec":62}
+{"task_id":"p5-016","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":91,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p5-016","prop":"p5","arm":"B","success":false,"turns":16,"duration_sec":311,"failed_assert":"file_contains(output.txt) 不包含 手机"}
+{"task_id":"p5-017","prop":"p5","arm":"A","success":false,"turns":20,"duration_sec":241,"failed_assert":"file_contains(output.txt) 不包含 产品中心"}
+{"task_id":"p5-017","prop":"p5","arm":"B","success":false,"turns":12,"duration_sec":259,"failed_assert":"file_contains(output.txt) 不包含 产品中心"}
+{"task_id":"p5-019","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":260,"error":"callTools failed after 2 retries: openai: HTTP 400: client_error: API error: inference request is invalid (invalid_request_error)"}
+{"task_id":"p5-019","prop":"p5","arm":"B","success":false,"turns":15,"duration_sec":84,"failed_assert":"file_contains(output.txt) 不包含 技术部"}
+{"task_id":"p5-020","prop":"p5","arm":"A","success":false,"turns":13,"duration_sec":165,"failed_assert":"file_contains(output.txt) 不包含 删除"}
+{"task_id":"p5-020","prop":"p5","arm":"B","success":true,"turns":10,"duration_sec":95}
+{"task_id":"p5-022","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":274,"error":"max turns exceeded"}
+{"task_id":"p5-022","prop":"p5","arm":"B","success":true,"turns":4,"duration_sec":22}
+{"task_id":"p5-023","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":102,"error":"max turns exceeded"}
+{"task_id":"p5-023","prop":"p5","arm":"B","success":false,"turns":15,"duration_sec":280,"failed_assert":"file_contains(output.txt) 不包含 加粗"}
+{"task_id":"p5-025","prop":"p5","arm":"A","success":false,"turns":7,"duration_sec":70,"failed_assert":"file_contains(output.txt) 不包含 张三"}
+{"task_id":"p5-025","prop":"p5","arm":"B","success":false,"turns":15,"duration_sec":103,"failed_assert":"file_contains(output.txt) 不包含 张三"}
+{"task_id":"p5-027","prop":"p5","arm":"A","success":false,"turns":0,"duration_sec":78,"error":"callTools failed after 2 retries: openai: HTTP 400: client_error: API error: inference request is invalid (invalid_request_error)"}
+{"task_id":"p5-027","prop":"p5","arm":"B","success":false,"turns":0,"duration_sec":149,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p5-028","prop":"p5","arm":"A","success":false,"turns":24,"duration_sec":82,"failed_assert":"file_contains(output.txt) 不包含 Fe"}
+{"task_id":"p5-028","prop":"p5","arm":"B","success":false,"turns":14,"duration_sec":170,"failed_assert":"file_contains(output.txt) 不包含 Fe"}
+{"task_id":"p5-030","prop":"p5","arm":"A","success":false,"turns":16,"duration_sec":296,"failed_assert":"file_contains(output.txt) 不包含 graph"}
+{"task_id":"p5-030","prop":"p5","arm":"B","success":false,"turns":13,"duration_sec":151,"failed_assert":"file_contains(output.txt) 不包含 graph"}
+{"task_id":"p5-031","prop":"p5","arm":"A","success":false,"turns":6,"duration_sec":59,"failed_assert":"file_contains(output.txt) 不包含 18.1%"}
+{"task_id":"p5-031","prop":"p5","arm":"B","success":false,"turns":10,"duration_sec":40,"failed_assert":"file_contains(output.txt) 不包含 18.1%"}
+{"task_id":"p5-033","prop":"p5","arm":"A","success":false,"turns":4,"duration_sec":34,"failed_assert":"file_contains(output.txt) 不包含 五花肉"}
+{"task_id":"p5-033","prop":"p5","arm":"B","success":false,"turns":7,"duration_sec":49,"failed_assert":"file_contains(output.txt) 不包含 五花肉"}
+{"task_id":"p5-034","prop":"p5","arm":"A","success":false,"turns":16,"duration_sec":84,"failed_assert":"file_contains(output.txt) 不包含 用户增长"}
+{"task_id":"p5-034","prop":"p5","arm":"B","success":false,"turns":9,"duration_sec":24,"failed_assert":"file_contains(output.txt) 不包含 用户增长"}

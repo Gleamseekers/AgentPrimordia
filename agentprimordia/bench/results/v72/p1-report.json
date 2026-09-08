@@ -1,0 +1,450 @@
+{
+  "prop": "p1",
+  "model": "sensenova-6.8-flash-lite",
+  "generated_at": "2026-09-07T15:56:45Z",
+  "total_tasks": 23,
+  "holdout_skip": 12,
+  "paired_analysis": {
+    "n": 23,
+    "concordant": 22,
+    "disc_b": 0,
+    "disc_c": 1,
+    "lift": 0.043478260869565216,
+    "p_value": 1,
+    "baseline_rate": {
+      "successes": 4,
+      "trials": 23,
+      "point": 0.17391304347826086,
+      "wilson_lower95": 0.06978653563062565,
+      "wilson_upper95": 0.3713764764022614
+    },
+    "treatment_rate": {
+      "successes": 5,
+      "trials": 23,
+      "point": 0.21739130434782608,
+      "wilson_lower95": 0.09663978026586204,
+      "wilson_upper95": 0.4190348301626401
+    }
+  },
+  "a_rate": {
+    "successes": 4,
+    "trials": 23,
+    "point": 0.17391304347826086,
+    "wilson_lower95": 0.06978653563062565,
+    "wilson_upper95": 0.3713764764022614
+  },
+  "b_rate": {
+    "successes": 5,
+    "trials": 23,
+    "point": 0.21739130434782608,
+    "wilson_lower95": 0.09663978026586204,
+    "wilson_upper95": 0.4190348301626401
+  },
+  "results": [
+    {
+      "task_id": "p1-001",
+      "prop": "p1",
+      "arm": "A",
+      "success": true,
+      "turns": 23,
+      "duration_sec": 345
+    },
+    {
+      "task_id": "p1-001",
+      "prop": "p1",
+      "arm": "B",
+      "success": true,
+      "turns": 17,
+      "duration_sec": 256
+    },
+    {
+      "task_id": "p1-002",
+      "prop": "p1",
+      "arm": "A",
+      "success": true,
+      "turns": 12,
+      "duration_sec": 184
+    },
+    {
+      "task_id": "p1-002",
+      "prop": "p1",
+      "arm": "B",
+      "success": true,
+      "turns": 19,
+      "duration_sec": 199
+    },
+    {
+      "task_id": "p1-004",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 189,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p1-004",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 127,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p1-006",
+      "prop": "p1",
+      "arm": "A",
+      "success": true,
+      "turns": 17,
+      "duration_sec": 149
+    },
+    {
+      "task_id": "p1-006",
+      "prop": "p1",
+      "arm": "B",
+      "success": true,
+      "turns": 19,
+      "duration_sec": 170
+    },
+    {
+      "task_id": "p1-007",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 143,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p1-007",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 225,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p1-009",
+      "prop": "p1",
+      "arm": "A",
+      "success": true,
+      "turns": 16,
+      "duration_sec": 115
+    },
+    {
+      "task_id": "p1-009",
+      "prop": "p1",
+      "arm": "B",
+      "success": true,
+      "turns": 12,
+      "duration_sec": 97
+    },
+    {
+      "task_id": "p1-010",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 6,
+      "duration_sec": 43,
+      "failed_assert": "file_contains(answer.txt) 不包含 LegacyReportHandler"
+    },
+    {
+      "task_id": "p1-010",
+      "prop": "p1",
+      "arm": "B",
+      "success": true,
+      "turns": 7,
+      "duration_sec": 76
+    },
+    {
+      "task_id": "p1-011",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 6,
+      "duration_sec": 62,
+      "failed_assert": "file_exists(impact_analysis.txt)"
+    },
+    {
+      "task_id": "p1-011",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 6,
+      "duration_sec": 119,
+      "failed_assert": "file_exists(impact_analysis.txt)"
+    },
+    {
+      "task_id": "p1-012",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 6,
+      "duration_sec": 64,
+      "failed_assert": "file_exists(causal_chain.txt)"
+    },
+    {
+      "task_id": "p1-012",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 1,
+      "duration_sec": 23,
+      "failed_assert": "file_exists(causal_chain.txt)"
+    },
+    {
+      "task_id": "p1-014",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 83,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-014",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 5,
+      "duration_sec": 88,
+      "failed_assert": "file_exists(migration_impact.txt)"
+    },
+    {
+      "task_id": "p1-015",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 21,
+      "duration_sec": 213,
+      "failed_assert": "file_exists(impact_report.txt)"
+    },
+    {
+      "task_id": "p1-015",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 14,
+      "duration_sec": 160,
+      "failed_assert": "file_exists(impact_report.txt)"
+    },
+    {
+      "task_id": "p1-017",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 6,
+      "duration_sec": 128,
+      "failed_assert": "file_exists(schema_evolution.txt)"
+    },
+    {
+      "task_id": "p1-017",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 189,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-018",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 367,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-018",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 8,
+      "duration_sec": 82,
+      "failed_assert": "file_exists(permission_matrix.txt)"
+    },
+    {
+      "task_id": "p1-020",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 9,
+      "duration_sec": 140,
+      "failed_assert": "file_exists(dataflow_report.txt)"
+    },
+    {
+      "task_id": "p1-020",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 147,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-021",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 17,
+      "duration_sec": 130,
+      "failed_assert": "file_exists(diff_report.txt)"
+    },
+    {
+      "task_id": "p1-021",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 18,
+      "duration_sec": 104,
+      "failed_assert": "file_exists(diff_report.txt)"
+    },
+    {
+      "task_id": "p1-022",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 66,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-022",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 13,
+      "duration_sec": 281,
+      "failed_assert": "file_exists(relationship_report.txt)"
+    },
+    {
+      "task_id": "p1-024",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 104,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-024",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 247,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-026",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 2,
+      "duration_sec": 56,
+      "failed_assert": "file_exists(event_mapping.txt)"
+    },
+    {
+      "task_id": "p1-026",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 2,
+      "duration_sec": 107,
+      "failed_assert": "file_exists(event_mapping.txt)"
+    },
+    {
+      "task_id": "p1-027",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 7,
+      "duration_sec": 153,
+      "failed_assert": "file_exists(schema_report.txt)"
+    },
+    {
+      "task_id": "p1-027",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 6,
+      "duration_sec": 135,
+      "failed_assert": "file_exists(schema_report.txt)"
+    },
+    {
+      "task_id": "p1-028",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 63,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "task_id": "p1-028",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 5,
+      "duration_sec": 79,
+      "failed_assert": "file_exists(flags_report.txt)"
+    },
+    {
+      "task_id": "p1-030",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 3,
+      "duration_sec": 141,
+      "failed_assert": "file_exists(middleware_report.txt)"
+    },
+    {
+      "task_id": "p1-030",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 3,
+      "duration_sec": 49,
+      "failed_assert": "file_exists(middleware_report.txt)"
+    },
+    {
+      "task_id": "p1-032",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 23,
+      "duration_sec": 259,
+      "failed_assert": "file_exists(env_report.txt)"
+    },
+    {
+      "task_id": "p1-032",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 14,
+      "duration_sec": 234,
+      "failed_assert": "file_exists(env_report.txt)"
+    },
+    {
+      "task_id": "p1-034",
+      "prop": "p1",
+      "arm": "A",
+      "success": false,
+      "turns": 13,
+      "duration_sec": 189,
+      "failed_assert": "file_exists(job_report.txt)"
+    },
+    {
+      "task_id": "p1-034",
+      "prop": "p1",
+      "arm": "B",
+      "success": false,
+      "turns": 4,
+      "duration_sec": 125,
+      "failed_assert": "file_exists(job_report.txt)"
+    }
+  ]
+}

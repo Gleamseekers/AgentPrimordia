@@ -1,0 +1,429 @@
+{
+  "prop": "p4",
+  "model": "sensenova-6.8-flash-lite",
+  "generated_at": "2026-09-08T07:12:04Z",
+  "total_tasks": 23,
+  "holdout_skip": 12,
+  "paired_analysis": {
+    "n": 23,
+    "concordant": 13,
+    "disc_b": 3,
+    "disc_c": 7,
+    "lift": 0.17391304347826086,
+    "p_value": 0.34375,
+    "baseline_rate": {
+      "successes": 13,
+      "trials": 23,
+      "point": 0.5652173913043478,
+      "wilson_lower95": 0.3681137508501646,
+      "wilson_upper95": 0.743653646743258
+    },
+    "treatment_rate": {
+      "successes": 17,
+      "trials": 23,
+      "point": 0.7391304347826086,
+      "wilson_lower95": 0.5352999516257462,
+      "wilson_upper95": 0.8745138395501366
+    }
+  },
+  "a_rate": {
+    "successes": 13,
+    "trials": 23,
+    "point": 0.5652173913043478,
+    "wilson_lower95": 0.3681137508501646,
+    "wilson_upper95": 0.743653646743258
+  },
+  "b_rate": {
+    "successes": 17,
+    "trials": 23,
+    "point": 0.7391304347826086,
+    "wilson_lower95": 0.5352999516257462,
+    "wilson_upper95": 0.8745138395501366
+  },
+  "results": [
+    {
+      "task_id": "p4-001",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 56,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-001",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 13,
+      "duration_sec": 43
+    },
+    {
+      "task_id": "p4-003",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 10,
+      "duration_sec": 33
+    },
+    {
+      "task_id": "p4-003",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 17,
+      "duration_sec": 57
+    },
+    {
+      "task_id": "p4-004",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 12,
+      "duration_sec": 53
+    },
+    {
+      "task_id": "p4-004",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 23,
+      "duration_sec": 119
+    },
+    {
+      "task_id": "p4-005",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 132,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-005",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 14,
+      "duration_sec": 45
+    },
+    {
+      "task_id": "p4-007",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 133,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-007",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 10,
+      "duration_sec": 33
+    },
+    {
+      "task_id": "p4-008",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 11,
+      "duration_sec": 31
+    },
+    {
+      "task_id": "p4-008",
+      "prop": "p4",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 54,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-010",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 75,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-010",
+      "prop": "p4",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 54,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-011",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 86,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-011",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 16,
+      "duration_sec": 59
+    },
+    {
+      "task_id": "p4-013",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 132,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-013",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 13,
+      "duration_sec": 75
+    },
+    {
+      "task_id": "p4-014",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 9,
+      "duration_sec": 34
+    },
+    {
+      "task_id": "p4-014",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 17,
+      "duration_sec": 78
+    },
+    {
+      "task_id": "p4-017",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 23,
+      "duration_sec": 149
+    },
+    {
+      "task_id": "p4-017",
+      "prop": "p4",
+      "arm": "B",
+      "success": false,
+      "turns": 8,
+      "duration_sec": 105,
+      "failed_assert": "file_exists(duplicates.json)"
+    },
+    {
+      "task_id": "p4-018",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 24,
+      "duration_sec": 139
+    },
+    {
+      "task_id": "p4-018",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 23,
+      "duration_sec": 93
+    },
+    {
+      "task_id": "p4-020",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 13,
+      "duration_sec": 72
+    },
+    {
+      "task_id": "p4-020",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 19,
+      "duration_sec": 103
+    },
+    {
+      "task_id": "p4-021",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 4,
+      "duration_sec": 134,
+      "failed_assert": "file_exists(error_patterns.json)"
+    },
+    {
+      "task_id": "p4-021",
+      "prop": "p4",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 164,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-023",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 16,
+      "duration_sec": 138
+    },
+    {
+      "task_id": "p4-023",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 10,
+      "duration_sec": 56
+    },
+    {
+      "task_id": "p4-024",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 11,
+      "duration_sec": 96
+    },
+    {
+      "task_id": "p4-024",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 10,
+      "duration_sec": 126
+    },
+    {
+      "task_id": "p4-025",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 13,
+      "duration_sec": 64
+    },
+    {
+      "task_id": "p4-025",
+      "prop": "p4",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 466,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-027",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 25,
+      "duration_sec": 195
+    },
+    {
+      "task_id": "p4-027",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 22,
+      "duration_sec": 231
+    },
+    {
+      "task_id": "p4-028",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 7,
+      "duration_sec": 76
+    },
+    {
+      "task_id": "p4-028",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 6,
+      "duration_sec": 73
+    },
+    {
+      "task_id": "p4-029",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 257,
+      "error": "max turns exceeded"
+    },
+    {
+      "task_id": "p4-029",
+      "prop": "p4",
+      "arm": "B",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 262,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"
+    },
+    {
+      "task_id": "p4-031",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 0,
+      "duration_sec": 119,
+      "error": "callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"
+    },
+    {
+      "task_id": "p4-031",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 9,
+      "duration_sec": 157
+    },
+    {
+      "task_id": "p4-033",
+      "prop": "p4",
+      "arm": "A",
+      "success": true,
+      "turns": 19,
+      "duration_sec": 265
+    },
+    {
+      "task_id": "p4-033",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 5,
+      "duration_sec": 56
+    },
+    {
+      "task_id": "p4-035",
+      "prop": "p4",
+      "arm": "A",
+      "success": false,
+      "turns": 18,
+      "duration_sec": 351,
+      "failed_assert": "file_contains(scripts/db-backup.sh) 不包含 flock"
+    },
+    {
+      "task_id": "p4-035",
+      "prop": "p4",
+      "arm": "B",
+      "success": true,
+      "turns": 12,
+      "duration_sec": 164
+    }
+  ]
+}

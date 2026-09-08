@@ -1,0 +1,46 @@
+{"task_id":"p2-001","prop":"p2","arm":"A","success":false,"turns":0,"duration_sec":148,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p2-001","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-003","prop":"p2","arm":"A","success":true,"turns":16,"duration_sec":84}
+{"task_id":"p2-003","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-005","prop":"p2","arm":"A","success":false,"turns":0,"duration_sec":63,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p2-005","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-006","prop":"p2","arm":"A","success":false,"turns":0,"duration_sec":63,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p2-006","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-008","prop":"p2","arm":"A","success":false,"turns":0,"duration_sec":212,"error":"max turns exceeded"}
+{"task_id":"p2-008","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":201,"error":"max turns exceeded"}
+{"task_id":"p2-009","prop":"p2","arm":"A","success":false,"turns":17,"duration_sec":172,"failed_assert":"file_contains(circular_deps.txt) 不包含 循环"}
+{"task_id":"p2-009","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-011","prop":"p2","arm":"A","success":false,"turns":7,"duration_sec":84,"failed_assert":"file_exists(migration.sql)"}
+{"task_id":"p2-011","prop":"p2","arm":"B","success":false,"turns":5,"duration_sec":89,"failed_assert":"file_exists(migration.sql)"}
+{"task_id":"p2-012","prop":"p2","arm":"A","success":false,"turns":0,"duration_sec":111,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: inference exceeds tpm/rpm limit (rate_limit_error)"}
+{"task_id":"p2-012","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-013","prop":"p2","arm":"A","success":true,"turns":10,"duration_sec":119}
+{"task_id":"p2-013","prop":"p2","arm":"B","success":true,"turns":6,"duration_sec":125}
+{"task_id":"p2-015","prop":"p2","arm":"A","success":true,"turns":5,"duration_sec":86}
+{"task_id":"p2-015","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-016","prop":"p2","arm":"A","success":true,"turns":23,"duration_sec":327}
+{"task_id":"p2-016","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-018","prop":"p2","arm":"A","success":true,"turns":13,"duration_sec":161}
+{"task_id":"p2-018","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-019","prop":"p2","arm":"A","success":true,"turns":10,"duration_sec":117}
+{"task_id":"p2-019","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-021","prop":"p2","arm":"A","success":true,"turns":6,"duration_sec":126}
+{"task_id":"p2-021","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-022","prop":"p2","arm":"A","success":false,"turns":21,"duration_sec":92,"failed_assert":"file_contains(rollout_plan.json) 不包含 回滚"}
+{"task_id":"p2-022","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-023","prop":"p2","arm":"A","success":false,"turns":10,"duration_sec":97,"failed_assert":"file_contains(savings_estimate.json) 不包含 节省"}
+{"task_id":"p2-023","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-025","prop":"p2","arm":"A","success":true,"turns":24,"duration_sec":87}
+{"task_id":"p2-025","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-026","prop":"p2","arm":"A","success":true,"turns":6,"duration_sec":22}
+{"task_id":"p2-026","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-028","prop":"p2","arm":"A","success":false,"turns":9,"duration_sec":43,"failed_assert":"file_contains(execution_log.txt) 不包含 超时"}
+{"task_id":"p2-028","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-029","prop":"p2","arm":"A","success":false,"turns":19,"duration_sec":48,"failed_assert":"file_exists(migrated_data.json)"}
+{"task_id":"p2-029","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-030","prop":"p2","arm":"A","success":true,"turns":4,"duration_sec":23}
+{"task_id":"p2-030","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-033","prop":"p2","arm":"A","success":true,"turns":8,"duration_sec":34}
+{"task_id":"p2-033","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}
+{"task_id":"p2-034","prop":"p2","arm":"A","success":true,"turns":6,"duration_sec":33}
+{"task_id":"p2-034","prop":"p2","arm":"B","success":false,"turns":0,"duration_sec":600,"error":"task timeout (10m0s)"}

@@ -75,6 +75,7 @@ func main() {
 		limit     = flag.Int("limit", 0, "限制任务数（0=全部）")
 		pace      = flag.Duration("pace", 8*time.Second, "任务间间隔")
 		maxTokens = flag.Int("max-tokens", 4096, "每次请求最大 token 数")
+		taskTimeout = flag.Duration("task-timeout", 10*time.Minute, "单臂任务超时时间")
 	)
 	flag.Parse()
 
@@ -115,7 +116,7 @@ func main() {
 	// 按命题逐一运行
 	for _, p := range props {
 		fmt.Printf("\n===== 命题 %s =====\n", p)
-		report := runProp(ctx, prov, p, *limit, *pace)
+		report := runProp(ctx, prov, p, *limit, *pace, *taskTimeout)
 		report.Prop = p
 		report.Model = *model
 		report.GeneratedAt = eval.NowRFC3339()
@@ -172,7 +173,7 @@ func propFile(prop string) string {
 }
 
 // runProp 运行单个命题的 A/B 实验并返回报告。
-func runProp(ctx context.Context, prov llm.Provider, prop string, limit int, pace time.Duration) benchReport {
+func runProp(ctx context.Context, prov llm.Provider, prop string, limit int, pace time.Duration, taskTimeout time.Duration) benchReport {
 	tasks, err := eval.LoadV72Tasks(propFile(prop))
 	if err != nil {
 		fmt.Printf("加载 %s 任务失败: %v\n", prop, err)
@@ -200,8 +201,8 @@ func runProp(ctx context.Context, prov llm.Provider, prop string, limit int, pac
 	for i, task := range active {
 		fmt.Printf("[%d/%d] %s ...", i+1, len(active), task.ID)
 
-		rA := runTaskArm(ctx, prov, task, "A", prop)
-		rB := runTaskArm(ctx, prov, task, "B", prop)
+		rA := runTaskArm(ctx, prov, task, "A", prop, taskTimeout)
+		rB := runTaskArm(ctx, prov, task, "B", prop, taskTimeout)
 
 		results = append(results, rA, rB)
 		pairs = append(pairs, eval.PairedOutcome{
@@ -255,9 +256,13 @@ func runProp(ctx context.Context, prov llm.Provider, prop string, limit int, pac
 }
 
 // runTaskArm 运行单条任务单臂。
-func runTaskArm(ctx context.Context, prov llm.Provider, task eval.V72Task, arm string, prop string) taskResult {
+func runTaskArm(ctx context.Context, prov llm.Provider, task eval.V72Task, arm string, prop string, taskTimeout time.Duration) taskResult {
 	start := time.Now()
 	r := taskResult{TaskID: task.ID, Prop: prop, Arm: arm}
+
+	// 单臂超时控制
+	taskCtx, cancel := context.WithTimeout(ctx, taskTimeout)
+	defer cancel()
 
 	// 创建沙箱临时目录
 	sandbox, err := os.MkdirTemp("", "v72-"+task.ID+"-"+arm+"-")
@@ -340,8 +345,13 @@ func runTaskArm(ctx context.Context, prov llm.Provider, task eval.V72Task, arm s
 	}
 
 	// 运行 Agent
-	resp, err := ag.Run(ctx, agent.UserMessage(task.Task))
+	resp, err := ag.Run(taskCtx, agent.UserMessage(task.Task))
 	if err != nil {
+		if taskCtx.Err() == context.DeadlineExceeded {
+			r.Error = "task timeout (" + taskTimeout.String() + ")"
+			r.DurationSec = int(time.Since(start).Seconds())
+			return r
+		}
 		// API key 耗尽或网络错误：记为失败，不崩溃
 		r.Error = err.Error()
 		r.DurationSec = int(time.Since(start).Seconds())

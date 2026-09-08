@@ -25,6 +25,7 @@ type llmConfig struct {
 	Provider string `json:"provider" yaml:"provider"`
 	Model    string `json:"model" yaml:"model"`
 	APIKey   string `json:"api_key,omitempty" yaml:"api_key,omitempty"`
+	BaseURL  string `json:"base_url,omitempty" yaml:"base_url,omitempty"`
 }
 
 type memoryConfig struct {

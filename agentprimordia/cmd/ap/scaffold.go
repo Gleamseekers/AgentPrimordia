@@ -118,7 +118,8 @@ data/
 	files[".gitignore"] = []byte(gitignore)
 
 	// 生成 go.mod（统一走 buildGoMod：版本对齐 + pgvector 依赖链闭合策略）
-	goMod, _ := buildGoMod(opts.Name, filepath.Join(cwd(), opts.Name))
+	// 注意：传入 cwd() 而非项目目录，因为此时项目尚未创建
+	goMod, _ := buildGoMod(opts.Name, cwd())
 	files["go.mod"] = []byte(goMod)
 
 	return files, nil
@@ -201,6 +202,7 @@ replace agentprimordia/pgvector => %s
 func findFrameworkRoot(start string) string {
 	dir := start
 	for i := 0; i < 6; i++ {
+		// 检查当前目录
 		data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
 		if err == nil {
 			for _, line := range strings.Split(string(data), "\n") {
@@ -210,6 +212,16 @@ func findFrameworkRoot(start string) string {
 				}
 				if strings.HasPrefix(line, "module ") {
 					break // 是模块但不是框架，继续向上
+				}
+			}
+		}
+		// 检查是否有 agentprimordia 子目录（workspace 场景）
+		apSubdir := filepath.Join(dir, "agentprimordia")
+		if data, err := os.ReadFile(filepath.Join(apSubdir, "go.mod")); err == nil {
+			for _, line := range strings.Split(string(data), "\n") {
+				line = strings.TrimSpace(line)
+				if line == "module agentprimordia" {
+					return apSubdir
 				}
 			}
 		}

@@ -87,6 +87,9 @@ type MistralProvider = llm.MistralProvider
 // GeminiMultimodalProvider 实现 Google Gemini 多模态模型调用（文本+图片+音频+视频）
 type GeminiMultimodalProvider = llm.GeminiMultimodalProvider
 
+// DemoProvider 无需 API key 的演示提供者，基于关键词匹配产生响应
+type DemoProvider = llm.DemoProvider
+
 var (
 	// NewOpenAIProvider 创建 OpenAI 提供者实例
 	NewOpenAIProvider = llm.NewOpenAIProvider
@@ -112,6 +115,8 @@ var (
 	NewCohereProvider = llm.NewCohereProvider
 	// NewMistralProvider 创建 Mistral 提供者实例
 	NewMistralProvider = llm.NewMistralProvider
+	// NewDemoProvider 创建无需 API key 的演示提供者
+	NewDemoProvider = llm.NewDemoProvider
 	// NewQwenProvider 创建通义千问提供者实例（DashScope OpenAI 兼容模式）
 	NewQwenProvider = llm.NewQwenProvider
 	// NewGLMProvider 创建智谱 GLM 提供者实例（OpenAI 兼容模式）

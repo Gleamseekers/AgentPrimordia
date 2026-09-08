@@ -43,6 +43,15 @@ type OpenInteropServer = a2a.OpenInteropServer
 // OpenInteropClient 开放协议客户端
 type OpenInteropClient = a2a.OpenInteropClient
 
+// TaskExecutor 任务执行器接口
+type TaskExecutor = a2a.TaskExecutor
+
+// EchoTaskExecutor 回声测试执行器
+type EchoTaskExecutor = a2a.EchoTaskExecutor
+
+// SimpleTaskExecutor 简单任务执行器
+type SimpleTaskExecutor = a2a.SimpleTaskExecutor
+
 // InteropConfig 互操作配置
 type InteropConfig = a2a.InteropConfig
 
@@ -97,6 +106,10 @@ var (
 	NewOpenInteropServer = a2a.NewOpenInteropServer
 	// NewOpenInteropClient 创建开放协议客户端
 	NewOpenInteropClient = a2a.NewOpenInteropClient
+	// NewEchoTaskExecutor 创建回声测试执行器
+	NewEchoTaskExecutor = a2a.NewEchoTaskExecutor
+	// NewSimpleTaskExecutor 创建简单任务执行器
+	NewSimpleTaskExecutor = a2a.NewSimpleTaskExecutor
 	// GenerateInteropReport 生成协议符合性报告
 	GenerateInteropReport = a2a.GenerateInteropReport
 )

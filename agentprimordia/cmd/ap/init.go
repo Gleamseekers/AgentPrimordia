@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -15,6 +16,7 @@ func runInit(args []string) error {
 		projectType string
 		dryRun      bool
 		interactive bool
+		noTidy      bool
 	)
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -34,6 +36,8 @@ func runInit(args []string) error {
 			dryRun = true
 		case "--interactive", "-i":
 			interactive = true
+		case "--no-tidy":
+			noTidy = true
 		case "--help", "-h":
 			fmt.Print(`ap init — create a new agent / plugin / provider project
 
@@ -61,6 +65,7 @@ Options:
   --template NAME    Agent 模板名称（仅 type=agent 时有效）
   --dry-run          preview files without creating
   --interactive, -i  interactive wizard mode
+  --no-tidy          skip automatic go mod tidy
 
 Examples:
   ap init my-agent
@@ -243,11 +248,28 @@ data/
 		infof("提示：检测到上级 go.work。若在仓库内构建本项目，请将其加入 go.work 的 use 列表，或以 GOWORK=off 构建（replace 已指向本地框架与 pgvector）")
 	}
 
+	// 自动执行 go mod tidy（除非 --no-tidy 或 standalone 模式）
+	tidyRan := false
+	if !noTidy && !standalone {
+		fmt.Printf("  运行 go mod tidy ...\n")
+		tidyCmd := exec.Command("go", "mod", "tidy")
+		tidyCmd.Dir = targetDir
+		if output, err := tidyCmd.CombinedOutput(); err != nil {
+			errorf("go mod tidy 失败: %s", strings.TrimSpace(string(output)))
+			infof("请手动执行: cd %s && go mod tidy", name)
+		} else {
+			tidyRan = true
+			successf("依赖安装完成")
+		}
+	}
+
 	successf("项目 %q 已创建 (Templates: %s)", name, template)
 	fmt.Println()
 	fmt.Printf("Next steps:\n")
 	infof("cd %s", name)
-	infof("go mod tidy")
+	if !tidyRan {
+		infof("go mod tidy")
+	}
 	infof("set AP_LLM_API_KEY=sk-xxx")
 	infof("ap run")
 	return nil

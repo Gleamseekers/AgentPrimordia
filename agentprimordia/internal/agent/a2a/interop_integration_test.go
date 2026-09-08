@@ -55,8 +55,9 @@ func TestInteropFullDelegation(t *testing.T) {
 	if task.ID == "" {
 		t.Fatal("task id empty")
 	}
-	if task.Status.State != OpenTaskSubmitted {
-		t.Errorf("state = %q, want submitted", task.Status.State)
+	// 异步执行：任务可能已进入 working 状态
+	if task.Status.State != OpenTaskSubmitted && task.Status.State != OpenTaskWorking {
+		t.Errorf("state = %q, want submitted or working", task.Status.State)
 	}
 
 	// 3. 查询任务

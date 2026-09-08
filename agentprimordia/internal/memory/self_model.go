@@ -187,3 +187,131 @@ func (m *SelfModel) Marshal() ([]byte, error) {
 		Failures map[string]*FailurePattern    `json:"failures"`
 	}{m.caps, m.failures})
 }
+
+// SelfModelSnapshot SelfModel 的线程安全快照，供 Studio/API 消费。
+type SelfModelSnapshot struct {
+	Capabilities []CapabilitySnapshot `json:"capabilities"`
+	TopFailures  []FailurePattern     `json:"top_failures"`
+	TotalTasks   int                  `json:"total_tasks"`
+	SuccessRate  float64              `json:"success_rate"`
+	AvgTurns     float64              `json:"avg_turns"`
+	UpdatedAt    time.Time            `json:"updated_at"`
+}
+
+// CapabilitySnapshot 单项能力的快照视图
+type CapabilitySnapshot struct {
+	Domain      string  `json:"domain"`
+	Successes   int     `json:"successes"`
+	Failures    int     `json:"failures"`
+	SuccessRate float64 `json:"success_rate"`
+	AvgTurns    float64 `json:"avg_turns"`
+	Trend       string  `json:"trend"` // "improving" | "stable" | "declining"
+}
+
+// Snapshot 生成线程安全的 SelfModel 快照。
+func (m *SelfModel) Snapshot() *SelfModelSnapshot {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	snap := &SelfModelSnapshot{
+		Capabilities: make([]CapabilitySnapshot, 0, len(m.caps)),
+		TopFailures:  make([]FailurePattern, 0),
+		UpdatedAt:    time.Time{},
+	}
+
+	var totalSuccess, totalFail int
+	var totalTurns float64
+
+	for _, cp := range m.caps {
+		total := cp.Successes + cp.Failures
+		if total == 0 {
+			continue
+		}
+		totalSuccess += cp.Successes
+		totalFail += cp.Failures
+		totalTurns += cp.AvgTurns * float64(total)
+
+		cs := CapabilitySnapshot{
+			Domain:      cp.Domain,
+			Successes:   cp.Successes,
+			Failures:    cp.Failures,
+			SuccessRate: cp.SuccessRate(),
+			AvgTurns:    cp.AvgTurns,
+			Trend:       "stable",
+		}
+		// 简单趋势判断：成功率 > 70% 且样本 >= 3 视为 improving
+		if cp.SuccessRate() > 0.7 && total >= 3 {
+			cs.Trend = "improving"
+		} else if cp.SuccessRate() < 0.4 && total >= 3 {
+			cs.Trend = "declining"
+		}
+		snap.Capabilities = append(snap.Capabilities, cs)
+
+		if cp.LastUpdated.After(snap.UpdatedAt) {
+			snap.UpdatedAt = cp.LastUpdated
+		}
+	}
+
+	totalTasks := totalSuccess + totalFail
+	snap.TotalTasks = totalTasks
+	if totalTasks > 0 {
+		snap.SuccessRate = float64(totalSuccess) / float64(totalTasks)
+		snap.AvgTurns = totalTurns / float64(totalTasks)
+	}
+
+	// 排序能力：按成功率降序
+	sort.Slice(snap.Capabilities, func(i, j int) bool {
+		return snap.Capabilities[i].SuccessRate > snap.Capabilities[j].SuccessRate
+	})
+
+	// 复制 top failures
+	for _, fp := range m.failures {
+		snap.TopFailures = append(snap.TopFailures, *fp)
+	}
+	sort.Slice(snap.TopFailures, func(i, j int) bool {
+		return snap.TopFailures[i].Count > snap.TopFailures[j].Count
+	})
+	if len(snap.TopFailures) > 5 {
+		snap.TopFailures = snap.TopFailures[:5]
+	}
+
+	return snap
+}
+
+// TopCapabilities 返回成功率最高的前 n 个能力域。
+func (m *SelfModel) TopCapabilities(n int) []CapabilityProfile {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	caps := make([]CapabilityProfile, 0, len(m.caps))
+	for _, cp := range m.caps {
+		if cp.Successes+cp.Failures > 0 {
+			caps = append(caps, *cp)
+		}
+	}
+	sort.Slice(caps, func(i, j int) bool {
+		if caps[i].SuccessRate() != caps[j].SuccessRate() {
+			return caps[i].SuccessRate() > caps[j].SuccessRate()
+		}
+		// 成功率相同时，样本数多的排前面（更可靠）
+		totalI := caps[i].Successes + caps[i].Failures
+		totalJ := caps[j].Successes + caps[j].Failures
+		return totalI > totalJ
+	})
+	if len(caps) > n {
+		caps = caps[:n]
+	}
+	return caps
+}
+
+// GrowthMetrics 返回各领域成功率，供趋势分析消费。
+func (m *SelfModel) GrowthMetrics() map[string]float64 {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	metrics := make(map[string]float64, len(m.caps))
+	for domain, cp := range m.caps {
+		metrics[domain] = cp.SuccessRate()
+	}
+	return metrics
+}

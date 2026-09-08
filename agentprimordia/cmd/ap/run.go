@@ -91,7 +91,7 @@ func runRun(args []string) error {
 	// 运行
 	successf("编译完成，启动 %s", binaryName)
 	fmt.Println()
-	runCmd := exec.Command(filepath.Join(".", binaryName))
+	runCmd := exec.Command(filepath.Join(dir, binaryName))
 	runCmd.Dir = dir
 	runCmd.Stdin = os.Stdin
 	runCmd.Stdout = os.Stdout

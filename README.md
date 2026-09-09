@@ -1,308 +1,130 @@
 # AgentPrimordia
 
-> 通用 AI Agent 开发框架 — 轻量、并发原生、生产验证
-> **Go + TypeScript 双语言 SDK，功能对等，39 模块全覆盖**
-> **当前版本：Go SDK v6.0.0 / TypeScript SDK v6.0.0**
+**用 Go 构建越用越强的 AI Agent**
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/go-1.26+-00ADD8E.svg)](https://golang.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Go%20Parity-3178C6.svg)](sdk/typescript/)
-[![Version](https://img.shields.io/badge/version-6.0.0-2ea44f.svg)](docs/路线图.md)
+[![Go](https://img.shields.io/badge/go-1.26+-00ADD8.svg)](https://golang.org)
+[![Version](https://img.shields.io/badge/version-7.3.0-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
+[![Tests](https://img.shields.io/badge/tests-538%20files-green.svg)](agentprimordia/internal/)
 
-<p align="center">
-  <img src="agentprimordia/docs/ap-architecture.png" alt="Architecture" width="85%">
-</p>
-
-## 特性
-
-- **ReAct Loop 引擎** — Reasoning + Acting 循环，20+ 生命周期钩子
-- **多模式编排** — Pipeline / Handoff / Parallel / DAG / GroupChat / A2A / MapReduce
-- **工具系统** — FileSystem / Shell / Web / Knowledge 内置，MCP 协议集成（Client + Server），插件市场扩展
-- **三层记忆** — SQLite FTS5 + Vector Store (HNSW) + RAG Pipeline 混合检索（支持 RRF 融合）
-- **多租户治理** — 租户隔离 + 配额限流 + 策略执行
-- **密钥管理** — SecretsManager + AES-GCM 加密 + 多后端
-- **10+ 内置 LLM Provider** — OpenAI / Anthropic / Gemini / Ollama / Azure / Qwen / GLM / Mistral / Cohere / DeepSeek / 多模态 / 弹性包装器
-- **Resilient Provider** — 自动重试 / 降级 / 熔断
-- **并发调度** — Pool 信号量调度，会话隔离，重试策略
-- **安全防护** — ACL / Sandbox / Guardrails / PII 检测 (Trie 优化) / 路径遍历防护
-- **可观测性** — Prometheus Metrics / OpenTelemetry / SLO/SLI / Grafana Dashboard
-- **gRPC 传输** — Agent-to-Agent gRPC + 连接池
-- **语义缓存** — LLM 响应语义缓存 + 多级缓存
-- **K8s Operator** — AgentDeployment CRD 声明式部署
-- **TypeScript SDK** — Go 功能对等，39 个模块全覆盖（Agent / LLM / Tools / Memory / Orchestration / A2A / MCP / Edge / Visual / Infrastructure）
-- **CLI 工具** — 18 个子命令：`ap init / run / debug / loop / test / config / mcp / plugin / cluster / market / autonomy / skill / a2a / realtime / edge / doctor / completion / version`（见 `ap --help`）
-- **最小外部依赖** — 核心零 CGO，仅依赖纯 Go SQLite（modernc.org/sqlite）+ YAML（gopkg.in/yaml.v3）；可选 gRPC/Protobuf（A2A 传输）、Redis（缓存后端）、etcd（服务发现）、wazero（WASM 沙箱）按需引入
-
-## v6.0.0 Highlights — 大成（v5.1 → v6.0 全弧线收官）
-
-> 2026-08-21：认知引擎架构进化、记忆认知化、自进化闭环、组织智能与契约重锁，详见 [docs/V6路线图.md](docs/V6路线图.md) 与 [docs/发布说明-v6.0.0.md](docs/发布说明-v6.0.0.md)。深度复测加权总评 ≈9.0/10。
-
-- **v5.1 优化**：质量四件套（召回/成功率/P95/成本）进回归门；检索质量革命 recall@10 双线 1.0；上下文压缩 P95 -67%；评估集 60→160 条
-- **v5.2 进化·壹**：Strategy 抽象 + 三策略热切换（ReAct / Plan-Execute-Reflect / 验证循环）；Verifier 一等公民；自适应思考深度；计划级 checkpoint
-- **v5.3 进化·贰**：记忆固化管道（episodic→semantic 蒸馏 + 遗忘）；图-向量混合检索；记忆迁移；自我模型记忆
-- **v5.4 学习**：结果反馈自进化闭环 + 技能合成；自举季度改进曲线制度（首期 2026-Q3 自举 0.33→1.00）；code 层变更沙箱永久拒绝的安全边界
-- **v5.5 借鉴**：多 Agent 从协作升级为组织智能
-- **v6.0 定型**：新增 API 全部转正并冻结 v6 契约基线（39 模块）；版本四方统一 6.0.0（Go/TS/CLI/Helm）
-
-## v5.0.0 Highlights — 均衡混排弧线收官（v4.1 → v5.0）
-
-> 2026-08-10：10 个版本全部落地（奇数深化 / 偶数稳定），详见 [docs/V5路线图.md](docs/V5路线图.md)。
-
-- **真实接线**：真实 ASR/TTS 适配器（OpenAI 兼容 + 本地 faster-whisper/Piper 免 key）、CLI 一键语音、`ProviderFromEnv` 环境驱动真实 LLM、Studio 面板真实引擎数据
-- **不塌**：Soak/并发/故障注入量化验收（恢复率 1.0、集群 kill-1 degradation 0、Pool×autonomy 100 并发持平）
-- **多模态与分布式**：流式语音链路、视觉护栏/帧分析、WebGPU 真实后端优先；跨节点目标续跑、A2A 路由熔断
-- **平台化**：技能市场（manifest+ECDSA 验签）、模板远程安装、物理分库强隔离、目标级预算护栏、SQLite WAL（写入 P95 -98%）
-- **Studio 压测**：并发 20000 请求 + 写路径 7500 写 + 30 分钟稳态 88182 请求，0 错误无退化；检出并修复 demo 存储无界膨胀（延迟 +246% → -84%）
-- **版本**：5.0.0 四方一致（Go/TS/VERSION/api-contract/Helm/扩展/前端）
-
-## v4.0.0 Highlights — 全路线收官（v3.3 → v4.0）
-
-v4.0 是实证版版本路线的终点：从"声称完成"转向"可证明完成"，全部 35 项任务通过代码实况验证。
-
-- **v3.3 可信化** — 能力实况清单（100% 代码证据）、版本叙事四方对齐（git tag/STATUS/VERSIONING/ROADMAP）、react.Engine 废弃降级、otel→metrics 真实上报（WithTelemetry）
-- **v3.4 一体化不塌** — executePlan 子任务重试 + plan 级 checkpoint、子任务上下文摘要压缩、MemoryStore.Search 长期记忆回读注入、tool 重试 + 并行 recover + 输入端护栏、TS guardrail-in-loop、失败重放四件套（FailureStore / ReplayFailure / HTTP API / TS replay）
-- **v3.5 可证** — 60 条真实编码基准集（Go+TS 双线共用）、真实 LLM 跑分版本门禁、Go 跨语言 11 套件补齐（45 用例双线全绿）、trace→指标→审计全链路闭环（CorrelationStore）、混沌注入常态化（基线 vs 故障对比可量化）
-- **v3.6 自适应** — 自愈 replan（故障恢复不依赖人工）、tool_learning 流程修正（高频失败模式自动规避）、跨任务记忆注入（相似任务 0 轮推理复用）、AP 用 AP 自举（成功率曲线 0.333→0.667→1.0）
-- **v3.7 双线产品化** — TS 官方 OpenTelemetry SDK、双线真实 LLM 集成基线（分数可比）、cross-language-api-check 门全绿、React Hooks（useAgent / useReActLoop 零样板）
-- **v3.8 规模化** — 多 Agent 分工大任务（Swarm，规模×N 成功率不降）、Pool×harness 并发吞吐线性扩展、WASM 工具生态（AsTool 桥 + wazero 真实执行）
-- **v3.9 生态** — marketplace 远程协议 + cosign 验签（`ap plugin install <url>`）、Studio 接真实引擎（StudioBridge）、文档站自动构建 + VS Code Inspector、MCP 深度集成（工具名命名空间 + npx 兼容）
-- **v4.0 稳定化** — 废弃 API 清理（RegisterPProf / JSON-RPC 移除）、api-contract 契约基线漂移门、兼容性承诺收紧（21 Stable 模块 + stability 双向比对门）、性能大版（关键路径 P95 基线）、发布纪律固化（tag 自动化 CI + 版本一致性门）
-
-### 完整版本路线总览
-
-| 版本 | 主题 | 主线 | 状态 |
-|------|------|------|------|
-| v0.1 → v0.8 | 孵化期 | 核心引擎 + 微内核架构 | ✅ 历史轨迹 |
-| 1.0.0 | 首个稳定版 | API 稳定承诺 | ✅ |
-| v2.0 → v2.5 | 生产化 | 生产就绪 + 技术债清理 + 性能/可观测/安全 | ✅ |
-| v3.0 → v3.2 | 框架化 | 八大方向 + 真实后端 + 双语言对齐 | ✅ |
-| v3.3 | 可信化 | 对账 + 接线 | ✅ 4/4 |
-| v3.4 | 一体化不塌 | Harness 可靠性 + 重放 | ✅ 6/6 |
-| v3.5 | 可证 | 评估基准 + 可观测闭环 | ✅ 5/5 |
-| v3.6 | 自适应 | 自愈 + 从失败学习 | ✅ 4/4 |
-| v3.7 | 双线产品化 | TS 治理补齐 + Hooks | ✅ 4/4 |
-| v3.8 | 规模化 | 多 Agent 大任务 | ✅ 3/3 |
-| v3.9 | 生态 | 市场 + Studio + 文档站 | ✅ 4/4 |
-| v4.0 | 稳定化 | 契约锁定 + 兼容性收紧 + 性能大版 | ✅ 5/5 |
-
-> 详细路线见 [docs/路线图.md](docs/路线图.md)（唯一权威路线文档，含完整版本历史轨迹 v0.1.0 → v6.0.0；v5.1–v6.0 弧线详情见 [docs/V6路线图.md](docs/V6路线图.md)）。
-
-## v3.2.0 Highlights — 架构解耦与双语言对齐
-
-- **ReAct 循环引擎接口化拆分** — `internal/agent/react/` 子包，Engine + Delegate 接口驱动状态机
-- **WebGPU 可插拔推理后端** — InferenceBackend 接口 + @xenova/transformers 动态导入（optional peer dep）
-- **可视化编辑器异步编排** — goroutine 实际执行 + 状态实时查询 + RegisterAgent
-- **Bun 边缘适配器生产强化** — 重试/超时/限流/健康检查 (44→210 行)
-- **跨语言规范 15 套件** — 新增 governance_quota / security_acl / guardrail_rules / persist_checkpoint
-- **CRDT 持久化接口** — CRDTPersistence + InMemoryCRDTPersistence + createSnapshot
-- **Agent 市场协议规范** — AgentTemplate JSON Schema + 注册表 API + 部署协议
-- **全量测试零失败** — Go 40+ 包 / TS 2545 用例 / tsc 零错误 / 跨语言 15 套件
-
-## v3.1.0 Highlights — From Framework to Production
-
-- **etcd 服务发现** — Lease + KeepAlive 节点注册 + Watch 事件（build tag 门控）
-- **gRPC 跨节点消息总线** — 复用 A2A gRPC 基础设施，cluster.proto 消息定义
-- **WASM 真实 ABI 执行** — wazero 内存 API 传参/读结果，替代桩实现
-- **LLM 知识蒸馏** — LLM 提取事实 → SemanticMemory 写入
-- **混沌真实注入** — iptables/tc 网络延迟/丢包/分区（Linux）
-- **集群×市场×学习×隐私×混沌 跨组件联动**
-- **CLI 集群/市场/Edge 命令** — `ap cluster` / `ap market` / `ap create-edge-agent`
-- **Studio UI 四面板** — ChaosLab / ClusterDashboard / LearningMonitor / MarketplacePage
-- **6 个基准套件** — capacity / cluster / latency / learning / privacy / tool_calling
-
-## v3.0.0 Highlights — 八大方向框架落地
-
-- **混沌工程** — ChaosEngine 实验编排器 + 稳态验证器 + Markdown 报告 + LLM 故障代理
-- **WASM 自定义工具** — WASM→Tool 适配器 + 上传 API + Ed25519 签名验证
-- **分布式集群** — KVStore 接口 + MemKVStore + DistributedDiscovery + RemoteMessageBus
-- **Agent 市场** — TemplateRegistry + 评分 + 一键部署 + cosign 验签
-- **Edge Agent 模板** — 开箱即用模板 + 脚手架生成
-- **隐私混合推理** — PrivacyRouter PII 检测 + 路由策略（敏感→本地 WebGPU）
-- **CRDT 协作** — Lamport Clock + LWW + CRDTDocument + AgentCRDTClient
-- **自适应学习** — KnowledgeDistiller + 能力进化框架 + 记忆集成
-
-## v2.0.0 Highlights
-
-- **多租户 SaaS 隔离** — `TenantManager` + `QuotaManager` + 令牌桶限流，context 级数据隔离
-- **密钥管理系统** — `SecretsManager` 接口 + AES-GCM 加密 + 环境/Vault 多后端 + 缓存装饰器
-- **gRPC 传输层** — Agent-to-Agent gRPC 传输 + 连接池复用
-- **语义缓存** — 基于语义相似度的 LLM 响应缓存 + L1/L2 多级缓存
-- **MapReduce 编排** — 大规模任务的 MapReduce 模式
-- **SLO/SLI 指标** — 服务质量目标监控 + 增强 pprof（全 profile 类型）
-- **结构化日志** — 基于 `log/slog` 的 `StandardLogger` + `LogShipper` 远程传输
-- **调试器增强** — 条件断点 + 时间旅行回放 + 变量监视
-- **记忆生命周期** — 重要性评分 + 自动归档/压缩 + 记忆聚类
-- **插件市场** — 动态注册 + 版本管理（SemVer）+ 安装器 + 资源限制
-- **MCP Server** — MCP Server 端实现（不仅是 Client）
-- **合规审计** — 合规报告生成器
-- **WASM 增强沙箱** — 资源限制（CPU/内存/FS/网络）+ WASM 模块安全执行
-- **PII Trie 优化** — Trie 树匹配，大词汇表场景比正则快 10x+
-
-## v1.0.0 Highlights
-
-- **开发者体验重构** — `ap.NewAgent()` 简化入口，3 行创建带记忆 / RAG / Hook 的 Agent
-- **`WithRAGMemory()` 一步 RAG** — 自动完成 EmbeddingAdapter + RAGStore + RAGProvider 组装
-- **`ap loop` 工程化子命令** — `trace`（执行追踪）/ `inspect`（状态检查）/ `resume`（检查点恢复）
-- **RAG RRF 融合** — Reciprocal Rank Fusion 混合检索算法，支持运行时切换 Linear / RRF 模式
-- **性能优化** — BufferPool（bytes.Buffer 复用）、TokenCache、JSON Pool、pprof 端点
-- **供应链安全** — govulncheck + npm audit + Trivy + cosign 签名 + SBOM 生成
-- **PGO 性能调优** — Profile-Guided Optimization 指南
-- **Fuzz 测试** — Sandbox / RAG / 工具执行器安全模糊测试
-- **`testutil` 测试包** — `MockProvider` + `NewTestAgent()`，无需手写 40 行 Mock
-- **向后兼容** — Stable API 向后兼容，链式 API 仍可用
-- **版本统一** — Go SDK / CLI / TypeScript SDK 全局对齐 v1.0.0；API 稳定性承诺锁定（详见 [版本规范.md](agentprimordia/docs/版本规范.md)）
-
-## v0.7.0 Highlights
-
-- **安全加固** — symlink 逃逸修复、熔断器修复、YAML 注入防护
-- **Operator** — Service 暴露、HPA 自动扩缩容、真实 Pod 指标
-- **TypeScript SDK** — Pipeline/Handoff 编排、A2A 总线、MCP 类型、SQLite 持久化
-- **CI/CD** — 安全扫描、多平台测试、Release 签名 + SBOM
-
-## TypeScript SDK — Go Parity
-
-`sdk/typescript/` 提供与 Go 框架功能对等的 TypeScript SDK，覆盖 34 个模块目录：
-
-| 模块 | Go (`internal/`) | TS (`src/`) | 状态 |
-|------|------------------|------------|------|
-| ReAct Agent | `agent/` | `agent/` | ✅ |
-| LLM Providers (12+) | `llm/` | `llm/` | ✅ |
-| Tools + MCP + Plugins | `tools/` | `tools/` | ✅ |
-| Memory (SQLite/Vector/RAG) | `memory/` | `memory/` | ✅ |
-| Orchestration (DAG/GroupChat/...) | `orchestration/` | `orchestration/` | ✅ |
-| Pool / Concurrency | `pool/` | `pool/` | ✅ |
-| A2A Communication | `agent/a2a/` | `a2a/` | ✅ |
-| Security / Guardrails | `security/` `guardrail/` | `security/` | ✅ |
-| Observability (OTel/Prometheus) | `metrics/` `otel/` | `metrics/` | ✅ |
-| Resilience (CircuitBreaker/Retry) | `resilience/` | `resilience/` | ✅ |
-| Prompt Engine | `prompt/` | `prompt/` | ✅ |
-| K8s Operator CRD | `operator/` | `operator/` | ✅ |
-| Audit Logger | `audit/` | `audit/` | ✅ |
-| Admin HTTP API | `admin/` | `admin/` | ✅ |
-| Inspector / Debugger | `debugger/` | `debugger/` | ✅ |
-| SQLite Checkpoint | `persist/` | `persist/` | ✅ |
-| Health Endpoints | `health/` | `health/` | ✅ |
-| Edge / Browser Runtime | `wasm/` `extensions/browser-extension/` | `edge/` `browser/` | ✅ |
-| Visual Editor (React) | `studio/web/` | `react/` `visual/` | ✅ |
-| VSCode 集成 | `extensions/vscode/` | `vscode/` | ✅ |
-| Codegen / Schema | — | `codegen/` `schema/` | ✅ |
-| i18n | — | `i18n/` | ✅ |
-
-```bash
-npm install @agentprimordia/sdk
-# 可选：SQLite 持久化
-npm install better-sqlite3
+```
+go install agentprimordia/cmd/ap@latest
+ap start my-agent
 ```
 
-```typescript
-import { ReActAgent, OpenAIProvider, ToolRegistry, AuditLogger, HealthServer } from '@agentprimordia/sdk';
+**30 秒。零配置。无需 API Key。** Agent 已经在跑了。
 
-const agent = new ReActAgent({
-  name: 'my-agent',
-  model: new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY!, model: 'gpt-4o' }),
-  toolkit: new ToolRegistry(),
-  maxTurns: 10,
-});
+---
 
-// 基础设施端点
-const health = new HealthServer();
-health.setReady(true);
-// GET /healthz → 200, /readyz → 200, /livez → 200
-```
+## 为什么选 AgentPrimordia
 
-详见 [TypeScript SDK 文档](sdk/typescript/README.md)。
+| | AgentPrimordia | 其他框架 |
+|---|---|---|
+| **上手** | `ap start` 一条命令 | 装依赖、配 key、写 boilerplate |
+| **学习** | 越用越强，能力可视化 | 每次对话从零开始 |
+| **语言** | Go — 编译型、并发原生、单二进制 | Python — 运行时依赖地狱 |
+| **部署** | 单二进制 + SQLite，零基础设施 | Docker + Redis + Postgres + ... |
+| **互联** | A2A 协议原生支持 | 各自为战 |
+
+## 核心能力
+
+- **ReAct 引擎** — Reasoning + Acting 循环，20+ 生命周期钩子
+- **学习闭环** — SelfModel 能力画像 + 成长事件日志 + Studio 可视化面板
+- **多模式编排** — Pipeline / Handoff / DAG / GroupChat / MapReduce
+- **工具系统** — FileSystem / Shell / Web / Database 内置，MCP 协议集成，插件市场扩展
+- **三层记忆** — SQLite FTS5 + Vector Store + RAG Pipeline 混合检索
+- **10+ LLM Provider** — OpenAI / Anthropic / Gemini / Ollama / Azure / Qwen / GLM / DeepSeek 等
+- **A2A 协议** — Agent 间发现、任务委托、结果回传的标准化协议
+- **安全防护** — ACL / Sandbox / Guardrails / PII 检测 / 路径遍历防护
+- **可观测性** — Prometheus Metrics / OpenTelemetry / Grafana Dashboard
+- **K8s Operator** — AgentDeployment CRD 声明式部署 + HPA 自动扩缩容
 
 ## 快速开始
 
-### 安装 CLI
+### 安装
 
 ```bash
-cd agentprimordia
-go build -o ap ./cmd/ap/
+# 从源码编译
+cd agentprimordia && go build -o ap ./cmd/ap/
+
+# 或直接用 go install
+go install agentprimordia/cmd/ap@latest
 ```
 
-### 3 步创建 Agent
+### 30 秒体验（无需 API Key）
 
 ```bash
-ap init my-agent
-cd my-agent
-ap run
+ap start my-agent
 ```
 
-### Hello Agent（最简示例）
+就这样。`ap start` 会自动创建项目、安装依赖、启动 Agent。没有 API Key？自动进入 Demo 模式，用关键词匹配模拟 LLM 响应，让你先体验完整流程。
 
-```go
-package main
+### 配置真实 LLM
 
-import (
-    "context"
-    "fmt"
-    "log"
-    "os"
-
-    ap "agentprimordia/pkg"
-)
-
-func main() {
-    provider, err := ap.NewOpenAIProvider(ap.Config{
-        APIKey: os.Getenv("OPENAI_API_KEY"),
-        Model:  "gpt-4o",
-    })
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    agent, err := ap.NewAgent("HelloAgent", "你是一个智能助手",
-        provider,
-        ap.WithMaxTurns(10),
-    )
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    resp, err := agent.Run(context.Background(), ap.UserMessage("你好"))
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Println(resp.Content)
-}
+```bash
+ap config set api-key sk-xxx
+ap config set provider openai
+ap config set model gpt-4o
+ap start my-agent    # 这次用真实 LLM
 ```
 
-### 含工具 Agent
+### 查看 Agent 成长报告
+
+```bash
+ap profile
+```
+
+```
+Agent Growth Profile
+====================
+Overall: 78% success (14/18 tasks), avg 4.2 turns
+
+Top Capabilities:
+  1. code-review     92% (23/25)  improving ↑
+  2. data-analysis   85% (17/20)  stable →
+
+Weak Areas:
+  1. sql-migration   45% (5/11)   declining ↓
+```
+
+### 打开学习仪表盘
+
+```bash
+ap studio
+# 浏览器打开 http://localhost:8080/dashboard/learning
+```
+
+能力雷达图、成长曲线、领域详情 — 你的 Agent 在变强，而且你能看见。
+
+## 代码示例
+
+### 最简 Agent（3 行）
 
 ```go
-registry, _ := ap.DefaultToolkit(ap.ToolkitConfig{
-    RootDir:     ".",
-    EnableFS:    true,
-    EnableShell: true,
-    EnableWeb:   true,
-})
+agent, _ := ap.NewAgent("HelloAgent", "你是一个智能助手", provider, ap.WithMaxTurns(10))
+resp, _ := agent.Run(ctx, ap.UserMessage("你好"))
+fmt.Println(resp.Content)
+```
 
+### 带工具 + 记忆的 Agent
+
+```go
+registry, _ := ap.DefaultToolkit(ap.ToolkitConfig{EnableFS: true, EnableShell: true})
 memory, _ := ap.WithInMemory()
 defer memory.Close()
 
-agent, err := ap.NewAgent("CodingAssistant", "", provider,
+agent, _ := ap.NewAgent("CodingAssistant", "", provider,
     ap.WithMaxTurns(20),
     ap.WithToolkit(registry),
     ap.WithMemory(memory),
 )
-if err != nil {
-    log.Fatal(err)
-}
 ```
 
-### 多 Agent 调度
+### 多 Agent 并发调度
 
 ```go
-pool := ap.NewPool(ap.PoolConfig{
-    MaxConcurrency: 5,
-    DefaultAgent: ap.ReActAgentConfig{
-        SystemPrompt: "你是任务处理助手",
-        MaxTurns:     10,
-    },
-})
+pool := ap.NewPool(ap.PoolConfig{MaxConcurrency: 5})
 defer pool.Close()
-
 pool.SetModel(provider)
 
 results, _ := pool.Dispatch(ctx, []ap.TaskConfig{
@@ -314,397 +136,152 @@ results, _ := pool.Dispatch(ctx, []ap.TaskConfig{
 ### DAG 编排
 
 ```go
-dag, _ := ap.NewDAGBuilder("data-analysis").
-    Node("collect", func(ctx context.Context, input string) (string, error) {
-        return collectAgent.Run(ctx, ap.UserMessage(input))
-    }).
-    Node("analyze", func(ctx context.Context, input string) (string, error) {
-        return analyzeAgent.Run(ctx, ap.UserMessage(input))
-    }).
-    Node("report", func(ctx context.Context, input string) (string, error) {
-        return reportAgent.Run(ctx, ap.UserMessage(input))
-    }).
+dag, _ := ap.NewDAGBuilder("pipeline").
+    Node("collect", collectFn).
+    Node("analyze", analyzeFn).
+    Node("report", reportFn).
     Edge("collect", "analyze").
     Edge("analyze", "report").
     Build()
 
 result, _ := dag.Run(ctx, "分析销售数据")
-fmt.Println(result.NodeResults["report"].Output)
 ```
 
-### MCP Server 集成
+### A2A 互联
 
 ```go
-// 连接外部 MCP Server
-client := ap.NewMCPClient("http://localhost:3001/mcp")
-client.Initialize(ctx)
-client.RegisterIntoRegistry(toolRegistry)
+// Agent 间通过 A2A 协议通信
+server, _ := ap.NewOpenInteropServer(card, cfg)
+server.WithExecutor(myTaskExecutor)
 
-// 或通过 Registry 管理多个 MCP Server
-mcpReg := ap.NewMCPRegistry()
-mcpReg.Register(ap.MCPClientConfig{
-    Name:      "filesystem",
-    Command:   "npx",
-    Args:      []string{"@modelcontextprotocol/server-filesystem", "/tmp"},
-    AutoStart: true,
-})
-mcpReg.StartAll(ctx)
-mcpReg.RegisterIntoRegistry(toolRegistry)
+client, _ := ap.NewOpenInteropClient(targetURL)
+task, _ := client.SendTask(ctx, &ap.TaskSendRequest{...})
 ```
-
-### Resilient Provider（重试 + 降级 + 熔断）
-
-```go
-primary := ap.NewOpenAIProvider(ap.Config{APIKey: key, Model: "gpt-4o"})
-fallback := ap.NewGeminiProvider(ap.Config{APIKey: geminiKey, Model: "gemini-1.5-pro"})
-local := ap.NewOllamaProvider(ap.Config{BaseURL: "http://localhost:11434", Model: "llama3"})
-
-resilient := ap.NewResilientProvider(primary, ap.DefaultResilientConfig())
-resilient.AddFallback(fallback)
-resilient.AddFallback(local)
-```
-
----
-
-## ✨ 亮点 Demo
-
-下面三个 demo 用 `go run` 就能跑（无 API Key 也行），展示了 AgentPrimordia 在真实场景下的能力。
-
-### Demo 1: GitHub Issue 自动 Triage Bot（生产级真实业务）
-
-Agent 读取 5 个预置 Issue → 分类 → 加 label → 输出 Markdown 报告。
-**这个 demo 体现了 AP 全部核心能力**：ReAct 循环 + 自定义工具 + httptest 模拟 + 多 Provider。
-
-```
-$ go run ./ecosystem/examples/github-issue-triage/
-
-=== AgentPrimordia: GitHub Issue Triage Bot ===
-
-[Mock Server] GitHub API mock 启动于 http://127.0.0.1:58291
-[Seed]       5 个预置 issue 等待分类
-
-[Provider]   使用 MockLLM (无 API Key 模式)
-
-[Mock 模式] 直接演示工具调用流程（跳过 Agent 循环）...
-
-=== Triage 报告 ===
-
-| Issue | Classification | Labels                          | Confidence | Reasoning                                          |
-|-------|----------------|---------------------------------|------------|----------------------------------------------------|
-| #1    | bug            | bug, priority:high              | 0.95       | panic in main loop with nil context                |
-| #2    | feature        | enhancement                     | 0.92       | user request for new dark mode feature             |
-| #3    | question       | question                        | 0.98       | user asking for OAuth configuration guidance       |
-| #4    | bug            | bug, platform:windows           | 0.90       | Windows CGO build error during compilation         |
-| #5    | duplicate      | duplicate                       | 0.85       | explicitly references issue #2 as duplicate        |
-
-=== 最终 Issue 状态 ===
-
-#1   bug          | labels=bug,priority:high              | panic in main loop when context is nil
-#2   enhancement  | labels=enhancement                    | Feature request: dark mode for CLI
-#3   question     | labels=question                       | How to configure OAuth provider?
-#4   bug          | labels=bug,platform:windows           | Build fails on Windows with CGO error
-#5   duplicate    | labels=duplicate                      | Same as #2 - dark mode request
-
-=== 统计 ===
-总 Issue 数:     5
-已分类 Issue 数: 5
-工具调用次数:    11  (1 list + 5 read + 5 add_label)
-```
-
-<p align="center">
-  <img src="docs/images/issue-triage-architecture.svg" alt="Issue Triage Architecture" width="80%">
-</p>
-
-### Demo 2: 链式 API 30 秒上手
-
-3 行链式调用 = 工具 + 记忆 + RAG 一应俱全。
-
-```go
-agent := ap.NewAgent("hello", "你是助手", provider, ap.WithMaxTurns(10)).
-    WithToolkit(toolkit).
-    WithMemory(mem).
-    WithRAG(ragProvider)
-
-```
-
-```
-$ go run ./ecosystem/examples/chain-api/
-
-=== 链式 API：最简 Agent ===
-
-回复: 你好！我是链式 API 创建的 Agent，有什么可以帮你的？
-轮数: 1
-```
-
-### Demo 3: 多 Agent 并发调度（Pool）
-
-10 个文件分析任务 × 5 个并发 Worker = 自动负载均衡 + 会话隔离。
-
-```go
-pool := ap.NewPool(ap.PoolConfig{MaxConcurrency: 5, Timeout: 60*time.Second})
-results, _ := pool.Dispatch(ctx, tasks)
-```
-
-```
-$ go run ./ecosystem/examples/multi-agent/
-
-=== Pool 多 Agent 调度演示 ===
-
-[Pool] 配置: MaxConcurrency=5, Timeout=60s
-[Pool] 提交 10 个分析任务...
-
-  task#1  [done]   turns=3  tokens=420  duration=1.2s
-  task#2  [done]   turns=2  tokens=380  duration=0.9s
-  task#3  [done]   turns=3  tokens=512  duration=1.4s
-  task#4  [done]   turns=2  tokens=295  duration=0.7s
-  task#5  [done]   turns=3  tokens=445  duration=1.1s
-  task#6  [done]   turns=2  tokens=378  duration=0.8s
-  task#7  [done]   turns=3  tokens=489  duration=1.3s
-  task#8  [done]   turns=2  tokens=312  duration=0.6s
-  task#9  [done]   turns=3  tokens=502  duration=1.2s
-  task#10 [done]   turns=2  tokens=401  duration=0.9s
-
-=== 统计 ===
-总任务:     10
-并发度:     5
-总耗时:     3.1s
-总 token:   4,134
-P50 耗时:   0.95s
-P99 耗时:   1.4s
-```
-
-<p align="center">
-  <img src="docs/images/multi-agent-dispatch.svg" alt="Pool Multi-Agent Dispatch" width="80%">
-</p>
-
-### 试试更多
-
-20+ 示例应用覆盖所有能力。详见 [`agentprimordia/ecosystem/examples/`](agentprimordia/ecosystem/examples/)
-
----
 
 ## 架构
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                    Your Application                       │
-├──────────────────────────────────────────────────────────┤
-│                   AgentPrimordia Framework                 │
-│                                                            │
-│  ┌──────────┐ ┌──────────┐ ┌────────┐ ┌──────────────┐  │
-│  │ ReActLoop │ │   Pool   │ │  DAG   │ │  Pipeline    │  │
-│  │ (Engine) │ │(Dispatch)│ │(Graph) │ │(Sequential)  │  │
-│  └────┬─────┘ └────┬─────┘ └───┬────┘ └──────┬───────┘  │
-│       └────────────┼───────────┼──────────────┘          │
-│              ┌──────┴──────┐                               │
-│              │ Tool System │                               │
-│              │ ┌─────────┐ │                               │
-│              │ │Built-in │ │  MCP  │  Plugin │             │
-│              │ │FS/Shell/│ │  Client│  System │             │
-│              │ │Web/Know │ │  Reg.  │         │             │
-│              │ └─────────┘ │        │         │             │
-│              └─────────────┘        │         │             │
-│                                    │         │             │
-│  ┌─────────────────────────────────────────────────────┐  │
-│  │                  LLM Layer                          │  │
-│  │  OpenAI │ Anthropic │ Gemini │ Ollama │ Azure │ ...│  │
-│  │              ResilientProvider                       │  │
-│  └─────────────────────────────────────────────────────┘  │
-│                                                            │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐  │
-│  │ Memory   │ │ EventBus │ │ Metrics  │ │ Guardrails │  │
-│  │SQLite+FTS│ │(Pub/Sub) │ │OTel/Prom │ │ACL/Sandbox │  │
-│  │ +Vector  │ │          │ │          │ │  PII检测   │  │
-│  │ +RAG     │ │          │ │          │ │            │  │
-│  └──────────┘ └──────────┘ └──────────┘ └────────────┘  │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                  Your Application                    │
+├─────────────────────────────────────────────────────┤
+│              AgentPrimordia Framework                │
+│                                                      │
+│  ┌──────────┐ ┌──────────┐ ┌────────┐ ┌─────────┐  │
+│  │ ReActLoop│ │   Pool   │ │  DAG   │ │Pipeline │  │
+│  └────┬─────┘ └────┬─────┘ └───┬────┘ └────┬────┘  │
+│       └────────────┼───────────┼───────────┘        │
+│              ┌─────┴─────┐                           │
+│              │Tool System│                            │
+│              │Built-in + MCP + Plugin                 │
+│              └───────────┘                            │
+│                                                      │
+│  ┌──────────┐ ┌──────────┐ ┌────────┐ ┌──────────┐  │
+│  │ Memory   │ │ Learning │ │ Metrics│ │Guardrails│  │
+│  │SQLite+FTS│ │SelfModel │ │OTel/   │ │ACL/Sandbox│ │
+│  │+Vector   │ │+GrowthLog│ │Prom    │ │+PII      │  │
+│  │+RAG      │ │+Studio   │ │        │ │          │  │
+│  └──────────┘ └──────────┘ └────────┘ └──────────┘  │
+└─────────────────────────────────────────────────────┘
 ```
 
 ## 项目结构
 
 ```
-AgentPrimordia/（仓库根，go.work 多模块）
-├── agentprimordia/            # 核心框架模块
-│   ├── cmd/
-│   │   ├── ap/               # CLI 工具（18 个子命令）
-│   │   ├── admin/            # Admin HTTP API Server
-│   │   ├── studio/           # Studio Server
-│   │   └── example/          # 示例应用
-│   ├── internal/             # 29 个包（完整清单见 agentprimordia/internal/AGENTS.md）
-│   │   ├── agent/            # ReActLoop 引擎 + 协议式微内核（32 个子包）
-│   │   │   ├── a2a/          # Agent2Agent 协议
-│   │   │   ├── cluster/      # 分布式集群
-│   │   │   ├── transport/    # gRPC/TCP 传输
-│   │   │   ├── planning/     # 任务规划
-│   │   │   ├── reflection/   # 自反思
-│   │   │   ├── strategy/     # 认知策略（v5.2）
-│   │   │   └── ...           # 其余子包见 internal/AGENTS.md
-│   │   ├── pool/             # 多 Agent 并发调度
-│   │   ├── tools/            # 工具系统 (Registry/MCP/Plugin/Builtin)
-│   │   ├── memory/           # 记忆存储 (SQLite/Vector/RAG/固化)
-│   │   ├── llm/              # LLM 抽象层 (10+ Provider + Resilient)
-│   │   ├── guardrail/        # 输入输出护栏 (PII/Topic/Injection/Trie)
-│   │   ├── governance/       # 多租户与治理
-│   │   ├── security/         # ACL + Sandbox + 密钥管理 + AES-GCM
-│   │   ├── eval/             # Agent 评估框架
-│   │   ├── studio/           # Studio 引擎接线
-│   │   ├── self_bootstrap/   # 自举季度曲线 (v5.4)
-│   │   └── ...               # 其余包（admin/audit/chaos/…）见 internal/AGENTS.md
-│   ├── pkg/                  # 公共 API (类型别名 + re-export)
-│   ├── operator/             # K8s Operator (独立 go.mod)
-│   ├── studio/web/           # 可视化控制台 (React)
-│   ├── bench/                # 性能基准测试套件
-│   └── deploy/               # Grafana/Prometheus/Helm 部署模板
-├── pgvector/                  # pgvector 向量存储扩展（独立模块）
-├── gateway/                   # 网关（独立模块）
-├── wasm/                      # WASM 沙箱执行（独立模块，wazero）
-├── sdk/                       # 多语言 SDK（仓库根）
-│   ├── typescript/           # TypeScript SDK (Go Parity, 39 模块)
-│   ├── python/               # Python 轻量客户端
-│   └── rust/                 # Rust 轻量客户端
-├── extensions/                # 浏览器扩展等
-├── testutil/                  # 测试辅助工具 (MockProvider / NewTestAgent)
-└── docs/                      # 路线图 / 发布说明 / 评估报告
+AgentPrimordia/
+├── agentprimordia/          # 核心框架（73 个包，1079 个 Go 文件）
+│   ├── cmd/ap/              # CLI（20 个子命令）
+│   ├── internal/            # 29 个内部包
+│   │   ├── agent/           # ReAct 引擎 + 微内核（32 个子包）
+│   │   ├── pool/            # 多 Agent 并发调度
+│   │   ├── tools/           # 工具系统
+│   │   ├── memory/          # 记忆存储 + SelfModel + GrowthLog
+│   │   ├── llm/             # 10+ LLM Provider
+│   │   ├── studio/          # Studio 引擎 + 学习面板
+│   │   └── ...              # 完整清单见 internal/AGENTS.md
+│   ├── pkg/                 # 公共 API
+│   ├── operator/            # K8s Operator
+│   ├── bench/               # 性能基准测试
+│   └── ecosystem/           # 示例 + 插件 + 模板
+├── pgvector/                # pgvector 向量存储扩展
+├── gateway/                 # 网关
+├── wasm/                    # WASM 沙箱（wazero）
+└── sdk/typescript/          # TypeScript SDK（Go 功能对等）
 ```
 
 ## CLI 命令
 
 ```bash
-ap init my-agent              # 创建项目 (--template basic|with-tools|multi-agent)
-ap run                        # 编译运行 (--watch 监视模式)
-ap debug                      # 调试服务器 (http://localhost:6060)
-ap loop trace                 # 查看 Agent 执行追踪
-ap loop inspect               # 查看 Agent 当前状态
-ap loop resume                # 从检查点恢复运行
-ap test                       # 运行 eval 测试套件
-ap mcp list                   # 列出 MCP Server
-ap mcp add fs --command npx --args "@mcp/server-filesystem,/tmp"
-ap mcp test fs                # 测试连通性
-ap plugin install github.com/user/ap-plugin-xxx
-ap plugin create ap-plugin-weather
-ap doctor                     # 健康检查
-ap completion bash            # 生成 Shell 补全脚本 (bash/zsh/fish/powershell)
+ap start my-agent              # 一键创建 + 依赖 + 运行
+ap run                         # 编译运行（--watch 热重载）
+ap profile                     # 查看 Agent 成长报告
+ap profile history             # 成长事件历史
+ap config set api-key sk-xxx   # 配置 API Key
+ap init my-agent               # 创建项目（手动模式）
+ap debug                       # 调试服务器
+ap loop trace                  # 执行追踪
+ap test                        # Eval 测试套件
+ap mcp list / add / test       # MCP Server 管理
+ap plugin install <url>        # 安装插件
+ap doctor                      # 健康检查
+ap studio                      # 启动 Studio 面板
 ```
 
-## Vector DB 选型
+## 示例
 
-| 规模 | 推荐 | 原因 |
+| 示例 | 说明 | 运行 |
 |------|------|------|
-| <100K 文档 | InMemory | 零依赖 |
-| 100K-1M | Qdrant | Go REST 客户端，性能优 |
-| >1M | Milvus | 分布式，水平扩展 |
-| 已有 PostgreSQL | pgvector | 不引入新基础设施 |
-
-## 可观测性
-
-内置 Prometheus 指标 + OpenTelemetry 桥接，3 个预置 Grafana Dashboard：
-
-```bash
-# 导入 Dashboard
-kubectl create configmap ap-dashboard \
-  --from-file=deploy/grafana/dashboard-agent.json -n monitoring
-```
-
-| Dashboard | 内容 |
-|-----------|------|
-| Agent Runtime | 活跃数、轮次延迟、工具调用频率、错误率 |
-| LLM Operations | 延迟 P50/P95/P99、Token 消耗、Provider 分布 |
-| Cost Tracking | 成本趋势、按 Provider/Agent 分解 |
-
-## K8s 部署
-
-```yaml
-apiVersion: agent.primordia.dev/v1
-kind: AgentDeployment
-metadata:
-  name: code-reviewer
-spec:
-  replicas: 3
-  template:
-    provider: openai
-    model: gpt-4o
-    systemPrompt: "你是一个代码审查助手"
-    tools:
-      - name: filesystem
-      - name: shell
-        config:
-          commandWhitelist: "go,git"
-    memory:
-      backend: sqlite
-  service:
-    type: ClusterIP
-    port: 8080
-  autoscaling:
-    minReplicas: 1
-    maxReplicas: 10
-    targetConcurrentTasks: 5
-```
-
-Operator 自动创建 Service 暴露 Agent 并配置 HPA 基于 Pod 指标自动扩缩容。
-
-```bash
-kubectl apply -f operator/manifest/crd.yaml
-kubectl apply -f operator/manifest/examples/basic-agent.yaml
-kubectl get ad
-kubectl get hpa   # 查看 HPA 状态
-kubectl get svc   # 查看 Service
-```
-
-## 运行测试
-
-```bash
-# 核心测试
-go test ./internal/... ./pkg/... -race
-
-# CLI 测试
-go test ./cmd/ap/
-
-# 集成测试（需要 OPENAI_API_KEY）
-make test-integration
-
-# 基准测试
-go test -bench=. -benchmem ./bench/suite/
-
-# Lint
-golangci-lint run
-```
+| code-review-agent | 代码审查 Agent（学习闭环） | `go run ./ecosystem/examples/code-review-agent/` |
+| data-analysis-agent | 数据分析 Agent | `go run ./ecosystem/examples/data-analysis-agent/` |
+| a2a-connect | A2A 协议互联 | `go run ./ecosystem/examples/a2a-connect/` |
+| github-issue-triage | GitHub Issue 自动分类 | `go run ./ecosystem/examples/github-issue-triage/` |
+| multi-agent | Pool 并发调度 | `go run ./ecosystem/examples/multi-agent/` |
+| chain-api | 链式 API 最简示例 | `go run ./ecosystem/examples/chain-api/` |
 
 ## 设计哲学
 
-1. **来自生产，服务生产** — 核心模式从 CodeCast 生产环境提炼
+1. **来自生产，服务生产** — 核心模式从 CodeCast 生产环境提炼，不是玩具框架
 2. **接口优先** — LLM / Tools / Memory 全部接口解耦，自由替换
-3. **并发原生** — Goroutine + Channel 是一等公民
-4. **最小外部依赖** — 核心零 CGO，仅依赖纯 Go SQLite + YAML；可选 gRPC/Redis/etcd/wazero 按需引入
-5. **TDD 强制** — 每个功能先写测试，Red → Green → Refactor
+3. **零配置起步** — `ap start` 不需要任何配置就能跑起来
+4. **越用越强** — 学习闭环让 Agent 从每次交互中积累经验
+5. **最小依赖** — 核心零 CGO，仅 SQLite + YAML；可选 gRPC/Redis/etcd/wazero 按需引入
+6. **TDD 强制** — Red → Green → Refactor，538 个测试文件
+
+## 技术栈
+
+- **Go 1.26+** — 编译型、并发原生、单二进制部署
+- **SQLite** — 嵌入式记忆存储（modernc.org/sqlite，纯 Go，零 CGO）
+- **gRPC** — A2A 协议传输层
+- **wazero** — WASM 沙箱执行（纯 Go，零 CGO）
+- **OpenTelemetry** — 可观测性标准
 
 ## 文档
 
-- [CHANGELOG](docs/CHANGELOG.md)
-- [版本策略与兼容性承诺](agentprimordia/docs/版本规范.md)
-- [v2.0.0 发布说明](docs/发布说明-v2.0.0.md)
-- [v1.0.0 发布说明](docs/发布说明-v1.0.0.md)
-- [v0.8.0 发布说明](docs/发布说明-v0.8.0.md)
-- [v0.7.0 发布说明](docs/发布说明-v0.7.0.md)
-- [v0.2.0 发布说明](docs/发布说明-v0.2.0.md)
-- [v0.1.0 发布说明](docs/发布说明-v0.1.0.md)
-- [架构图](docs/架构图.md)
-- [API 完整参考](docs/API参考.md)
-- [TypeScript SDK 文档](sdk/typescript/README.md)
-- [TypeScript API 参考](sdk/typescript/docs/api/index.md)
-- [开发文档](agentprimordia/DEVELOPMENT.md)
+- [v7.3 发布说明](agentprimordia/docs/CHANGELOG-v7.3.md)
+- [三战线用户指南](agentprimordia/docs/三战线用户指南.md)
+- [Demo 视频脚本](agentprimordia/docs/demo-video-script.md)
+- [架构设计](docs/架构图.md)
+- [API 参考](docs/API参考.md)
+- [版本规范](agentprimordia/docs/版本规范.md)
+- [TypeScript SDK](sdk/typescript/README.md)
 - [入门指南](agentprimordia/ecosystem/docs/getting-started.md)
-- [CLI 开发手册](agentprimordia/ecosystem/docs/ap-guide.md)
+- [CLI 手册](agentprimordia/ecosystem/docs/ap-guide.md)
 - [最佳实践](agentprimordia/ecosystem/docs/best-practices.md)
-- [FAQ](agentprimordia/ecosystem/docs/faq.md)
-- [Vector DB 选型指南](agentprimordia/ecosystem/docs/vector-db-guide.md)
-- [Cookbook: 客服机器人](agentprimordia/ecosystem/docs/cookbook/customer-support-bot.md)
-- [Cookbook: 代码审查 Agent](agentprimordia/ecosystem/docs/cookbook/code-review-agent.md)
-- [Cookbook: 数据分析 Agent](agentprimordia/ecosystem/docs/cookbook/data-analysis-agent.md)
-- [Cookbook: RAG Agent](agentprimordia/ecosystem/docs/cookbook/RAG-Agent.md)
-- [v0 → v1 迁移指南](agentprimordia/ecosystem/docs/migration/v0-deprecations.md)
-- [Go 生态概览](agentprimordia/ecosystem/docs/go-ecosystem.md)
-- [贡献 Provider](agentprimordia/ecosystem/contributing/PROVIDER.md)
-- [贡献 Plugin](agentprimordia/ecosystem/contributing/PLUGIN.md)
+- [Cookbook](agentprimordia/ecosystem/docs/cookbook/) — 客服机器人 / 代码审查 / 数据分析 / RAG
+- [内部模块清单](agentprimordia/internal/AGENTS.md)
+
+## 版本历史
+
+| 版本 | 主题 | 亮点 |
+|------|------|------|
+| **v7.3** | 三战线 | 零门槛入口 + 学习闭环体感 + 生态协议卡位 |
+| v7.2 | A/B 验收 | 全量验收实验，P4/P5 正向趋势 |
+| v7.0-7.1 | 世界模型 | 实体/关系/因果算子状态图 |
+| v6.0 | 大成 | 39 模块冻结，认知引擎 + 自进化闭环 |
+| v5.0 | 均衡 | 真实接线 + 多模态 + 分布式 + 平台化 |
+| v4.0 | 稳定 | 契约锁定 + 性能大版 + 兼容性收紧 |
+| v1-3 | 孵化 | 核心引擎 + 微内核 + 双语言 + 生态 |
+
+完整历史见 [CHANGELOG](docs/CHANGELOG.md)。
 
 ## License
 

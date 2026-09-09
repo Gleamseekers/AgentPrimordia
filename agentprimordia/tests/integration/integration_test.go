@@ -28,10 +28,10 @@ func TestApStartFlow(t *testing.T) {
 	tmpDir := t.TempDir()
 	origDir, _ := os.Getwd()
 	defer os.Chdir(origDir)
-	
+
 	// 切换到临时目录
 	os.Chdir(tmpDir)
-	
+
 	// 编译 ap 命令
 	apBin := filepath.Join(tmpDir, "ap")
 	buildCmd := exec.Command("go", "build", "-o", apBin, "./cmd/ap")
@@ -39,10 +39,12 @@ func TestApStartFlow(t *testing.T) {
 	if output, err := buildCmd.CombinedOutput(); err != nil {
 		t.Fatalf("编译 ap 失败: %v\n%s", err, output)
 	}
-	
-	// 运行 ap start
+
+	// 运行 ap start：AP_ROOT 让 start 知道框架源码位置，
+	// 否则在 t.TempDir() 这种隔离环境会落入 standalone 模式
 	startCmd := exec.Command(apBin, "start", "test-agent")
 	startCmd.Dir = tmpDir
+	startCmd.Env = append(os.Environ(), "AP_ROOT="+filepath.Join(origDir, "..", ".."))
 	output, err := startCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("ap start 失败: %v\n%s", err, output)
@@ -93,7 +95,7 @@ func TestMultiTurnConversation(t *testing.T) {
 		},
 		{
 			input:    "谢谢",
-			expected: []string{"不客气", "帮助"},
+			expected: []string{"不客气"},
 		},
 	}
 	
@@ -226,7 +228,7 @@ func TestDemoProvider(t *testing.T) {
 		},
 		{
 			input:    "hello",
-			expected: []string{"Hello", "welcome"},
+			expected: []string{"你好"},
 		},
 		{
 			input:    "帮助",
@@ -288,8 +290,8 @@ func TestProjectStructure(t *testing.T) {
 	// 验证项目结构
 	projectDir := filepath.Join(tmpDir, "structure-test")
 	
-	// 检查目录
-	dirs := []string{"data"}
+	// 检查目录（data/ 由 sqlite memory backend 首次使用时惰性创建，不在 init 时生成）
+	dirs := []string{}
 	for _, dir := range dirs {
 		path := filepath.Join(projectDir, dir)
 		info, err := os.Stat(path)

@@ -1,5 +1,5 @@
 {
-  "version": "6.0.1",
+  "version": "7.3.0",
   "generated_at": "",
   "modules": [
     {
@@ -727,6 +727,21 @@
           "doc": "OpenInteropClient 开放协议客户端"
         },
         {
+          "name": "TaskExecutor",
+          "kind": "alias",
+          "doc": "TaskExecutor 任务执行器接口"
+        },
+        {
+          "name": "EchoTaskExecutor",
+          "kind": "alias",
+          "doc": "EchoTaskExecutor 回声测试执行器"
+        },
+        {
+          "name": "SimpleTaskExecutor",
+          "kind": "alias",
+          "doc": "SimpleTaskExecutor 简单任务执行器"
+        },
+        {
           "name": "InteropConfig",
           "kind": "alias",
           "doc": "InteropConfig 互操作配置"
@@ -813,6 +828,14 @@
         {
           "name": "NewOpenInteropClient",
           "doc": "NewOpenInteropClient 创建开放协议客户端"
+        },
+        {
+          "name": "NewEchoTaskExecutor",
+          "doc": "NewEchoTaskExecutor 创建回声测试执行器"
+        },
+        {
+          "name": "NewSimpleTaskExecutor",
+          "doc": "NewSimpleTaskExecutor 创建简单任务执行器"
         },
         {
           "name": "GenerateInteropReport",
@@ -1657,7 +1680,7 @@
         },
         {
           "name": "Version",
-          "value": "\"6.0.1\"",
+          "value": "\"7.3.0\"",
           "doc": "Version 是 AgentPrimordia 框架的当前版本号"
         }
       ],
@@ -3843,6 +3866,11 @@
           "doc": "GeminiMultimodalProvider 实现 Google Gemini 多模态模型调用（文本+图片+音频+视频）"
         },
         {
+          "name": "DemoProvider",
+          "kind": "alias",
+          "doc": "DemoProvider 无需 API key 的演示提供者，基于关键词匹配产生响应"
+        },
+        {
           "name": "LLMCache",
           "kind": "alias",
           "stability": "Experimental",
@@ -4131,6 +4159,10 @@
         {
           "name": "NewMistralProvider",
           "doc": "NewMistralProvider 创建 Mistral 提供者实例"
+        },
+        {
+          "name": "NewDemoProvider",
+          "doc": "NewDemoProvider 创建无需 API key 的演示提供者"
         },
         {
           "name": "NewQwenProvider",
@@ -5045,7 +5077,7 @@
         {
           "name": "WithTelemetry",
           "params": [
-            "tp *otel.TelemetryProvider"
+            "tp *obsotel.TelemetryProvider"
           ],
           "returns": [
             "agent.Option"

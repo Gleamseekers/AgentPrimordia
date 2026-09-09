@@ -734,3 +734,19 @@ jobs:
           name: benchmark-results
           path: /tmp/bench-output.txt
           retention-days: 30
+
+  user-validation:
+    name: User Validation (E2E)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Run user validation script
+        working-directory: agentprimordia
+        env:
+          CGO_ENABLED: 0
+        run: bash tests/validation/user-validation.sh

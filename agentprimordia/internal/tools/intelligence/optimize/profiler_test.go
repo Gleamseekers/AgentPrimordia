@@ -63,9 +63,9 @@ func TestInMemoryProfiler_AllProfiles(t *testing.T) {
 	p := NewInMemoryProfiler()
 
 	// 记录两个工具的数据
-	p.Record(ctx, intelligence.ToolUsageRecord{ToolName: "shell", Success: true, Duration: 100 * time.Millisecond, Tokens: 50})
-	p.Record(ctx, intelligence.ToolUsageRecord{ToolName: "shell", Success: false, Duration: 200 * time.Millisecond, Tokens: 60})
-	p.Record(ctx, intelligence.ToolUsageRecord{ToolName: "file", Success: true, Duration: 150 * time.Millisecond, Tokens: 40})
+	_ = p.Record(ctx, intelligence.ToolUsageRecord{ToolName: "shell", Success: true, Duration: 100 * time.Millisecond, Tokens: 50})
+	_ = p.Record(ctx, intelligence.ToolUsageRecord{ToolName: "shell", Success: false, Duration: 200 * time.Millisecond, Tokens: 60})
+	_ = p.Record(ctx, intelligence.ToolUsageRecord{ToolName: "file", Success: true, Duration: 150 * time.Millisecond, Tokens: 40})
 
 	// 获取所有画像
 	profiles, err := p.AllProfiles(ctx)

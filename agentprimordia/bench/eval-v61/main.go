@@ -496,8 +496,7 @@ func writeReport(outDir string, rounds, holdoutTotal int) {
 	}
 	b, c := 0, 0 // b=仅 A 成功, c=仅 B 成功（不一致格）
 	aOK, bOK := 0, 0
-	var holdoutPairs []string
-	for k, rs := range pairs {
+	for _, rs := range pairs {
 		if len(rs) != 2 {
 			continue
 		}
@@ -520,9 +519,6 @@ func writeReport(outDir string, rounds, holdoutTotal int) {
 		}
 		if bb.Success {
 			bOK++
-		}
-		if strings.Contains(k, "") {
-			holdoutPairs = append(holdoutPairs, k) // 占位；真实留出对账见 holdout 标记
 		}
 	}
 	n := aOK + bOK - len(pairs) + len(pairs) // 配对数 = pairs 长度

@@ -174,7 +174,7 @@ Examples:
 	case "api-key":
 		if value == "" {
 			fmt.Print("Enter API key: ")
-			fmt.Scanln(&value)
+			_, _ = fmt.Scanln(&value)
 		}
 		if value == "" {
 			return fmt.Errorf("API key cannot be empty")
@@ -185,7 +185,7 @@ Examples:
 	case "provider":
 		if value == "" {
 			fmt.Print("Enter provider (openai/gemini/qwen/ollama/deepseek/glm): ")
-			fmt.Scanln(&value)
+			_, _ = fmt.Scanln(&value)
 		}
 		cfg.LLM.Provider = value
 		successf("Provider 已设置为 %q", value)
@@ -193,7 +193,7 @@ Examples:
 	case "model":
 		if value == "" {
 			fmt.Print("Enter model name: ")
-			fmt.Scanln(&value)
+			_, _ = fmt.Scanln(&value)
 		}
 		cfg.LLM.Model = value
 		successf("Model 已设置为 %q", value)
@@ -201,7 +201,7 @@ Examples:
 	case "base-url":
 		if value == "" {
 			fmt.Print("Enter base URL: ")
-			fmt.Scanln(&value)
+			_, _ = fmt.Scanln(&value)
 		}
 		cfg.LLM.BaseURL = value
 		successf("Base URL 已设置")
@@ -209,20 +209,20 @@ Examples:
 	case "max-turns":
 		if value == "" {
 			fmt.Print("Enter max turns: ")
-			fmt.Scanln(&value)
+			_, _ = fmt.Scanln(&value)
 		}
 		if cfg.Agent == nil {
 			cfg.Agent = &agentConfig{}
 		}
 		n := 20
-		fmt.Sscanf(value, "%d", &n)
+		_, _ = fmt.Sscanf(value, "%d", &n)
 		cfg.Agent.MaxTurns = n
 		successf("Max turns 已设置为 %d", n)
 
 	case "system-prompt":
 		if value == "" {
 			fmt.Print("Enter system prompt: ")
-			fmt.Scanln(&value)
+			_, _ = fmt.Scanln(&value)
 		}
 		if cfg.Agent == nil {
 			cfg.Agent = &agentConfig{}

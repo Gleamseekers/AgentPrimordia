@@ -31,12 +31,15 @@ func main() {
 		fmt.Println()
 		provider = ap.NewDemoProvider()
 	} else {
-		// 有 API key，使用真实 LLM
-		provider, err = ap.NewOpenAIProvider(ap.Config{
-			APIKey:  apiKey,
-			Model:   "gpt-4o-mini",
-			BaseURL: "https://api.openai.com/v1",
-		})
+		// 有 API key，使用真实 LLM（从环境变量读取配置）
+		cfg := ap.ConfigFromEnv("")
+		if cfg.Model == "" {
+			cfg.Model = "gpt-4o-mini"
+		}
+		if cfg.BaseURL == "" {
+			cfg.BaseURL = "https://api.openai.com/v1"
+		}
+		provider, err = ap.NewOpenAIProvider(cfg)
 		if err != nil {
 			log.Fatalf("创建LLM失败: %v", err)
 		}

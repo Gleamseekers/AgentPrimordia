@@ -90,9 +90,7 @@ func (t *artifactTool) Execute(ctx context.Context, args json.RawMessage) (*tool
 
 	// 通过 sh 执行脚本
 	cmd := exec.CommandContext(ctx, "sh", t.path)
-	for _, arg := range strings.Fields(params.Args) {
-		cmd.Args = append(cmd.Args, arg)
-	}
+	cmd.Args = append(cmd.Args, strings.Fields(params.Args)...)
 	cmd.Dir = t.workdir
 
 	out, err := cmd.CombinedOutput()

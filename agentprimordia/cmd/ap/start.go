@@ -175,7 +175,7 @@ func runStart(args []string) error {
 	if err := os.Chdir(absTarget); err != nil {
 		return fmt.Errorf("切换目录失败: %w", err)
 	}
-	defer os.Chdir(origDir)
+	defer func() { _ = os.Chdir(origDir) }()
 
 	return runRun([]string{})
 }

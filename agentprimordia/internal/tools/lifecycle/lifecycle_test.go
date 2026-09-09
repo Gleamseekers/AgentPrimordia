@@ -333,7 +333,11 @@ func (s *scriptedExecutor) Run(_ context.Context, _ []byte, _, input string) (st
 const testPubPEMTmpl = "-----BEGIN PUBLIC KEY-----\n%s\n-----END PUBLIC KEY-----\n"
 
 func pemEncodePubKey(pk *ecdsa.PublicKey) string {
-	raw := elliptic.Marshal(elliptic.P256(), pk.X, pk.Y)
+	// 非压缩公钥：0x04 || X (32 bytes) || Y (32 bytes)，与 elliptic.Marshal 口径一致
+	raw := make([]byte, 65)
+	raw[0] = 0x04
+	pk.X.FillBytes(raw[1:33])
+	pk.Y.FillBytes(raw[33:65])
 	return fmt.Sprintf(testPubPEMTmpl, base64.StdEncoding.EncodeToString(raw))
 }
 
@@ -346,10 +350,12 @@ func pemDecodePubKey(pem string) (*ecdsa.PublicKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	x, y := elliptic.Unmarshal(elliptic.P256(), raw)
-	if x == nil {
+	// 非压缩公钥：0x04 || X (32 bytes) || Y (32 bytes)，与 elliptic.Unmarshal 口径一致
+	if len(raw) != 65 || raw[0] != 0x04 {
 		return nil, errors.New("bad point")
 	}
+	x := new(big.Int).SetBytes(raw[1:33])
+	y := new(big.Int).SetBytes(raw[33:65])
 	return &ecdsa.PublicKey{Curve: elliptic.P256(), X: x, Y: y}, nil
 }
 

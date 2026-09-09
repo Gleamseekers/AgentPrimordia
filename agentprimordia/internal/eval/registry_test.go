@@ -313,9 +313,7 @@ func TestEvaluateAssertions(t *testing.T) {
 				}
 				continue
 			}
-			if c.name == "json 路径缺失" {
-				// 路径缺失但文件存在：应判 false 而非 error
-			}
+			// json 路径缺失：路径缺失但文件存在，应判 false 而非 error；落入下方公共断言逻辑
 		case AssertLinesMatchCount:
 			if c.name == "正则非法" {
 				if _, err := EvaluateAssertion(root, a, nil); err == nil {

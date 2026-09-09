@@ -129,7 +129,9 @@ func main() {
 			results[key] = r
 
 			f, _ := os.OpenFile(resultsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			json.NewEncoder(f).Encode(r)
+			if err := json.NewEncoder(f).Encode(r); err != nil {
+				fmt.Printf("写入结果失败: %v\n", err)
+			}
 			f.Close()
 
 			status := "OK"

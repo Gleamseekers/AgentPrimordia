@@ -134,7 +134,9 @@ func main() {
 		jsonlPath := filepath.Join(*outDir, p+"-results.jsonl")
 		f, _ := os.OpenFile(jsonlPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 		for _, r := range report.Results {
-			json.NewEncoder(f).Encode(r)
+			if err := json.NewEncoder(f).Encode(r); err != nil {
+				fmt.Printf("写入结果失败: %v\n", err)
+			}
 		}
 		f.Close()
 		fmt.Printf("逐条结果: %s\n", jsonlPath)

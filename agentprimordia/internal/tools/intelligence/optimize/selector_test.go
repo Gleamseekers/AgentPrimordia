@@ -12,15 +12,15 @@ func TestHistorySelector_SelectBest(t *testing.T) {
 	selector := NewHistorySelector()
 
 	// 记录工具调用结果
-	selector.RecordOutcome(ctx, "shell", true)
-	selector.RecordOutcome(ctx, "shell", true)
-	selector.RecordOutcome(ctx, "shell", false) // 2/3 = 0.667
+	_ = selector.RecordOutcome(ctx, "shell", true)
+	_ = selector.RecordOutcome(ctx, "shell", true)
+	_ = selector.RecordOutcome(ctx, "shell", false) // 2/3 = 0.667
 
-	selector.RecordOutcome(ctx, "file", true)
-	selector.RecordOutcome(ctx, "file", true) // 2/2 = 1.0
+	_ = selector.RecordOutcome(ctx, "file", true)
+	_ = selector.RecordOutcome(ctx, "file", true) // 2/2 = 1.0
 
-	selector.RecordOutcome(ctx, "web", false)
-	selector.RecordOutcome(ctx, "web", false) // 0/2 = 0.0
+	_ = selector.RecordOutcome(ctx, "web", false)
+	_ = selector.RecordOutcome(ctx, "web", false) // 0/2 = 0.0
 
 	// 选择
 	selected, err := selector.Select(ctx, "task", []string{"shell", "file", "web"})
@@ -67,11 +67,11 @@ func TestHistorySelector_RecordOutcome(t *testing.T) {
 	selector := NewHistorySelector()
 
 	// 记录成功
-	selector.RecordOutcome(ctx, "shell", true)
-	selector.RecordOutcome(ctx, "shell", true)
+	_ = selector.RecordOutcome(ctx, "shell", true)
+	_ = selector.RecordOutcome(ctx, "shell", true)
 
 	// 记录失败
-	selector.RecordOutcome(ctx, "shell", false)
+	_ = selector.RecordOutcome(ctx, "shell", false)
 
 	// 验证统计
 	success, total := selector.GetStats("shell")

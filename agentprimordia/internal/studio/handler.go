@@ -323,7 +323,7 @@ func (h *StudioHandler) learningDashboard(w http.ResponseWriter, r *http.Request
 </body>
 </html>`
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write([]byte(htmlContent))
+	_, _ = w.Write([]byte(htmlContent))
 }
 
 // ===== Marketplace =====

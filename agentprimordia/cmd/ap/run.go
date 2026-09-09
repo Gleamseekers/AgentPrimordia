@@ -141,6 +141,9 @@ func appendConfigEnv(env []string, dir string) []string {
 	if llm.APIKey != "" && !hasKey("AP_LLM_API_KEY") {
 		env = append(env, "AP_LLM_API_KEY="+llm.APIKey)
 	}
+	if llm.BaseURL != "" && !hasKey("AP_LLM_BASE_URL") {
+		env = append(env, "AP_LLM_BASE_URL="+llm.BaseURL)
+	}
 
 	return env
 }

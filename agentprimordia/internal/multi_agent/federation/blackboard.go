@@ -61,7 +61,6 @@ func (b *FederatedBlackboard) ClaimTask(taskID string, holder NodeID, expectVers
 		if now.After(cur.LeaseUntil) {
 			delete(b.claims, taskID)
 			b.stats.LeaseExpired++
-			held = false
 		} else {
 			// 存活租约：CAS 校验
 			if expectVersion != cur.Version {

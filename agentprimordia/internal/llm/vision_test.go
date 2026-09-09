@@ -37,7 +37,7 @@ func TestOpenAIMultimodalProvider_VisionRequest(t *testing.T) {
 			"usage": {"prompt_tokens": 100, "completion_tokens": 10, "total_tokens": 110}
 		}`
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(resp))
+		_, _ = w.Write([]byte(resp))
 	}))
 	defer server.Close()
 
@@ -158,7 +158,7 @@ func TestOpenAIMultimodalProvider_VisionResponse(t *testing.T) {
 			"usage": {"prompt_tokens": 200, "completion_tokens": 25, "total_tokens": 225}
 		}`
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(resp))
+		_, _ = w.Write([]byte(resp))
 	}))
 	defer server.Close()
 

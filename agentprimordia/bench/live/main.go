@@ -120,7 +120,9 @@ func main() {
 			results[key] = r
 
 			f, _ := os.OpenFile(resultsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			json.NewEncoder(f).Encode(r)
+			if err := json.NewEncoder(f).Encode(r); err != nil {
+				fmt.Printf("写入结果失败: %v\n", err)
+			}
 			f.Close()
 
 			status := "OK"
@@ -225,27 +227,6 @@ func runUnit(ctx context.Context, prov llm.Provider, item taskItem, arm string) 
 
 	r.DurationSec = int(time.Since(start).Seconds())
 	return r
-}
-
-func analyzeTask(task string) string {
-	// 模拟 idle 预学习：根据任务关键词给出提示
-	task = strings.ToLower(task)
-	if strings.Contains(task, "最大") || strings.Contains(task, "max") {
-		return "这是一个求最大值的任务，可以用 sort 或 awk 处理。"
-	}
-	if strings.Contains(task, "统计") || strings.Contains(task, "count") {
-		return "这是一个统计任务，可以用 grep -c 或 wc 处理。"
-	}
-	if strings.Contains(task, "合并") || strings.Contains(task, "merge") {
-		return "这是一个合并任务，可以用 cat 或重定向处理。"
-	}
-	if strings.Contains(task, "和") || strings.Contains(task, "sum") {
-		return "这是一个求和任务，可以用 awk 处理。"
-	}
-	if strings.Contains(task, "重复") || strings.Contains(task, "duplicate") {
-		return "这是一个去重任务，可以用 sort | uniq -d 处理。"
-	}
-	return "请仔细分析任务需求，使用合适的工具完成。"
 }
 
 func sandboxToolkit(dir string) *tools.Registry {

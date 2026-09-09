@@ -67,7 +67,6 @@ func echoToolWasm(t *testing.T) []byte {
 type sandboxExecutor struct {
 	sandbox *wasm.Sandbox
 	loaded  map[string]bool
-	seq     int
 }
 
 func newSandboxExecutor() *sandboxExecutor {

@@ -79,8 +79,12 @@ func (c *registeringCreator) Create(ctx context.Context, gap intelligence.GapCan
 	}
 	// 将工件写入沙箱并注册为可执行工具
 	scriptPath := filepath.Join(c.dir, ".intel-tools", art.Name)
-	os.MkdirAll(filepath.Dir(scriptPath), 0755)
-	os.WriteFile(scriptPath, art.Artifact, 0755)
+	if err := os.MkdirAll(filepath.Dir(scriptPath), 0755); err != nil {
+		return nil, fmt.Errorf("创建工具目录失败: %w", err)
+	}
+	if err := os.WriteFile(scriptPath, art.Artifact, 0755); err != nil {
+		return nil, fmt.Errorf("写入工具脚本失败: %w", err)
+	}
 
 	t := &artifactTool{
 		name:    art.Name,
@@ -114,9 +118,7 @@ func (t *artifactTool) Execute(ctx context.Context, args json.RawMessage) (*tool
 		return tools.NewErrorResult("参数解析失败: " + err.Error()), nil
 	}
 	cmd := exec.CommandContext(ctx, "/bin/sh", t.path)
-	for _, arg := range strings.Fields(params.Args) {
-		cmd.Args = append(cmd.Args, arg)
-	}
+	cmd.Args = append(cmd.Args, strings.Fields(params.Args)...)
 	cmd.Dir = t.workdir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -191,7 +193,9 @@ func main() {
 			results[key] = r
 
 			f, _ := os.OpenFile(resultsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			json.NewEncoder(f).Encode(r)
+			if err := json.NewEncoder(f).Encode(r); err != nil {
+				fmt.Printf("写入结果失败: %v\n", err)
+			}
 			f.Close()
 
 			status := "OK"

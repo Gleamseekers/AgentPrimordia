@@ -125,7 +125,9 @@ func main() {
 			results[key] = r
 
 			f, _ := os.OpenFile(resultsFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			json.NewEncoder(f).Encode(r)
+			if err := json.NewEncoder(f).Encode(r); err != nil {
+				fmt.Printf("写入结果失败: %v\n", err)
+			}
 			f.Close()
 
 			status := "OK"
@@ -392,9 +394,7 @@ func (t *shellCommandTool) Execute(ctx context.Context, args json.RawMessage) (*
 	}
 
 	cmd := exec.CommandContext(ctx, "/bin/sh", t.script)
-	for _, arg := range strings.Fields(params.Args) {
-		cmd.Args = append(cmd.Args, arg)
-	}
+	cmd.Args = append(cmd.Args, strings.Fields(params.Args)...)
 	cmd.Dir = t.workdir
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -405,8 +405,14 @@ func (t *shellCommandTool) Execute(ctx context.Context, args json.RawMessage) (*
 
 func writeGapTool(reg *tools.Registry, sandbox, name, script string) {
 	path := filepath.Join(sandbox, ".gap-tools", name)
-	os.MkdirAll(filepath.Dir(path), 0755)
-	os.WriteFile(path, []byte(script), 0755)
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		fmt.Printf("创建工具目录失败: %v\n", err)
+		return
+	}
+	if err := os.WriteFile(path, []byte(script), 0755); err != nil {
+		fmt.Printf("写入工具脚本失败: %v\n", err)
+		return
+	}
 
 	descriptions := map[string]string{
 		"csv_stats":      "计算 CSV 文件每列的平均值",

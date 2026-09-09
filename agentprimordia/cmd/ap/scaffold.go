@@ -153,6 +153,16 @@ func buildGoMod(projectName, projectDir string) (content string, standalone bool
 	if abs, err := filepath.Abs(projectDir); err == nil {
 		projectDir = abs
 	}
+	// 解析符号链接：macOS 上 /tmp → /private/tmp、/var → /private/var，
+	// 必须在 findFrameworkRoot 之前解析，否则两个路径命名空间不一致
+	// 会导致 filepath.Rel 计算出错误的相对路径。
+	// 项目目录可能尚未创建（init 流程），此时解析父目录再拼接。
+	if real, err := filepath.EvalSymlinks(projectDir); err == nil {
+		projectDir = real
+	} else if real, err := filepath.EvalSymlinks(filepath.Dir(projectDir)); err == nil {
+		projectDir = filepath.Join(real, filepath.Base(projectDir))
+	}
+
 	frameworkDir := os.Getenv("AP_ROOT")
 	if frameworkDir == "" {
 		frameworkDir = findFrameworkRoot(filepath.Dir(projectDir))
@@ -165,12 +175,6 @@ go 1.26
 
 require agentprimordia %s
 `, projectName, apRequirePlaceholder), true
-	}
-
-	// 解析符号链接：macOS 上 /tmp → /private/tmp、/var → /private/var，
-	// 不解析会导致 filepath.Rel 计算出错误的相对路径（go build 按真实路径解析）
-	if real, err := filepath.EvalSymlinks(projectDir); err == nil {
-		projectDir = real
 	}
 	if real, err := filepath.EvalSymlinks(frameworkDir); err == nil {
 		frameworkDir = real

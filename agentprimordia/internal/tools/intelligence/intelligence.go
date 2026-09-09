@@ -3,20 +3,17 @@ package intelligence
 
 import (
 	"context"
-	"sync"
 	"time"
 )
 
 // ToolIntelligence 统一工具智能入口
 type ToolIntelligence struct {
-	mu       sync.Mutex
 	detector GapDetector
 	creator  ToolCreator
 	profiler ToolProfiler
 	tuner    ToolTuner
 	selector ToolSelector
 	catalog  *ToolCatalog
-	matcher  TaskMatcher
 }
 
 // GapDetector 缺口检测器
@@ -50,7 +47,6 @@ type ToolSelector interface {
 
 // ToolCatalog 工具目录（简单内存实现）
 type ToolCatalog struct {
-	mu    sync.RWMutex
 	tools map[string]ToolEntry
 }
 

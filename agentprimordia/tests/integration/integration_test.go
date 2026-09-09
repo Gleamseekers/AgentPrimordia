@@ -27,10 +27,12 @@ func TestApStartFlow(t *testing.T) {
 	// 创建临时目录
 	tmpDir := t.TempDir()
 	origDir, _ := os.Getwd()
-	defer os.Chdir(origDir)
+	defer func() { _ = os.Chdir(origDir) }()
 
 	// 切换到临时目录
-	os.Chdir(tmpDir)
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("切换目录失败: %v", err)
+	}
 
 	// 编译 ap 命令
 	apBin := filepath.Join(tmpDir, "ap")
@@ -130,10 +132,12 @@ func TestApProfileCommand(t *testing.T) {
 	// 创建临时目录
 	tmpDir := t.TempDir()
 	origDir, _ := os.Getwd()
-	defer os.Chdir(origDir)
+	defer func() { _ = os.Chdir(origDir) }()
 	
 	// 切换到临时目录
-	os.Chdir(tmpDir)
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("切换目录失败: %v", err)
+	}
 	
 	// 编译 ap 命令
 	apBin := filepath.Join(tmpDir, "ap")
@@ -152,7 +156,9 @@ func TestApProfileCommand(t *testing.T) {
 	
 	// 切换到项目目录
 	projectDir := filepath.Join(tmpDir, "profile-test")
-	os.Chdir(projectDir)
+	if err := os.Chdir(projectDir); err != nil {
+		t.Fatalf("切换项目目录失败: %v", err)
+	}
 	
 	// 运行 ap profile
 	profileCmd := exec.Command(apBin, "profile")
@@ -267,10 +273,12 @@ func TestProjectStructure(t *testing.T) {
 	// 创建临时目录
 	tmpDir := t.TempDir()
 	origDir, _ := os.Getwd()
-	defer os.Chdir(origDir)
-	
+	defer func() { _ = os.Chdir(origDir) }()
+
 	// 切换到临时目录
-	os.Chdir(tmpDir)
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatalf("切换目录失败: %v", err)
+	}
 	
 	// 编译 ap 命令
 	apBin := filepath.Join(tmpDir, "ap")

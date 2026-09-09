@@ -46,7 +46,14 @@ func TestWriteTrustFixture(t *testing.T) {
 		Payload:            string(payload),
 		PayloadSHA256:      hex.EncodeToString(digest[:]),
 		SignatureDERB64:    base64.StdEncoding.EncodeToString(sig),
-		PubUncompressedB64: base64.StdEncoding.EncodeToString(elliptic.Marshal(elliptic.P256(), key.X, key.Y)),
+		PubUncompressedB64: base64.StdEncoding.EncodeToString(func() []byte {
+			// 非压缩公钥：0x04 || X (32 bytes) || Y (32 bytes)，与 elliptic.Marshal 口径一致
+			buf := make([]byte, 65)
+			buf[0] = 0x04
+			key.X.FillBytes(buf[1:33])
+			key.Y.FillBytes(buf[33:65])
+			return buf
+		}()),
 		Note:               "cosign 同款口径：SHA-256 摘要 + ECDSA P-256（ASN.1 DER 签名）；TS 侧 WebCrypto 需 DER→raw 转换后导入非压缩公钥",
 	}
 	data, err := json.MarshalIndent(fx, "", "  ")

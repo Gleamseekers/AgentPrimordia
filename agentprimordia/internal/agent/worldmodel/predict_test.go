@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"testing"
 )
 
@@ -94,7 +93,7 @@ func TestValidate_DetectsDivergence(t *testing.T) {
 		t.Fatalf("期望 1 条分歧，实际 %d: %v", len(divergences), divergences)
 	}
 	// 分歧描述应包含节点种类和摘要
-	expected := fmt.Sprintf("预测新增节点 [tool_call] 读取文件 main.go 未在实际状态图中出现")
+	expected := "预测新增节点 [tool_call] 读取文件 main.go 未在实际状态图中出现"
 	if divergences[0] != expected {
 		t.Errorf("分歧描述不匹配:\n期望: %s\n实际: %s", expected, divergences[0])
 	}

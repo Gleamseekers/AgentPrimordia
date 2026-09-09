@@ -507,3 +507,48 @@ func TestOpenAIProvider_Complete_EmptyChoices(t *testing.T) {
 		t.Errorf("expected 'empty choices' error, got '%s'", err.Error())
 	}
 }
+
+// TestOpenAIProvider_Complete_TrimsWhitespace covers sensenova 等 OpenAI 兼容
+// 服务在响应开头/结尾带换行/空格的场景：provider 应在边界 trim 掉，
+// 避免上游格式差异泄漏到所有调用方。
+func TestOpenAIProvider_Complete_TrimsWhitespace(t *testing.T) {
+	cases := []struct {
+		name string
+		raw  string
+		want string
+	}{
+		{"纯前导换行", "\n\n实际内容", "实际内容"},
+		{"前后空白", "  实际内容  \n", "实际内容"},
+		{"多行带尾随换行", "第一行\n第二行\n", "第一行\n第二行"},
+		{"无空白保持原样", "正常内容", "正常内容"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			server, provider := newTestServer(func(w http.ResponseWriter, r *http.Request) {
+				_ = json.NewEncoder(w).Encode(map[string]any{
+					"id": "chatcmpl-trim",
+					"choices": []map[string]any{{
+						"index": 0,
+						"message": map[string]any{
+							"role":    "assistant",
+							"content": c.raw,
+						},
+						"finish_reason": "stop",
+					}},
+					"usage": map[string]any{"total_tokens": 1},
+				})
+			})
+			defer server.Close()
+
+			resp, err := provider.Complete(context.Background(), &CompletionRequest{
+				Messages: []ChatMessage{{Role: "user", Content: "x"}},
+			})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if resp.Content != c.want {
+				t.Errorf("raw=%q want=%q got=%q", c.raw, c.want, resp.Content)
+			}
+		})
+	}
+}

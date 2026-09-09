@@ -133,7 +133,7 @@ func (p *OpenAIProvider) Complete(ctx context.Context, req *CompletionRequest) (
 	return &CompletionResponse{
 		ID:      resp.ID,
 		Model:   model,
-		Content: choice.Message.Content,
+		Content: strings.TrimSpace(choice.Message.Content),
 		Role:    choice.Message.Role,
 		Usage: Usage{
 			PromptTokens:     resp.Usage.PromptTokens,
@@ -342,7 +342,7 @@ func (p *OpenAIProvider) CallTools(ctx context.Context, req *ToolCallRequest) (*
 
 	choice := resp.Choices[0]
 	result := &ToolCallResponse{
-		Content: choice.Message.Content,
+		Content: strings.TrimSpace(choice.Message.Content),
 		Usage: Usage{
 			PromptTokens:     resp.Usage.PromptTokens,
 			CompletionTokens: resp.Usage.CompletionTokens,

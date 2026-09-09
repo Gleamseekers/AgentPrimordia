@@ -220,6 +220,9 @@ type loopConfig struct {
 	requestID string
 	// v3.6-1：自愈降级时跳过 plan 分支，防止递归进入 executePlanWithSelfHealing
 	skipPlan bool
+	// v7.3-P2fix：子任务轮次预算，非零时覆盖 a.config.MaxTurns。
+	// 由 executePlanWithState 按子任务数量均分总轮次，防止单子任务耗尽全局配额。
+	subtaskMaxTurns int
 }
 
 // capabilityCache 缓存单次 Run() 期间不变的能力查找结果。

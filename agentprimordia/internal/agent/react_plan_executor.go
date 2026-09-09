@@ -239,6 +239,31 @@ func (a *ReActAgent) executePlanWithState(ctx context.Context, history []Message
 		"layers", len(layers),
 	)
 
+	// v7.3-P2fix：按子任务数均分轮次和超时预算，防止单子任务耗尽全局配额。
+	// 轮次预算：总 MaxTurns / 子任务数，下限 3 轮（保证基本执行空间）。
+	// 超时预算：从 context deadline 均分，无 deadline 时用 60s * 子任务数。
+	nSubtasks := len(plan.SubTasks)
+	subtaskTurns := a.config.MaxTurns / nSubtasks
+	if subtaskTurns < 3 {
+		subtaskTurns = 3
+	}
+	subTimeout := 60 * time.Second // 默认每子任务 60s
+	if deadline, ok := ctx.Deadline(); ok {
+		remaining := time.Until(deadline)
+		if remaining > 0 {
+			subTimeout = remaining / time.Duration(nSubtasks)
+			if subTimeout < 10*time.Second {
+				subTimeout = 10 * time.Second
+			}
+		}
+	}
+	cfg.subtaskMaxTurns = subtaskTurns
+
+	a.logger.Info("子任务预算分配",
+		"turns_per_subtask", subtaskTurns,
+		"timeout_per_subtask", subTimeout,
+	)
+
 	// 初始化进度：全新执行或从 checkpoint 恢复
 	pp := &planProgress{subtasks: plan.SubTasks, results: make(map[string]string)}
 	if initial != nil {
@@ -270,7 +295,10 @@ func (a *ReActAgent) executePlanWithState(ctx context.Context, history []Message
 			a.emitStream(cfg, StreamEvent{Type: StreamEventThought, Content: fmt.Sprintf("[Plan] 执行子任务 %s: %s", st.ID, st.Description)})
 			// v3.4-2：子任务上下文隔离——仅注入目标 + 前置依赖结果，而非全量历史
 			subHistory := buildSubTaskHistory(history, st, pp.results)
-			resp, err := a.runPlanSubtask(ctx, st, subHistory, cfg)
+			// v7.3-P2fix：每子任务独立超时，避免一个子任务卡死拖垮整个 plan
+			subCtx, subCancel := context.WithTimeout(ctx, subTimeout)
+			resp, err := a.runPlanSubtask(subCtx, st, subHistory, cfg)
+			subCancel()
 			if err != nil {
 				a.logger.Warn("Plan 子任务失败",
 					"subtask_id", st.ID,

@@ -68,7 +68,13 @@ func (a *ReActAgent) runLoop(ctx context.Context, history []Message, startTurn i
 	needTiming := a.getMetricsRecorder() != nil || a.getLabeledRecorder() != nil ||
 		(a.capCache != nil && a.capCache.observability != nil)
 
-	for turn := startTurn; turn < a.config.MaxTurns; turn++ {
+	// v7.3-P2fix：子任务轮次预算覆盖全局 MaxTurns，防止 plan 场景下单子任务耗尽配额
+	maxTurns := a.config.MaxTurns
+	if cfg.subtaskMaxTurns > 0 && cfg.subtaskMaxTurns < maxTurns {
+		maxTurns = cfg.subtaskMaxTurns
+	}
+
+	for turn := startTurn; turn < maxTurns; turn++ {
 		var turnStart time.Time
 		if needTiming {
 			turnStart = time.Now()

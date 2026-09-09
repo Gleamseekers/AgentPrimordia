@@ -153,7 +153,10 @@ func buildGoMod(projectName, projectDir string) (content string, standalone bool
 	if abs, err := filepath.Abs(projectDir); err == nil {
 		projectDir = abs
 	}
-	frameworkDir := findFrameworkRoot(filepath.Dir(projectDir))
+	frameworkDir := os.Getenv("AP_ROOT")
+	if frameworkDir == "" {
+		frameworkDir = findFrameworkRoot(filepath.Dir(projectDir))
+	}
 	if frameworkDir == "" {
 		// standalone：无本地框架，依赖代理发布版
 		return fmt.Sprintf(`module %s
@@ -162,6 +165,15 @@ go 1.26
 
 require agentprimordia %s
 `, projectName, apRequirePlaceholder), true
+	}
+
+	// 解析符号链接：macOS 上 /tmp → /private/tmp、/var → /private/var，
+	// 不解析会导致 filepath.Rel 计算出错误的相对路径（go build 按真实路径解析）
+	if real, err := filepath.EvalSymlinks(projectDir); err == nil {
+		projectDir = real
+	}
+	if real, err := filepath.EvalSymlinks(frameworkDir); err == nil {
+		frameworkDir = real
 	}
 
 	// 相对路径：项目目录 → 框架模块 / pgvector 模块

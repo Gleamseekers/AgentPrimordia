@@ -95,7 +95,10 @@ func runStart(args []string) error {
 	if err != nil {
 		return fmt.Errorf("获取绝对路径失败: %w", err)
 	}
-	frameworkDir := findFrameworkRoot(absTarget)
+	frameworkDir := os.Getenv("AP_ROOT")
+	if frameworkDir == "" {
+		frameworkDir = findFrameworkRoot(absTarget)
+	}
 	
 	// 检测是否在 go.work workspace 内
 	inWorkspace := findGoWorkspace(absTarget) != ""

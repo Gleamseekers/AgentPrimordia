@@ -99,7 +99,7 @@ func main() {
 	}
 
 	// 总结轮
-	fmt.Println("── 总结 ──\n")
+	fmt.Println("── 总结 ──")
 
 	summaryPrompt := fmt.Sprintf("辩论主题: %s\n\n各方立场:\n%s\n\n请用 3-4 句话总结各方共识和分歧，给出推荐方向。",
 		topic, strings.Join(previousArgs, "\n"))

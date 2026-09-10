@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AgentPrimordia v7.3 通用 Go Agent 框架",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [1200, 800],
+    "views": [
+      {
+        "id": "agent-flow",
+        "label": "Agent 执行流",
+        "focus": ["cli", "pkg", "agent", "llm", "tools", "ext"],
+        "note": "从用户请求到 LLM 响应再到工具调用的完整执行路径"
+      },
+      {
+        "id": "multi-agent",
+        "label": "多 Agent 协作",
+        "focus": ["pkg", "agent", "planning", "a2a", "ext"],
+        "note": "Pool 会话调度 + 规划反思 + A2A 跨节点协议协作链路"
+      },
+      {
+        "id": "trust-chain",
+        "label": "安全信任链",
+        "focus": ["security", "events", "agent", "tools", "ext"],
+        "note": "输入护栏 → ACL/沙箱 → 工具执行 → 输出护栏 → 审计事件全链路"
+      }
+    ]
+  },
+  "components": [
+    { "id": "cli", "type": "frontend", "label": "CLI (ap)", "sublabel": "init / run / debug / loop / mcp", "pos": [255, 40], "size": [175, 62] },
+    { "id": "eco", "type": "frontend", "label": "示例 & 模板", "sublabel": "ecosystem/examples + templates", "pos": [770, 40], "size": [175, 62] },
+
+    { "id": "pkg", "type": "backend", "label": "pkg/ 公共 API", "sublabel": "类型别名 + 构造器 re-export", "pos": [460, 138], "size": [280, 58] },
+
+    { "id": "agent", "type": "backend", "label": "ReAct 微内核", "sublabel": "internal/agent · 32 子包", "pos": [80, 268], "size": [190, 72] },
+    { "id": "planning", "type": "backend", "label": "规划 & 反思", "sublabel": "目标规划 + 自反思", "pos": [330, 278], "size": [150, 62] },
+    { "id": "a2a", "type": "messagebus", "label": "A2A 协议", "sublabel": "JSON-RPC + SSE + gRPC", "pos": [720, 268], "size": [175, 72] },
+    { "id": "learning", "type": "backend", "label": "工具学习", "sublabel": "自动发现 + 技能沉淀", "pos": [960, 278], "size": [155, 62] },
+
+    { "id": "llm", "type": "backend", "label": "LLM Provider", "sublabel": "OpenAI · SenseNova · Ollama", "pos": [80, 428], "size": [175, 62] },
+    { "id": "memory", "type": "database", "label": "Memory Store", "sublabel": "SQLite · InMemory · RAG · Vector", "pos": [335, 428], "size": [195, 62] },
+    { "id": "tools", "type": "backend", "label": "Tool System", "sublabel": "注册表 + 执行器 + MCP + 内置", "pos": [615, 428], "size": [195, 62] },
+    { "id": "persist", "type": "database", "label": "Checkpoint", "sublabel": "SQLite · etcd · Redis", "pos": [895, 428], "size": [175, 62] },
+
+    { "id": "security", "type": "security", "label": "安全 & 护栏", "sublabel": "ACL · Sandbox · 输入输出过滤", "pos": [80, 578], "size": [195, 62] },
+    { "id": "events", "type": "messagebus", "label": "事件 & 可观测", "sublabel": "Events · Metrics · OpenTelemetry", "pos": [510, 578], "size": [215, 62] },
+    { "id": "ext", "type": "external", "label": "外部生态", "sublabel": "LLM API · PostgreSQL · K8s Operator", "pos": [850, 578], "size": [215, 62] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Agent 核心引擎", "wraps": ["agent", "planning"], "pad": 18 },
+    { "kind": "region", "label": "多 Agent 协议", "wraps": ["a2a", "learning"], "pad": 18 },
+    { "kind": "region", "label": "基础设施层", "wraps": ["llm", "memory", "tools", "persist"], "pad": 22 },
+    { "kind": "security-group", "label": "信任边界", "wraps": ["security", "events"], "pad": 18 }
+  ],
+  "connections": [
+    { "id": "cli-pkg", "from": "cli", "to": "pkg", "label": "Go 调用", "fromSide": "bottom", "toSide": "top" },
+    { "id": "eco-pkg", "from": "eco", "to": "pkg", "label": "Go 调用", "fromSide": "bottom", "toSide": "top" },
+    { "id": "pkg-agent", "from": "pkg", "to": "agent", "label": "ap.NewAgent()", "variant": "emphasis", "fromSide": "bottom", "toSide": "top" },
+    { "id": "agent-plan", "from": "agent", "to": "planning", "label": "规划 / 反思" },
+    { "id": "a2a-learn", "from": "a2a", "to": "learning", "label": "技能习得" },
+    { "id": "agent-llm", "from": "agent", "to": "llm", "fromSide": "bottom", "toSide": "top" },
+    { "id": "agent-mem", "from": "agent", "to": "memory", "label": "读写记忆", "fromSide": "bottom", "toSide": "top" },
+    { "id": "agent-tools", "from": "agent", "to": "tools", "label": "工具调用", "fromSide": "bottom", "toSide": "top" },
+    { "id": "agent-persist", "from": "agent", "to": "persist", "label": "状态检查点", "fromSide": "bottom", "toSide": "top" },
+    { "id": "sec-tools", "from": "security", "to": "tools", "label": "权限校验", "variant": "security", "fromSide": "top", "toSide": "bottom" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "协议式微内核", "items": ["ReAct 循环 + 32 子包全功能覆盖", "所有模块通过接口解耦，支持 Mock 测试"] },
+    { "dot": "emerald", "title": "零外部依赖", "items": ["Go 标准库实现核心功能（白名单仅 7 项协议依赖）", "纯 Go SQLite（无 CGO），跨平台编译零障碍"] },
+    { "dot": "violet", "title": "多语言 SDK 对等", "items": ["TypeScript / Python / Rust 三套 SDK", "Go 为唯一权威实现面，SDK 经同一契约对齐"] },
+    { "dot": "amber", "title": "安全纵深防御", "items": ["宿主零写入零加载（INV-0 不变式）", "WASM 沙箱受控释放 + 输入输出护栏 + 审计链"] }
+  ]
+}

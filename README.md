@@ -7,6 +7,12 @@
 [![Version](https://img.shields.io/badge/version-7.3.0-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
 [![Tests](https://img.shields.io/badge/tests-538%20files-green.svg)](agentprimordia/internal/)
 
+<p align="center">
+  <img src="agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
+  <br>
+  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
+</p>
+
 ```
 go install agentprimordia/cmd/ap@latest
 ap start my-agent

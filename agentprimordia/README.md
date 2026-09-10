@@ -3,7 +3,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&style=for-the-badge" alt="TypeScript">
   <img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Zero_CGO-✓-brightgreen?style=for-the-badge" alt="Zero CGO">
-  <img src="https://img.shields.io/badge/version-v6.0.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-v7.3.0-blue?style=for-the-badge" alt="Version">
 </p>
 
 <h1 align="center">⚡ AgentPrimordia</h1>
@@ -96,6 +96,24 @@ func main() {
 ```
 
 > 带工具/记忆/RAG/多 Agent 的进阶示例见 [docs/getting-started/](docs/getting-started/) 与 [docs/guides/](docs/guides/)。
+
+### 🎯 5 分钟体验
+
+```bash
+# 克隆并进入项目
+git clone https://github.com/Gleamseekers/AgentPrimordia.git && cd AgentPrimordia/agentprimordia
+
+# 方式1: CLI 一键启动（无需 API key 也能跑 Demo 模式）
+./ap init my-agent --template quickstart && cd my-agent && ../ap run
+
+# 方式2: 多 Agent 辩论展示（需设置 API key）
+export AP_LLM_API_KEY=sk-xxx
+export AP_LLM_BASE_URL=https://token.sensenova.cn/v1  # 或其他 OpenAI 兼容端点
+export AP_LLM_MODEL=sensenova-6.8-flash-lite
+go run showcase-debate.go
+```
+
+**辩论展示输出示例**：三个 Agent（架构师/安全专家/产品经理）围绕「微服务 vs 单体」进行多轮辩论，各自从专业角度阐述立场、回应对方、收敛共识——这是 AgentPrimordia 独有的多 Agent 编排能力。
 
 ---
 

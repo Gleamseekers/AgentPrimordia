@@ -32,7 +32,7 @@
 <text x="1200" y="52" text-anchor="middle" fill="#0f172a" font-family="system-ui,sans-serif" font-size="38" font-weight="200">AGENTPRIMORDIA</text>
 <text x="1200" y="84" text-anchor="middle" fill="#64748b" font-family="system-ui,sans-serif" font-size="13" letter-spacing="5" opacity="0.8">UNIVERSAL AI AGENT FRAMEWORK · GO + TYPESCRIPT DUAL SDK</text>
 <line x1="860" y1="100" x2="1540" y2="100" stroke="#00d4ff" stroke-width="0.5" opacity="0.3"/>
-<text x="1200" y="122" text-anchor="middle" fill="#00d4ff" font-family="system-ui,sans-serif" font-size="11" opacity="0.7">v5.0.0  ·  38 Modules Parity  ·  Apache-2.0  ·  Zero CGO</text>
+<text x="1200" y="122" text-anchor="middle" fill="#00d4ff" font-family="system-ui,sans-serif" font-size="11" opacity="0.7">v7.3.0  ·  38 Modules Parity  ·  Apache-2.0  ·  Zero CGO</text>
 <rect x="60" y="150" width="2280" height="100" rx="14" fill="#94a3b8" fill-opacity="0.02" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="0.7" stroke-dasharray="7 5"/><text x="80" y="172" fill="#94a3b8" font-family="system-ui,sans-serif" font-size="10" font-weight="700" letter-spacing="3" opacity="0.5">①  APPLICATION / ENTRYPOINTS</text>
 <rect x="90" y="168" width="420" height="64" rx="12" fill="#94a3b8" fill-opacity="0.05" stroke="#94a3b8" stroke-opacity="0.5" stroke-width="0.9"/>
 <text x="300" y="193" text-anchor="middle" fill="#0f172a" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Your App</text>

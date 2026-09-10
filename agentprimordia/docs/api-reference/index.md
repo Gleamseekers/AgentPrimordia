@@ -1,6 +1,6 @@
 # API 参考
 
-> AgentPrimordia v6.0.0 完整 API 索引。
+> AgentPrimordia v7.3.0 完整 API 索引。
 
 ## 核心模块
 

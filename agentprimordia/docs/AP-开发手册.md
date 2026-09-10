@@ -128,7 +128,7 @@ agent:
 
 AP 的对外能力不止 Go 一条路：`sdk/` 下提供 typescript / python / rust 三套 SDK，**Go 是唯一权威实现面**，其余语言经同一份契约与基准对齐。
 
-### 8.1 TypeScript SDK（sdk/typescript，@agentprimordia/sdk v6.0.0）
+### 8.1 TypeScript SDK（sdk/typescript，@agentprimordia/sdk v7.0.0）
 
 - 构建 `npm run build`（tsup，ESM）；类型检查 `npm run typecheck`；API 面检查 `npm run api-check`（api-extractor）；
 - 测试 `npm run test`（vitest，111 个测试文件；另有 coverage / affected / bench 变体）；文档站 vitepress；

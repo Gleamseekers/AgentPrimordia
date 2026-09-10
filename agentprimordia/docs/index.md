@@ -32,7 +32,7 @@ AgentPrimordia（AP）是一个用 Go 语言编写、同时提供 TypeScript SDK
 - **多模态实时（v3.6）** — 语音/视觉实时双向流 + 打断，ASR/TTS 可插拔（`ap realtime`）
 - **CLI 工具** — `ap init / run / debug / loop / test / mcp / plugin / autonomy / skill / a2a / realtime / doctor / config / completion`
 
-### v1.0.0 亮点
+### v7.3.0 亮点
 
 - **开发者体验重构** — `ap.NewAgent()` 简化入口，3 行创建带记忆 / RAG / Hook 的 Agent
 - **`WithRAGMemory()` 一步 RAG** — 自动完成 EmbeddingAdapter + RAGStore + RAGProvider 组装

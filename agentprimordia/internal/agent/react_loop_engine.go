@@ -73,6 +73,9 @@ func (a *ReActAgent) reactLoopEngine(ctx context.Context, input Message, cfg loo
 		}
 		// 优化（Task 1）：flush 异步记忆写入队列，确保所有 saveMemory 调用完成
 		a.flushMemoryWriter()
+		// P1-5：flush 有界摘要 worker 池，确保在途摘要任务完成，
+		// 不再遗弃每条消息派生的无界 goroutine
+		a.flushSummaryWriter()
 	}()
 
 	// 在 statsMu 保护下写入 startTime：Stats() 会在锁内读取（-race 实测发现
@@ -83,9 +86,12 @@ func (a *ReActAgent) reactLoopEngine(ctx context.Context, input Message, cfg loo
 	a.stats.StartTime = now
 	a.stats.RequestID = cfg.requestID
 	a.statsMu.Unlock()
-	a.hookCtx = ctx
+	// P1-2：hookCtx 是运行期共享字段（fireHook / saveMemory 的异步摘要
+	// goroutine 都会读），必须在 mu 保护下写入，避免与并发读取竞争。
+	a.setHookCtx(ctx)
 	_ = a.lifecycle.SetStatus(StatusRunning)
-	a.stats.Status = StatusRunning
+	// P1-2：a.stats.Status 是死字段——Stats() 一律以 lifecycle.Status()
+	// 覆盖返回值，此处写入无任何消费者，已删除。
 
 	// 优化（Task 2）：Run() 入口处一次性查找所有能力引用，避免每轮重复类型断言
 	a.capCache = a.resolveCapabilities(cfg.requestID)
@@ -192,8 +198,11 @@ func (a *ReActAgent) reactLoopEngine(ctx context.Context, input Message, cfg loo
 	}
 	// v6.0.1：回读本会话历史消息注入（修复多轮对话记忆失效——此前只写不读）。
 	// 会话 ID 在入口处解析一次并共享给 saveMemory，保证写入/回读同桶。
-	a.memSessionID = a.resolveSessionID(input)
-	if prior, herr := a.loadSessionHistory(ctx, a.memSessionID); herr != nil {
+	// P1-2：memSessionID 运行期共享（saveMemory → resolveSessionID 读取），
+	// 在 mu 保护下写入，避免与并发 Run 竞争。
+	memSessionID := a.resolveSessionID(input)
+	a.setMemSessionID(memSessionID)
+	if prior, herr := a.loadSessionHistory(ctx, memSessionID); herr != nil {
 		a.logger.Warn("回读会话历史失败，跳过注入", "error", herr)
 	} else if len(prior) > 0 {
 		history = append(history, prior...)

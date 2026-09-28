@@ -148,12 +148,6 @@ func (a *ReActAgent) resumeFromState(ctx context.Context, state *persist.AgentSt
 		history = append(history, msg)
 	}
 
-	// 恢复 startTime 时减去已运行的时长，保持 Duration 累计一致
-	if prevDur, err := time.ParseDuration(state.Metrics.Duration); err == nil && prevDur > 0 {
-		a.startTime = time.Now().Add(-prevDur)
-	} else {
-		a.startTime = time.Now()
-	}
 	// 注入请求 ID
 	reqID := RequestIDFromCtx(ctx)
 	if reqID == "" {
@@ -168,8 +162,16 @@ func (a *ReActAgent) resumeFromState(ctx context.Context, state *persist.AgentSt
 	a.atomicTurn.Store(int64(state.TurnCount))
 	a.atomicMessages.Store(int64(len(history)))
 
+	// P1-2（评估报告 §4.2）：startTime 恢复必须在 statsMu 保护下写入。
+	// 修复前此处无锁写 a.startTime，与 Stats() 持 RLock 读同一字段构成
+	// 数据竞争（-race 实测）。恢复时减去已运行的时长，保持 Duration 累计一致。
+	now := time.Now()
+	if prevDur, err := time.ParseDuration(state.Metrics.Duration); err == nil && prevDur > 0 {
+		now = now.Add(-prevDur)
+	}
 	a.statsMu.Lock()
-	a.stats.StartTime = a.startTime
+	a.startTime = now
+	a.stats.StartTime = now
 	a.stats.RequestID = reqID
 	a.statsMu.Unlock()
 	_ = a.lifecycle.SetStatus(StatusRunning)
@@ -207,6 +209,13 @@ func (a *ReActAgent) resumeFromState(ctx context.Context, state *persist.AgentSt
 	// 因此这里显式清理，避免后续 Run() 误用本次恢复的旧引用。
 	a.capCache = a.resolveCapabilities(reqID)
 	defer func() { a.capCache = nil }()
+	// P1-5：恢复路径绕过了 reactLoopEngine，必须在此处 flush 有界摘要
+	// worker 池，否则 runLoop 内 saveMemory 派生的 worker goroutine
+	// 不会被等待，随恢复调用次数线性泄漏。
+	defer a.flushSummaryWriter()
+	// 同理 flush 异步记忆写入队列（memoryWriter 的 goroutine 同样只在
+	// reactLoopEngine 的 defer 中被等待；恢复路径不 flush 会泄漏）。
+	defer a.flushMemoryWriter()
 
 	// v3.4-1：若 checkpoint 含 plan 进度，从计划断点恢复——重建 plan 与进度，
 	// 跳过已完成子任务、沿用其结果，仅执行剩余子任务。

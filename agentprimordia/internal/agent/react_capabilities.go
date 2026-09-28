@@ -297,7 +297,8 @@ func (a *ReActAgent) fireHook(point HookPoint, hctx *HookContext) error {
 			hctx.AgentID = a.config.Name
 		}
 		// 使用 agent 的运行 context 而非 Background，确保取消能传播到 hook
-		ctx := a.hookCtx
+		// P1-2：经访问器在 mu 保护下读取，避免与入口写入竞争
+		ctx := a.getHookCtx()
 		if ctx == nil {
 			ctx = context.Background()
 		}

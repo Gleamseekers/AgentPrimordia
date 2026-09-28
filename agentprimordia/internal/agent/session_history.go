@@ -30,8 +30,9 @@ func (a *ReActAgent) resolveSessionID(input Message) string {
 	if input.Metadata.SessionID != "" {
 		return input.Metadata.SessionID
 	}
-	if a.memSessionID != "" {
-		return a.memSessionID
+	// P1-2：经访问器在 mu 保护下读取，避免与并发 Run 的入口写入竞争
+	if id := a.getMemSessionID(); id != "" {
+		return id
 	}
 	if a.config.SessionID != "" {
 		return a.config.SessionID

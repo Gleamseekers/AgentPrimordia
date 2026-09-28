@@ -127,10 +127,15 @@ type ReActAgent struct {
 	logger    *slog.Logger
 	startTime time.Time
 	stats     AgentStats
-	statsMu   sync.RWMutex // 锁层级 L1：统计信息（仅保护 ToolsCalled map）
-	runMu     sync.Mutex   // 锁层级 L2：运行状态
+	statsMu   sync.RWMutex // 锁层级 L1：统计信息（startTime / stats 快照字段）
+	runMu     sync.Mutex   // 锁层级 L2：运行状态（单次 Run 互斥）
 	mu        sync.Mutex   // 锁层级 L3：通用字段（最内层，最后获取）
-	// 锁顺序：statsMu → runMu → mu，禁止反向获取
+	// 锁顺序（P1-3 修正）：runMu → statsMu → mu，禁止反向获取。
+	// 实战中唯一的嵌套方向是 reactLoopEngine 入口持 runMu 时取 statsMu
+	// （react_loop_engine.go / react_lifecycle.go resumeFromState），
+	// 以及 resumeFromState 持 runMu → statsMu 后再取 mu。
+	// 不存在任何"持有 statsMu 时再获取 runMu"的反向嵌套路径——
+	// 早期注释把顺序写成反方向，与实际调用链不符，已修正。
 
 	// 热路径原子计数器（避免每 turn 加锁，Task 3.5 优化）
 	atomicTurn     atomic.Int64
@@ -143,10 +148,14 @@ type ReActAgent struct {
 
 	// memSessionID 本次运行解析出的记忆会话 ID（reactLoopEngine 入口设置，
 	// runMu 保护下运行期共享），供 saveMemory 对无 Metadata 的 assistant 消息回退使用。
+	// P1-2：必须经 setMemSessionID/getMemSessionID 在 mu 保护下读写，
+	// 避免与并发 Run 的入口写入竞争。
 	memSessionID string
 
 	// hookCtx 用于 fireHook 调用，绑定到当前运行的 context
 	// 确保 agent 取消时 hook 也能被取消
+	// P1-2：运行期共享字段，必须经 setHookCtx/getHookCtx 在 mu 保护下读写
+	// （reactLoopEngine 入口写、fireHook 与 saveMemory 的异步摘要 goroutine 读）
 	hookCtx context.Context
 
 	// self 自引用，指向最外层的 Agent 包装器
@@ -157,6 +166,13 @@ type ReActAgent struct {
 	// ===== Task 1: saveMemory 异步化 =====
 	// memoryWriter 封装异步写入队列，从 ReActAgent 剥离独立管理
 	memWriter *memoryWriter
+
+	// ===== P1-5: 摘要提取有界 worker 池 =====
+	// summaryWriter 以 memoryWriter 为范本管理异步摘要提取：
+	// 固定 worker 数 + 有界队列 + WaitGroup，运行结束时 flush 可等待。
+	// summaryMu 保护 summaryWriter 指针的惰性创建与 flush。
+	summaryWriter *summaryWriter
+	summaryMu     sync.Mutex
 
 	// ===== Task 1.5: Executor 复用 =====
 	// 缓存的 *tools.Executor，避免每轮tool调用时重新分配
@@ -202,8 +218,9 @@ func newReActAgent(cfg ReActConfig) *ReActAgent {
 		lifecycle: cfg.Lifecycle,
 		hooks:     nil, // 通过链式 API WithHooks 注入
 		logger:    cfg.Logger,
+		// P1-2：不初始化 stats.Status——该字段是死字段（Stats() 一律以
+		// lifecycle.Status() 覆盖返回值），保留写入只会造成误导。
 		stats: AgentStats{
-			Status:      StatusIdle,
 			ToolsCalled: make(map[string]int),
 		},
 		hitlMgr: nil, // 通过链式 API WithHITL 注入
@@ -333,6 +350,35 @@ func (a *ReActAgent) resolveCapabilities(requestID string) *capabilityCache {
 		}
 	}
 	return c
+}
+
+// setHookCtx 在 mu 保护下写入运行期共享的 hook context（P1-2）。
+func (a *ReActAgent) setHookCtx(ctx context.Context) {
+	a.mu.Lock()
+	a.hookCtx = ctx
+	a.mu.Unlock()
+}
+
+// getHookCtx 在 mu 保护下读取运行期共享的 hook context（P1-2）。
+// 未运行时返回 nil，调用方需回退到 context.Background()。
+func (a *ReActAgent) getHookCtx() context.Context {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.hookCtx
+}
+
+// setMemSessionID 在 mu 保护下写入本次运行解析出的记忆会话 ID（P1-2）。
+func (a *ReActAgent) setMemSessionID(id string) {
+	a.mu.Lock()
+	a.memSessionID = id
+	a.mu.Unlock()
+}
+
+// getMemSessionID 在 mu 保护下读取本次运行解析出的记忆会话 ID（P1-2）。
+func (a *ReActAgent) getMemSessionID() string {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	return a.memSessionID
 }
 
 // emitStream 在流式模式下向通道发送事件

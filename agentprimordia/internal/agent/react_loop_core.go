@@ -118,215 +118,22 @@ func (a *ReActAgent) runLoop(ctx context.Context, history []Message, startTurn i
 			)
 		}
 
-		// 成本检查（v4.1 拆分：checkBudgetExceeded）
-		if resp, cerr := a.checkBudgetExceeded(cfg, costTracker); cerr != nil {
-			return resp, cerr
+		// P1-1（评估报告 §4.2）：单轮逻辑包在闭包内执行，turnSpan 一律
+		// defer End()——早退路径（预算超限 / 记忆 fast-path / LLM 错误 /
+		// guardrail 拦截 / 优雅关闭）与 panic 路径同样闭合 span，
+		// 不再依赖每个 return 前手动 End()。
+		out := func() turnOutcome {
+			defer turnSpan.End()
+			return a.runLoopTurn(ctx, history, turn, startTurn, cfg, tracer, turnSpan,
+				costTracker, totalLLMLatency, totalToolLatency, toolCount, needTiming, turnStart)
+		}()
+		if out.finished {
+			return out.resp, out.err
 		}
-
-		// 记忆注入 + 已解任务 fast-path（v4.1 拆分：injectMemoryContextAndFastPath）
-		var fastResp *Response
-		var fastHit bool
-		history, fastResp, fastHit = a.injectMemoryContextAndFastPath(ctx, history, turn, startTurn, cfg)
-		if fastHit {
-			return fastResp, nil
-		}
-
-		// 技能匹配注入（v7.4 接线）：命中已习得技能时把步骤指引作为 system 上下文注入；
-		// 未配置 Matcher 时原样返回（默认路径零变更）。
-		history = a.injectSkillGuidance(history)
-
-		// RAG 检索与注入（v4.1 拆分：ragRetrieveAndInject）
-		history = a.ragRetrieveAndInject(ctx, history, turn, startTurn, cfg, tracer, turnSpan)
-
-		trimmedHistory := a.trimContext(history, 0)
-		// v6.1 接线点④：被裁消息转世界事实节点（提案 E6 截断债务的结构化偿还）
-		a.wmNotifyTrimmed(history, trimmedHistory, turn)
-		llmMessages := convertToLLMMessages(trimmedHistory)
-
-		// 优化（Task 2 / Task 2.5 / perf-v2）：使用 capCache.toolkit 和预转换的 toolDefinitions
-		var toolDefinitions []llm.ToolDefinition
-		if a.capCache != nil && a.capCache.toolDefinitions != nil {
-			toolDefinitions = a.capCache.toolDefinitions
-		} else {
-			var toolDefs []map[string]any
-			var toolkit *tools.Registry
-			if a.capCache != nil {
-				toolkit = a.capCache.toolkit
-			} else {
-				toolkit = a.getToolkit()
-			}
-			if toolkit != nil {
-				toolDefs = toolkit.Definitions()
-			}
-			toolDefinitions = convertToolDefsToLLMDefinitions(toolDefs)
-		}
-
-		llmStart := time.Now()
-		if a.hasEventSubscriber() {
-			a.publishEvent(EventLLMCall, map[string]int{"turn": turn})
-		}
-
-		var llmSpan Span = &NoopSpan{}
-		if tracer != nil {
-			llmSpan = tracer.Start(
-				"llm.call",
-				SpanKindClient,
-				WithParent(turnSpan.SpanContext()),
-				WithAttributes(map[string]any{"agent": a.config.Name, "turn": turn}),
-			)
-		}
-
-		var thought Thought
-
-		if cfg.stream {
-			var sErr error
-			thought, sErr = a.streamReasoning(ctx, cfg, llmMessages, toolDefinitions, llmStart)
-			if thought.Content == "" && len(thought.ToolCalls) == 0 {
-				err := fmt.Errorf("stream reasoning failed: %w", sErr)
-				return &Response{RequestID: cfg.requestID, Error: err}, err
-			}
-		} else {
-			var err error
-			thought, err = a.syncReasoning(ctx, llmMessages, toolDefinitions, llmStart)
-			if err != nil {
-				a.handleOnError(ctx, err)
-				_ = a.lifecycle.SetStatus(StatusFailed)
-				return &Response{RequestID: cfg.requestID, Error: err}, err
-			}
-		}
-
-		llmLatency := time.Since(llmStart)
-		totalLLMLatency += llmLatency
-
-		llmSpan.SetAttribute("latency_ms", llmLatency.Milliseconds())
-		llmSpan.End()
-
-		a.recordUsage(thought.Usage)
-
-		// p2t4：写入 LLMCall 审计事件
-		a.writeAudit(ctx, AuditEvent{
-			Actor:    a.config.Name,
-			Action:   auditActionLLMCall,
-			Resource: a.capCache.model,
-			Result:   auditResultSuccess,
-			Details: map[string]any{
-				"turn":              turn,
-				"latency_ms":        llmLatency.Milliseconds(),
-				"prompt_tokens":     thought.Usage.PromptTokens,
-				"completion_tokens": thought.Usage.CompletionTokens,
-			},
-		})
-
-		// 输出端护栏（v4.1 拆分：guardrailSanitizeOutput；PII 脱敏、注入拦截）
-		if resp, gerr := a.guardrailSanitizeOutput(ctx, cfg, &thought, turn); gerr != nil {
-			return resp, gerr
-		}
-
-		assistantMsg := Message{
-			Role:      RoleAssistant,
-			Content:   thought.Content,
-			ToolCalls: thought.ToolCalls,
-		}
-		a.saveMemory(ctx, assistantMsg)
-
-		_ = a.fireHookWithPool(HookAfterLLM, turn)
-		if a.hasEventSubscriber() {
-			a.publishEvent(EventLLMResponse, map[string]int{"turn": turn})
-		}
-
-		// 无tool调用 → Agent 完成
-		if len(thought.ToolCalls) == 0 {
-			// R1.4 G1-2：Reflection 接入完成路径
-			// 对最终输出进行反思，必要时用 reflector 改进版本替换
-			finalContent := thought.Content
-			if improved, reflectErr := a.reflectAndImprove(ctx, finalContent); reflectErr == nil && improved != "" {
-				finalContent = improved
-			}
-			duration := time.Since(a.startTime)
-			response := &Response{
-				RequestID: cfg.requestID,
-				Content:   finalContent,
-				Metrics: Metrics{
-					TotalTurns:  turn + 1,
-					TotalTools:  toolCount,
-					Duration:    duration,
-					LLMLatency:  totalLLMLatency,
-					ToolLatency: totalToolLatency,
-				},
-			}
-			_ = a.lifecycle.SetStatus(StatusCompleted)
-			a.saveCheckpoint(ctx, history, turn+1, response.Metrics)
-			_ = a.fireHookWithPoolResp(HookOnComplete, response)
-			turnSpan.End()
-			_ = a.fireHookWithPool(HookAfterTurn, turn)
-			if needTiming {
-				a.recordTurn(time.Since(turnStart))
-			}
-			if a.hasEventSubscriber() {
-				a.publishEvent(EventTurnEnd, map[string]int{"turn": turn})
-			}
-			a.emitStream(cfg, StreamEvent{Type: StreamEventComplete, Content: thought.Content, Data: response})
-			if cfg.stream {
-				a.logger.Info("Agent 流式完成", "name", a.config.Name, "turns", turn+1, "duration", duration)
-			} else {
-				a.logger.Info("Agent 完成", "name", a.config.Name, "turns", turn+1, "duration", duration)
-			}
-			// p2t4：写入 AgentStop 审计事件
-			a.writeAudit(ctx, AuditEvent{
-				Actor:    a.config.Name,
-				Action:   auditActionAgentStop,
-				Resource: cfg.requestID,
-				Result:   auditResultSuccess,
-				Details:  map[string]any{"turns": turn + 1, "duration_ms": duration.Milliseconds()},
-			})
-			// v3.0：自适应学习——从本次交互中蒸馏知识
-			a.distillKnowledge(ctx, history, finalContent)
-			// v3.6-3：完成任务后把答案存为"已解决"记忆，供相似任务复用
-			a.saveSolutionMemory(ctx, history, finalContent)
-			return response, nil
-		}
-
-		history = append(history, assistantMsg)
-		// v6.1 接线点②：本轮工具调用 = 计划（重新）形成（预演态）；思考文本 = 假设
-		a.wmObserveAssistant(turn, thought)
-
-		// v6.1 接线点⑤：工具执行前预演门（观察模式——缺陷写失败库+审计，不拦截）
-		a.wmRehearseGate(ctx, turn)
-
-		// 执行所有tool调用
-		history, totalToolLatency, toolCount = a.executeToolCalls(ctx, history, thought.ToolCalls, turn, cfg, tracer, turnSpan, totalToolLatency, toolCount)
-
-		// v6.1 接线点⑥：行动后回溯校验（计划路径 vs 实际轨迹，偏离写失败库+审计）
-		a.wmBackDiffCheck(ctx, turn)
-
-		turnSpan.End()
-		_ = a.fireHookWithPool(HookAfterTurn, turn)
-		if needTiming {
-			a.recordTurn(time.Since(turnStart))
-		}
-		if a.hasEventSubscriber() {
-			a.publishEvent(EventTurnEnd, map[string]int{"turn": turn})
-		}
-
-		if a.lifecycle.IsGracefulShutdown() {
-			a.logger.Info("Agent 优雅关闭：当前 turn 已完成，退出循环", "name", a.config.Name, "turn", turn+1)
-			_ = a.lifecycle.SetStatusWithReason(StatusCancelled, "graceful shutdown")
-			duration := time.Since(a.startTime)
-			response := &Response{
-				RequestID: cfg.requestID,
-				Content:   thought.Content,
-				Error:     ErrAgentStopped,
-				Metrics: Metrics{
-					TotalTurns:  turn + 1,
-					TotalTools:  toolCount,
-					Duration:    duration,
-					LLMLatency:  totalLLMLatency,
-					ToolLatency: totalToolLatency,
-				},
-			}
-			a.emitStream(cfg, StreamEvent{Type: StreamEventError, Content: "graceful shutdown: agent stopped after turn completion"})
-			return response, ErrAgentStopped
-		}
+		history = out.history
+		totalLLMLatency = out.totalLLMLatency
+		totalToolLatency = out.totalToolLatency
+		toolCount = out.toolCount
 
 		a.saveCheckpoint(ctx, history, turn+1, Metrics{
 			TotalTurns:  turn + 1,
@@ -355,6 +162,274 @@ func (a *ReActAgent) runLoop(ctx context.Context, history []Message, startTurn i
 	}
 
 	return response, ErrMaxTurnsExceeded
+}
+
+// turnOutcome 单轮 runLoop 的执行结果（P1-1：turnSpan 泄漏修复引入）。
+// finished 为 true 表示 runLoop 应立即以 (resp, err) 返回。
+type turnOutcome struct {
+	resp             *Response
+	err              error
+	finished         bool
+	history          []Message
+	totalLLMLatency  time.Duration
+	totalToolLatency time.Duration
+	toolCount        int
+}
+
+// runLoopTurn 执行单轮 ReAct 逻辑（P1-1 从 runLoop 主体抽出）。
+//
+// 顺序：成本检查 → 记忆注入/已解任务 fast-path → 技能指引注入 → RAG 注入 →
+// 上下文裁剪 → LLM 调用 → 输出端护栏 → 无 tool 调用则完成并返回，
+// 否则执行本轮全部 tool 调用后进入优雅关闭判定。
+//
+// span 纪律（P1-1）：turnSpan 由调用方闭包 defer End()；llmSpan 在本函数内
+// 用内层闭包 defer End()，使 sync/stream 错误路径不再泄漏，同时 llm.call
+// 时长只覆盖 LLM 调用本身（不把后续 tool 执行计入）。
+func (a *ReActAgent) runLoopTurn(
+	ctx context.Context,
+	history []Message,
+	turn, startTurn int,
+	cfg loopConfig,
+	tracer Tracer,
+	turnSpan Span,
+	costTracker *CostTracker,
+	totalLLMLatency, totalToolLatency time.Duration,
+	toolCount int,
+	needTiming bool,
+	turnStart time.Time,
+) turnOutcome {
+	done := func(resp *Response, err error) turnOutcome {
+		return turnOutcome{
+			resp: resp, err: err, finished: true,
+			history: history, totalLLMLatency: totalLLMLatency,
+			totalToolLatency: totalToolLatency, toolCount: toolCount,
+		}
+	}
+
+	// 成本检查（v4.1 拆分：checkBudgetExceeded）
+	if resp, cerr := a.checkBudgetExceeded(cfg, costTracker); cerr != nil {
+		return done(resp, cerr)
+	}
+
+	// 记忆注入 + 已解任务 fast-path（v4.1 拆分：injectMemoryContextAndFastPath）
+	var fastResp *Response
+	var fastHit bool
+	history, fastResp, fastHit = a.injectMemoryContextAndFastPath(ctx, history, turn, startTurn, cfg)
+	if fastHit {
+		return done(fastResp, nil)
+	}
+
+	// 技能匹配注入（v7.4 接线）：命中已习得技能时把步骤指引作为 system 上下文注入；
+	// 未配置 Matcher 时原样返回（默认路径零变更）。
+	history = a.injectSkillGuidance(history)
+
+	// RAG 检索与注入（v4.1 拆分：ragRetrieveAndInject）
+	history = a.ragRetrieveAndInject(ctx, history, turn, startTurn, cfg, tracer, turnSpan)
+
+	trimmedHistory := a.trimContext(history, 0)
+	// v6.1 接线点④：被裁消息转世界事实节点（提案 E6 截断债务的结构化偿还）
+	a.wmNotifyTrimmed(history, trimmedHistory, turn)
+	llmMessages := convertToLLMMessages(trimmedHistory)
+
+	// 优化（Task 2 / Task 2.5 / perf-v2）：使用 capCache.toolkit 和预转换的 toolDefinitions
+	var toolDefinitions []llm.ToolDefinition
+	if a.capCache != nil && a.capCache.toolDefinitions != nil {
+		toolDefinitions = a.capCache.toolDefinitions
+	} else {
+		var toolDefs []map[string]any
+		var toolkit *tools.Registry
+		if a.capCache != nil {
+			toolkit = a.capCache.toolkit
+		} else {
+			toolkit = a.getToolkit()
+		}
+		if toolkit != nil {
+			toolDefs = toolkit.Definitions()
+		}
+		toolDefinitions = convertToolDefsToLLMDefinitions(toolDefs)
+	}
+
+	llmStart := time.Now()
+	if a.hasEventSubscriber() {
+		a.publishEvent(EventLLMCall, map[string]int{"turn": turn})
+	}
+
+	var llmSpan Span = &NoopSpan{}
+	if tracer != nil {
+		llmSpan = tracer.Start(
+			"llm.call",
+			SpanKindClient,
+			WithParent(turnSpan.SpanContext()),
+			WithAttributes(map[string]any{"agent": a.config.Name, "turn": turn}),
+		)
+	}
+
+	// P1-1：llmSpan 用内层闭包 defer End()——sync/stream 错误路径不再泄漏，
+	// 同时 llm.call 时长只覆盖 LLM 调用本身（不把后续 tool 执行计入）。
+	var (
+		thought    Thought
+		llmErr     error
+		llmLatency time.Duration
+	)
+	func() {
+		defer llmSpan.End()
+		if cfg.stream {
+			var sErr error
+			thought, sErr = a.streamReasoning(ctx, cfg, llmMessages, toolDefinitions, llmStart)
+			if thought.Content == "" && len(thought.ToolCalls) == 0 {
+				llmErr = fmt.Errorf("stream reasoning failed: %w", sErr)
+				return
+			}
+		} else {
+			thought, llmErr = a.syncReasoning(ctx, llmMessages, toolDefinitions, llmStart)
+			if llmErr != nil {
+				return
+			}
+		}
+		llmLatency = time.Since(llmStart)
+		llmSpan.SetAttribute("latency_ms", llmLatency.Milliseconds())
+	}()
+
+	if llmErr != nil {
+		// 与原实现一致：仅非流式路径触发 onError hook 与 StatusFailed
+		if !cfg.stream {
+			a.handleOnError(ctx, llmErr)
+			_ = a.lifecycle.SetStatus(StatusFailed)
+		}
+		return done(&Response{RequestID: cfg.requestID, Error: llmErr}, llmErr)
+	}
+
+	totalLLMLatency += llmLatency
+
+	a.recordUsage(thought.Usage)
+
+	// p2t4：写入 LLMCall 审计事件
+	a.writeAudit(ctx, AuditEvent{
+		Actor:    a.config.Name,
+		Action:   auditActionLLMCall,
+		Resource: a.capCache.model,
+		Result:   auditResultSuccess,
+		Details: map[string]any{
+			"turn":              turn,
+			"latency_ms":        llmLatency.Milliseconds(),
+			"prompt_tokens":     thought.Usage.PromptTokens,
+			"completion_tokens": thought.Usage.CompletionTokens,
+		},
+	})
+
+	// 输出端护栏（v4.1 拆分：guardrailSanitizeOutput；PII 脱敏、注入拦截）
+	if resp, gerr := a.guardrailSanitizeOutput(ctx, cfg, &thought, turn); gerr != nil {
+		return done(resp, gerr)
+	}
+
+	assistantMsg := Message{
+		Role:      RoleAssistant,
+		Content:   thought.Content,
+		ToolCalls: thought.ToolCalls,
+	}
+	a.saveMemory(ctx, assistantMsg)
+
+	_ = a.fireHookWithPool(HookAfterLLM, turn)
+	if a.hasEventSubscriber() {
+		a.publishEvent(EventLLMResponse, map[string]int{"turn": turn})
+	}
+
+	// 无tool调用 → Agent 完成
+	if len(thought.ToolCalls) == 0 {
+		// R1.4 G1-2：Reflection 接入完成路径
+		// 对最终输出进行反思，必要时用 reflector 改进版本替换
+		finalContent := thought.Content
+		if improved, reflectErr := a.reflectAndImprove(ctx, finalContent); reflectErr == nil && improved != "" {
+			finalContent = improved
+		}
+		duration := time.Since(a.startTime)
+		response := &Response{
+			RequestID: cfg.requestID,
+			Content:   finalContent,
+			Metrics: Metrics{
+				TotalTurns:  turn + 1,
+				TotalTools:  toolCount,
+				Duration:    duration,
+				LLMLatency:  totalLLMLatency,
+				ToolLatency: totalToolLatency,
+			},
+		}
+		_ = a.lifecycle.SetStatus(StatusCompleted)
+		a.saveCheckpoint(ctx, history, turn+1, response.Metrics)
+		_ = a.fireHookWithPoolResp(HookOnComplete, response)
+		_ = a.fireHookWithPool(HookAfterTurn, turn)
+		if needTiming {
+			a.recordTurn(time.Since(turnStart))
+		}
+		if a.hasEventSubscriber() {
+			a.publishEvent(EventTurnEnd, map[string]int{"turn": turn})
+		}
+		a.emitStream(cfg, StreamEvent{Type: StreamEventComplete, Content: thought.Content, Data: response})
+		if cfg.stream {
+			a.logger.Info("Agent 流式完成", "name", a.config.Name, "turns", turn+1, "duration", duration)
+		} else {
+			a.logger.Info("Agent 完成", "name", a.config.Name, "turns", turn+1, "duration", duration)
+		}
+		// p2t4：写入 AgentStop 审计事件
+		a.writeAudit(ctx, AuditEvent{
+			Actor:    a.config.Name,
+			Action:   auditActionAgentStop,
+			Resource: cfg.requestID,
+			Result:   auditResultSuccess,
+			Details:  map[string]any{"turns": turn + 1, "duration_ms": duration.Milliseconds()},
+		})
+		// v3.0：自适应学习——从本次交互中蒸馏知识
+		a.distillKnowledge(ctx, history, finalContent)
+		// v3.6-3：完成任务后把答案存为"已解决"记忆，供相似任务复用
+		a.saveSolutionMemory(ctx, history, finalContent)
+		return done(response, nil)
+	}
+
+	history = append(history, assistantMsg)
+	// v6.1 接线点②：本轮工具调用 = 计划（重新）形成（预演态）；思考文本 = 假设
+	a.wmObserveAssistant(turn, thought)
+
+	// v6.1 接线点⑤：工具执行前预演门（观察模式——缺陷写失败库+审计，不拦截）
+	a.wmRehearseGate(ctx, turn)
+
+	// 执行所有tool调用
+	history, totalToolLatency, toolCount = a.executeToolCalls(ctx, history, thought.ToolCalls, turn, cfg, tracer, turnSpan, totalToolLatency, toolCount)
+
+	// v6.1 接线点⑥：行动后回溯校验（计划路径 vs 实际轨迹，偏离写失败库+审计）
+	a.wmBackDiffCheck(ctx, turn)
+
+	_ = a.fireHookWithPool(HookAfterTurn, turn)
+	if needTiming {
+		a.recordTurn(time.Since(turnStart))
+	}
+	if a.hasEventSubscriber() {
+		a.publishEvent(EventTurnEnd, map[string]int{"turn": turn})
+	}
+
+	if a.lifecycle.IsGracefulShutdown() {
+		a.logger.Info("Agent 优雅关闭：当前 turn 已完成，退出循环", "name", a.config.Name, "turn", turn+1)
+		_ = a.lifecycle.SetStatusWithReason(StatusCancelled, "graceful shutdown")
+		duration := time.Since(a.startTime)
+		response := &Response{
+			RequestID: cfg.requestID,
+			Content:   thought.Content,
+			Error:     ErrAgentStopped,
+			Metrics: Metrics{
+				TotalTurns:  turn + 1,
+				TotalTools:  toolCount,
+				Duration:    duration,
+				LLMLatency:  totalLLMLatency,
+				ToolLatency: totalToolLatency,
+			},
+		}
+		a.emitStream(cfg, StreamEvent{Type: StreamEventError, Content: "graceful shutdown: agent stopped after turn completion"})
+		return done(response, ErrAgentStopped)
+	}
+
+	return turnOutcome{
+		history: history, totalLLMLatency: totalLLMLatency,
+		totalToolLatency: totalToolLatency, toolCount: toolCount,
+	}
 }
 
 // writeAudit 写入审计事件（如果 auditLogger 已配置）。

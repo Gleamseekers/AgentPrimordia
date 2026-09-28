@@ -320,6 +320,12 @@ var (
 	//
 	// Stability: Experimental
 	WithToolLearner = agent.WithToolLearner
+
+	// WithCorrelationStore 显式注入全链路关联存储（v7.4 接线，优先于自动构造）。
+	// 不注入且其余任一可观测能力非 nil 时，会自动构造有界存储（retention 1000 条）。
+	//
+	// Stability: Experimental
+	WithCorrelationStore = agent.WithCorrelationStore
 )
 
 // AgentOption 是 NewAgent 的函数式选项类型（v0.7.0 起等同于 agent.Option）

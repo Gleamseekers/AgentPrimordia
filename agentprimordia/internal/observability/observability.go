@@ -94,16 +94,46 @@ type record struct {
 
 // ===== 关联存储 =====
 
-// CorrelationStore 线程安全的请求关联存储。
-type CorrelationStore struct {
-	mu      sync.RWMutex
-	records map[string]*record
-	order   []string // traceID 插入顺序（保证 List 稳定）
+// defaultMaxRecords CorrelationStore 的默认有界保留上限。
+// v7.4：该存储此前为无界 map，长驻进程持续增长；默认构造进入 Agent 前先加界。
+const defaultMaxRecords = 1000
+
+// CorrelationOption 配置 CorrelationStore。
+type CorrelationOption func(*CorrelationStore)
+
+// WithMaxRecords 设置有界保留上限（n <= 0 时回退默认值，避免意外变成无界）。
+func WithMaxRecords(n int) CorrelationOption {
+	return func(s *CorrelationStore) {
+		if n > 0 {
+			s.maxRecords = n
+		}
+	}
 }
 
-// NewCorrelationStore 创建关联存储。
-func NewCorrelationStore() *CorrelationStore {
-	return &CorrelationStore{records: make(map[string]*record)}
+// CorrelationStore 线程安全的请求关联存储（有界保留，超出上限淘汰最旧记录）。
+type CorrelationStore struct {
+	mu         sync.RWMutex
+	records    map[string]*record
+	order      []string // traceID 插入顺序（保证 List 稳定 + 淘汰最旧）
+	maxRecords int
+}
+
+// NewCorrelationStore 创建关联存储（默认有界保留 defaultMaxRecords 条）。
+func NewCorrelationStore(opts ...CorrelationOption) *CorrelationStore {
+	s := &CorrelationStore{records: make(map[string]*record), maxRecords: defaultMaxRecords}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
+}
+
+// evictLocked 在持锁状态下按插入顺序淘汰超出上限的最旧记录。
+func (s *CorrelationStore) evictLocked() {
+	for s.maxRecords > 0 && len(s.order) > s.maxRecords {
+		oldest := s.order[0]
+		s.order = s.order[1:]
+		delete(s.records, oldest)
+	}
 }
 
 // Start 登记一次新请求。
@@ -120,6 +150,7 @@ func (s *CorrelationStore) Start(traceID, agentName, sessionID string) *RequestT
 		s.order = append(s.order, traceID)
 	}
 	s.records[traceID] = &record{trace: rt}
+	s.evictLocked()
 	s.mu.Unlock()
 	return rt
 }
@@ -272,6 +303,12 @@ func (s *CorrelationStore) Len() int {
 	defer s.mu.RUnlock()
 	return len(s.records)
 }
+
+// MaxRecords 返回有界保留上限。
+func (s *CorrelationStore) MaxRecords() int { return s.maxRecords }
+
+// DefaultMaxRecords 返回默认有界保留上限。
+func DefaultMaxRecords() int { return defaultMaxRecords }
 
 // SpanCount 返回某个 trace 的 span 数（便于断言）。
 func (s *CorrelationStore) SpanCount(traceID string) int {

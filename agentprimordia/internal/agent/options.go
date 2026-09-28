@@ -10,6 +10,7 @@ import (
 	"agentprimordia/internal/agent/worldmodel"
 	"agentprimordia/internal/llm"
 	"agentprimordia/internal/memory"
+	"agentprimordia/internal/observability"
 	"agentprimordia/internal/persist"
 	"agentprimordia/internal/tools"
 )
@@ -160,6 +161,13 @@ func WithWorldModel(t *worldmodel.WorldModelTracker) Option {
 // 允许 nil（等价不启用，便于条件装配）。
 func WithToolLearner(tl tool_learning.ToolLearner) Option {
 	return func(c *AgentConfig) { c.Cognition.ToolLearner = tl }
+}
+
+// WithCorrelationStore 显式注入全链路关联存储（v7.4 接线，优先于自动构造）。
+// 不注入且其余任一可观测能力（Hooks/Tracer/Metrics/Events）非 nil 时，
+// buildAgent 会自动构造有界存储（默认 retention 1000 条）。
+func WithCorrelationStore(cs *observability.CorrelationStore) Option {
+	return func(c *AgentConfig) { c.Observability.Correlation = cs }
 }
 
 // ===== 4 个分组注入 Option =====

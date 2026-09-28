@@ -15,6 +15,7 @@ import (
 	"agentprimordia/internal/agent/worldmodel"
 	"agentprimordia/internal/llm"
 	"agentprimordia/internal/memory"
+	"agentprimordia/internal/observability"
 	"agentprimordia/internal/persist"
 	"agentprimordia/internal/tools"
 )
@@ -56,6 +57,11 @@ type ObservabilityConfig struct {
 
 	// CostTracker 成本追踪器
 	CostTracker *CostTracker
+
+	// Correlation 全链路关联存储（trace → 指标 → 审计，v7.4 接线）。
+	// 显式注入时优先生效；nil 且其余任一可观测能力非 nil 时，
+	// buildAgent 会自动构造有界存储（默认 1000 条 retention）。
+	Correlation *observability.CorrelationStore
 }
 
 // ResilienceConfig 韧性分组配置

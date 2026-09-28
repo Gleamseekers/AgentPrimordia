@@ -5,6 +5,7 @@ import (
 
 	"agentprimordia/internal/agent/tool_learning"
 	"agentprimordia/internal/llm"
+	"agentprimordia/internal/observability"
 )
 
 // AgentOption 是 NewAgent 的函数式选项类型。
@@ -125,6 +126,14 @@ func buildAgent(cfg AgentConfig) (*CapabilityAgent, error) {
 	if cfg.Observability.Events != nil {
 		cap = cap.WithEvents(cfg.Observability.Events)
 	}
+	// 全链路关联存储（v7.4 接线）：显式注入优先；否则当任一可观测能力开启时
+	// 自动构造有界存储，使 trace → 指标 → 审计 关联链真实生效。
+	// 完全不开启可观测性时保持 nil——默认路径零额外开销。
+	if cfg.Observability.Correlation != nil {
+		cap = cap.WithObservability(cfg.Observability.Correlation)
+	} else if observabilityEnabled(cfg.Observability) {
+		cap = cap.WithObservability(observability.NewCorrelationStore())
+	}
 	if cfg.Observability.CostTracker != nil {
 		cap = cap.WithCostTracker(cfg.Observability.CostTracker)
 	}
@@ -172,4 +181,10 @@ func buildAgent(cfg AgentConfig) (*CapabilityAgent, error) {
 	}
 
 	return cap, nil
+}
+
+// observabilityEnabled 判断是否任一可观测采集能力已配置。
+// CorrelationStore 的自动构造以此为准：只有真正采集时才付出关联开销。
+func observabilityEnabled(cfg ObservabilityConfig) bool {
+	return cfg.Hooks != nil || cfg.Tracer != nil || cfg.Metrics != nil || cfg.Events != nil
 }

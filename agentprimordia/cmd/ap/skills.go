@@ -1,26 +1,28 @@
-// skills.go — ap skill 子命令（⚠️ 占位实现）
+// skills.go — ap skill 子命令（v7.4 起为真实实现）
 //
-// Stability: Experimental / 占位（v7.3 复核）
+// 持久化：技能库落盘于 .ap-skills/skills.json（skills.JSONFileStore），
+// 跨进程复用；list/add/remove 均针对该持久化库操作。
 //
-// 本文件的子命令**不产生真实副作用**，仅打印提示：技能库
-// （internal/agent/skills.Store）当前为进程内存实现、无持久化，且技能匹配器
-// 尚未挂入 ReAct 工具选择路径。接入需经 SDK 编程式使用。
-// 接线计划与成本见 docs/实验性能力清单.md。
+// 说明：verify 为**静态校验**（Validator 结构校验 + 安全扫描），
+// 不执行技能步骤——步骤执行需要 SkillExecutor（工具运行期）与测试用例。
 package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"agentprimordia/internal/agent/skills"
 )
 
 const skillsUsage = `Usage: ap skill <subcommand> [arguments]
 
-⚠️ 本子命令为占位实现（stub）：不产生真实副作用，仅供 SDK 用户参考用法。
-
 Subcommands:
-  list             列出所有已习得技能
-  add <file>       从 JSON/YAML 文件添加技能
-  remove <id>      移除技能
-  verify <id>      验证技能（运行测试用例）
+  list             列出本地技能库（持久化）
+  add <file>       从 JSON 文件导入技能（结构校验 + 安全扫描）
+  remove <id>      从技能库移除技能
+  verify <id>      静态校验技能（结构 + 安全扫描，不执行步骤）
 
 Examples:
   ap skill list
@@ -29,9 +31,17 @@ Examples:
   ap skill verify skill-abc123
 `
 
-// warnSkillStub 提示该子命令当前为占位实现，避免被误认为已产生真实效果。
-func warnSkillStub() {
-	fmt.Println("   ⚠️ 占位实现：本子命令未执行真实操作（技能库请经 SDK 使用）")
+// skillStoreDir 技能库持久化目录（相对当前工作目录）。
+var skillStoreDir = ".ap-skills"
+
+// skillRegistryPath 技能库持久化文件。
+func skillRegistryPath() string {
+	return filepath.Join(skillStoreDir, "skills.json")
+}
+
+// newSkillStore 构造注入 JSON 文件持久化的技能库（生产构造点）。
+func newSkillStore() *skills.Store {
+	return skills.NewStore(skills.WithPersistence(skills.NewJSONFileStore(skillRegistryPath())))
 }
 
 func runSkill(args []string) error {
@@ -62,9 +72,23 @@ func runSkill(args []string) error {
 
 func runSkillList(args []string) error {
 	_ = args
-	fmt.Println("📚 技能库:")
-	fmt.Println("   (暂无技能 — 通过 SDK 习得或 'ap skill add' 导入)")
-	warnSkillStub()
+	store := newSkillStore()
+	if err := store.PersistError(); err != nil {
+		return fmt.Errorf("加载技能库失败: %w", err)
+	}
+	list := store.List()
+	if len(list) == 0 {
+		infof("技能库为空（用 ap skill add <file> 导入）")
+		return nil
+	}
+	fmt.Printf("技能库（%s）:\n", skillRegistryPath())
+	for _, sk := range list {
+		status := string(sk.Status)
+		if status == "" {
+			status = "-"
+		}
+		fmt.Printf("  %-28s %-12s %s\n", sk.ID, status, sk.Name)
+	}
 	return nil
 }
 
@@ -72,9 +96,37 @@ func runSkillAdd(args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: ap skill add <file>")
 	}
-	fmt.Printf("📥 导入技能: %s\n", args[0])
-	fmt.Println("   提示: 技能导入需要运行时实例，请通过 SDK 编程式使用")
-	warnSkillStub()
+	path := args[0]
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("读取技能文件失败: %w", err)
+	}
+	codec := skills.NewCodec()
+	skill, err := codec.Decode(data)
+	if err != nil {
+		return fmt.Errorf("解析技能 JSON 失败: %w", err)
+	}
+	if skill.ID == "" {
+		// 缺 ID 时以文件名兜底，便于快速导入
+		base := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+		skill.ID = base
+	}
+	if err := skills.NewValidator().Validate(skill); err != nil {
+		return fmt.Errorf("技能校验失败: %w", err)
+	}
+	for _, warn := range skills.NewValidator().SecurityScan(skill) {
+		infof("安全告警: %s", warn)
+	}
+
+	if err := os.MkdirAll(skillStoreDir, 0o755); err != nil {
+		return fmt.Errorf("创建技能库目录失败: %w", err)
+	}
+	store := newSkillStore()
+	store.Save(skill)
+	if err := store.PersistError(); err != nil {
+		return fmt.Errorf("持久化技能失败: %w", err)
+	}
+	successf("已导入技能 %s（持久化于 %s）", skill.ID, skillRegistryPath())
 	return nil
 }
 
@@ -82,8 +134,15 @@ func runSkillRemove(args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: ap skill remove <skill-id>")
 	}
-	fmt.Printf("🗑️  移除技能: %s\n", args[0])
-	warnSkillStub()
+	store := newSkillStore()
+	if _, ok := store.Get(args[0]); !ok {
+		return fmt.Errorf("技能 %q 不存在", args[0])
+	}
+	store.Delete(args[0])
+	if err := store.PersistError(); err != nil {
+		return fmt.Errorf("持久化技能库失败: %w", err)
+	}
+	successf("已移除技能 %s", args[0])
 	return nil
 }
 
@@ -91,8 +150,23 @@ func runSkillVerify(args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("usage: ap skill verify <skill-id>")
 	}
-	fmt.Printf("🔍 验证技能: %s\n", args[0])
-	fmt.Println("   提示: 验证需要配置 SkillExecutor，请通过 SDK 编程式使用")
-	warnSkillStub()
+	store := newSkillStore()
+	skill, ok := store.Get(args[0])
+	if !ok {
+		return fmt.Errorf("技能 %q 不存在", args[0])
+	}
+	validator := skills.NewValidator()
+	if err := validator.Validate(skill); err != nil {
+		return fmt.Errorf("技能 %s 校验未通过: %w", args[0], err)
+	}
+	warnings := validator.SecurityScan(skill)
+	if len(warnings) == 0 {
+		successf("技能 %s 静态校验通过（结构合法、无安全告警）", args[0])
+		return nil
+	}
+	infof("技能 %s 结构合法，但存在 %d 条安全告警：", args[0], len(warnings))
+	for _, w := range warnings {
+		fmt.Printf("  - %s\n", w)
+	}
 	return nil
 }

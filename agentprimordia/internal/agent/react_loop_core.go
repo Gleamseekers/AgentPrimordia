@@ -131,6 +131,10 @@ func (a *ReActAgent) runLoop(ctx context.Context, history []Message, startTurn i
 			return fastResp, nil
 		}
 
+		// 技能匹配注入（v7.4 接线）：命中已习得技能时把步骤指引作为 system 上下文注入；
+		// 未配置 Matcher 时原样返回（默认路径零变更）。
+		history = a.injectSkillGuidance(history)
+
 		// RAG 检索与注入（v4.1 拆分：ragRetrieveAndInject）
 		history = a.ragRetrieveAndInject(ctx, history, turn, startTurn, cfg, tracer, turnSpan)
 

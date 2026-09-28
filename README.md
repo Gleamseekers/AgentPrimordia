@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.26+-00ADD8.svg)](https://golang.org)
 [![Version](https://img.shields.io/badge/version-7.3.0-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
-[![Tests](https://img.shields.io/badge/tests-608%20files-green.svg)](agentprimordia/internal/)
+[![Tests](https://img.shields.io/badge/tests-620%20files-green.svg)](agentprimordia/internal/)
 
 <p align="center">
   <img src="agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
@@ -198,7 +198,7 @@ task, _ := client.SendTask(ctx, &ap.TaskSendRequest{...})
 
 ```
 AgentPrimordia/
-├── agentprimordia/          # 核心框架主模块（162 个包，1295 个 Go 文件）
+├── agentprimordia/          # 核心框架主模块（162 个包，1314 个 Go 文件）
 │   ├── cmd/ap/              # CLI（20 个子命令）
 │   ├── internal/            # 29 个内部包
 │   │   ├── agent/           # ReAct 引擎 + 微内核（34 个子包）
@@ -254,7 +254,7 @@ ap studio                      # 启动 Studio 面板
 3. **零配置起步** — `ap start` 不需要任何配置就能跑起来
 4. **越用越强** — 学习闭环让 Agent 从每次交互中积累经验
 5. **最小依赖** — 核心零 CGO，仅 SQLite + YAML；可选 gRPC/Redis/etcd/wazero 按需引入
-6. **TDD 强制** — Red → Green → Refactor，608 个测试文件
+6. **TDD 强制** — Red → Green → Refactor，620 个测试文件
 
 ## 技术栈
 

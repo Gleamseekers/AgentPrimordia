@@ -5117,6 +5117,16 @@
           ],
           "stability": "Experimental",
           "doc": "WithTelemetry 将 TelemetryProvider 的 Tracer 与 Metrics 一次性注入 Agent，"
+        },
+        {
+          "name": "TelemetryFromEnv",
+          "returns": [
+            "*TelemetryProvider",
+            "bool",
+            "error"
+          ],
+          "stability": "Experimental",
+          "doc": "TelemetryFromEnv 从环境变量构造 TelemetryProvider（v7.4 端到端接线）。"
         }
       ],
       "variables": [

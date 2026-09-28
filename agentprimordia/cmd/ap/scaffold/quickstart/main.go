@@ -45,9 +45,20 @@ func main() {
 		}
 	}
 
-	// 步骤2: 创建Agent
+	// 步骤2: 创建Agent（可选接入 OpenTelemetry 遥测）
+	agentOpts := []ap.AgentOption{ap.WithMaxTurns(10)}
+
+	// 设置 OTEL_EXPORTER_OTLP_ENDPOINT 或 AP_OTEL_ENABLED=1 即启用：
+	// ReAct 循环产生的 span 与指标将按 AP_OTEL_EXPORT_INTERVAL（默认 30s）导出到 OTLP 端点。
+	if tp, ok, terr := ap.TelemetryFromEnv(); terr == nil && ok {
+		defer func() { _ = tp.Shutdown() }()
+		agentOpts = append(agentOpts, ap.WithTelemetry(tp))
+		fmt.Println("已启用 OpenTelemetry 遥测导出")
+		fmt.Println()
+	}
+
 	myAgent, err := ap.NewAgent("QuickStartAgent", "你是一个友好的AI助手，用简洁的中文回答问题。", provider,
-		ap.WithMaxTurns(10),
+		agentOpts...,
 	)
 	if err != nil {
 		log.Fatalf("创建Agent失败: %v", err)

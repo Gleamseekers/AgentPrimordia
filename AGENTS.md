@@ -88,7 +88,6 @@ internal/
 ├── memory/         — 记忆存储（SQLite / InMemory / RAG / Vector）
 ├── metrics/        — Prometheus 指标收集
 ├── orchestration/  — 编排模式（Pipeline / Handoff / DAG / GroupChat / Debate）
-├── otel/           — OpenTelemetry 桥接与导出
 ├── persist/        — 状态持久化与 Checkpoint
 ├── pool/           — 多 Agent 调度与会话管理
 ├── security/       — ACL / Sandbox / 路径校验
@@ -119,12 +118,12 @@ pgvector/           — pgvector 向量存储扩展
                                      │  pool   │
                                      └─────────┘
 
-        orchestration/、debugger/、metrics/、otel/、guardrail/、
+        orchestration/、debugger/、metrics/、observability/、guardrail/、
         security/、events/、config/、agent/prompt/ 等模块为横向支撑层，
         可消费 agent/llm/memory/tools/pool 等下层能力。
 ```
 
-- **`agent/` 处于依赖顶层**：可引用 `llm/memory/persist/tools/pool/orchestration/security/metrics/otel/events/config/agent/prompt/concurrency` 等下层/横向模块。
+- **`agent/` 处于依赖顶层**：可引用 `llm/memory/persist/tools/pool/orchestration/security/metrics/observability/events/config/agent/prompt/concurrency` 等下层/横向模块。
 - **下层模块禁止反向引用上层**：`llm/memory/persist/tools` 不得 import `agent/`、`pool/`、`orchestration/`。
 - **编排/调试/可观测等横向模块**：可引用 `agent/` 及以下模块，但不得被 `llm/memory/persist/tools` 反向引用。
 - **`pkg/` 以类型导出和 re-export 为主**：允许少量不可或缺的公共错误/辅助构造器（如 `pkg/errors.go` 中的 `CodeError`），新增业务逻辑应优先放在 `internal/`。

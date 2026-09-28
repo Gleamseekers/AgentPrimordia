@@ -70,11 +70,18 @@ func (p *AnthropicProvider) Complete(ctx context.Context, req *CompletionRequest
 		anthReq.Temperature = &f32
 	}
 
-	// 结构化输出：Anthropic 通过 tool_choice + 单tool注入实现
+	// 结构化输出：Anthropic 通过 tool_choice + 单tool注入实现。
+	// buildStructuredOutputSafe 对全部 ResponseFormat 形态安全（P0 修复：
+	// json_object 无 schema 时走通用兜底 tool，不再 nil deref panic）。
 	if req.ResponseFormat != nil {
-		tool, choice := p.buildStructuredOutput(req.ResponseFormat)
-		anthReq.Tools = append(anthReq.Tools, tool)
-		anthReq.ToolChoice = &choice
+		tool, choice, ok, err := p.buildStructuredOutputSafe(req.ResponseFormat)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			anthReq.Tools = append(anthReq.Tools, tool)
+			anthReq.ToolChoice = &choice
+		}
 	}
 
 	raw, err := p.doRequest(ctx, "/v1/messages", anthReq)
@@ -358,23 +365,49 @@ func (p *AnthropicProvider) resolveMaxTokens(req *CompletionRequest) int {
 	return defaultAnthropicMaxTokens
 }
 
-// buildStructuredOutput 构建结构化输出tool（perf-v6 round 4 Task 1）
-// 替代 injectStructuredOutput 直接操作 map 的做法
-func (p *AnthropicProvider) buildStructuredOutput(rf *ResponseFormat) (anthropicTool, anthropicToolChoice) {
+// buildStructuredOutputSafe 构建结构化输出 tool（perf-v6 round 4 Task 1），
+// 对所有 ResponseFormat 形态安全（P0 修复）。
+//
+// 语义矩阵：
+//   - rf == nil 或 Type == text：不注入（ok=false, err=nil）；
+//   - Type == json_object 且 JSONSchema == nil：Anthropic 无原生 json_object
+//     模式，注入通用兜底 tool（宽松 object schema）保证结构化意图不丢失，
+//     不再像旧实现那样 nil deref panic；
+//   - Type == json_schema 且 JSONSchema == nil：调用方错误，返回明确 error；
+//   - JSONSchema != nil：按 schema 构建（原行为）。
+func (p *AnthropicProvider) buildStructuredOutputSafe(rf *ResponseFormat) (tool anthropicTool, choice anthropicToolChoice, ok bool, err error) {
+	if rf == nil || rf.Type == ResponseFormatText {
+		return anthropicTool{}, anthropicToolChoice{}, false, nil
+	}
+	if rf.JSONSchema == nil {
+		if rf.Type == ResponseFormatJSONObject {
+			// 通用兜底：宽松 object schema + 明确描述，引导模型返回 JSON。
+			tool = anthropicTool{
+				Name:        "structured_output",
+				Description: "Return the response as a single JSON object.",
+				InputSchema: map[string]any{"type": "object"},
+			}
+			choice = anthropicToolChoice{Type: "tool", Name: tool.Name}
+			return tool, choice, true, nil
+		}
+		// json_schema 模式缺少 schema 定义属无效请求。
+		return anthropicTool{}, anthropicToolChoice{}, false,
+			fmt.Errorf("llm: anthropic structured output requires JSONSchema when ResponseFormat.Type=%q", rf.Type)
+	}
 	schemaName := rf.JSONSchema.Name
 	if schemaName == "" {
 		schemaName = "structured_output"
 	}
-	tool := anthropicTool{
+	tool = anthropicTool{
 		Name:        schemaName,
 		Description: rf.JSONSchema.Description,
 		InputSchema: rf.JSONSchema.Schema,
 	}
-	choice := anthropicToolChoice{
+	choice = anthropicToolChoice{
 		Type: "tool",
 		Name: schemaName,
 	}
-	return tool, choice
+	return tool, choice, true, nil
 }
 
 // ===== Anthropic API 响应类型 =====

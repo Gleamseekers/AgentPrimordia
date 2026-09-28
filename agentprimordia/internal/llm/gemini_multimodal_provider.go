@@ -21,6 +21,8 @@ const defaultGeminiMultimodalMaxTokens = 8192
 type GeminiMultimodalProvider struct {
 	config Config
 	client *http.Client
+	// v6.x 评估 §4.2 P1-4：流式专用 client（无整体超时 + ResponseHeaderTimeout）
+	streamClient *http.Client
 }
 
 // NewGeminiMultimodalProvider 创建 Gemini 多模态 Provider
@@ -40,8 +42,9 @@ func NewGeminiMultimodalProvider(cfg Config) (*GeminiMultimodalProvider, error) 
 	}
 
 	return &GeminiMultimodalProvider{
-		config: cfg,
-		client: NewDefaultLLMClient(defaultTimeout),
+		config:       cfg,
+		client:       NewDefaultLLMClient(defaultTimeout),
+		streamClient: NewDefaultLLMStreamClient(),
 	}, nil
 }
 
@@ -124,7 +127,8 @@ func (p *GeminiMultimodalProvider) StreamMultimodal(ctx context.Context, req *Co
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("User-Agent", userAgent)
 
-	resp, err := p.client.Do(httpReq)
+	// v6.x 评估 §4.2 P1-4：流式路径使用无整体超时的 stream client
+	resp, err := p.streamClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}

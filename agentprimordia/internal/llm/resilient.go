@@ -225,6 +225,18 @@ func (r *ResilientProvider) recordSuccess() {
 }
 
 func (r *ResilientProvider) recordFailure(err error) {
+	if err == nil {
+		return
+	}
+	// v6.x 评估 §4.2 P1-2：调用方主动取消（context.Canceled）或 ctx 超时
+	// （DeadlineExceeded）不属于 provider 故障——不计入熔断失败计数。
+	// 否则调用方连续取消 CircuitThreshold 次即误打开熔断
+	// CircuitRecoverAfter（默认 30s），后续正常请求被误拒。
+	// errors.Is 穿透 executeWithRetry 的 %w 包装。
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return
+	}
+
 	// perf-v6 round 8 Task 3：客户端错误（4xx 除 429）和authentication error不计入熔断失败计数
 	// 因为这些错误不会因 provider 不健康而恢复，触发熔断无意义
 	if re := AsRetryableError(err); re != nil && !re.CountsAsFailure() {

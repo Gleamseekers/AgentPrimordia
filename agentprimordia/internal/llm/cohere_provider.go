@@ -22,6 +22,8 @@ const (
 type CohereProvider struct {
 	config Config
 	client *http.Client
+	// v6.x 评估 §4.2 P1-4：流式专用 client（无整体超时 + ResponseHeaderTimeout）
+	streamClient *http.Client
 }
 
 // NewCohereProvider 创建 Cohere Provider
@@ -41,8 +43,9 @@ func NewCohereProvider(cfg Config) (*CohereProvider, error) {
 	}
 
 	return &CohereProvider{
-		config: cfg,
-		client: NewDefaultLLMClient(defaultTimeout),
+		config:       cfg,
+		client:       NewDefaultLLMClient(defaultTimeout),
+		streamClient: NewDefaultLLMStreamClient(),
 	}, nil
 }
 
@@ -120,7 +123,8 @@ func (p *CohereProvider) Stream(ctx context.Context, req *CompletionRequest) (<-
 	}
 	p.setHeaders(httpReq)
 
-	resp, err := p.client.Do(httpReq)
+	// v6.x 评估 §4.2 P1-4：流式路径使用无整体超时的 stream client
+	resp, err := p.streamClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}

@@ -76,6 +76,11 @@ type InMemoryCache struct {
 	hits       int64
 	misses     int64
 	tokensSave int64
+	// v6.x 评估 §4.2 P1-6：TTL 清理 goroutine 的停止机制
+	// stopCh 由 Close() 关闭；loopDone 由 goroutine 退出时关闭（测试/优雅关闭可等待）
+	stopCh    chan struct{}
+	loopDone  chan struct{}
+	closeOnce sync.Once
 }
 
 // NewInMemoryCache 创建内存缓存
@@ -112,29 +117,51 @@ func NewInMemoryCacheWithFullConfig(cfg InMemoryCacheFullConfig) *InMemoryCache 
 		maxSize:  cfg.MaxSize,
 		minScore: cfg.MinScore,
 		ttl:      cfg.TTL,
+		stopCh:   make(chan struct{}), // v6.x 评估 §4.2 P1-6
 	}
 	// perf-v6 Task 8：启动 TTL 后台清理 goroutine
+	// v6.x 评估 §4.2 P1-6：goroutine 监听 stopCh，Close() 可将其停止，
+	// 避免缓存淘汰后 goroutine 永久泄漏
 	if cfg.TTL > 0 {
+		c.loopDone = make(chan struct{})
 		go c.ttlCleanupLoop(cfg.TTL)
 	}
 	return c
 }
 
+// Close 停止 TTL 后台清理 goroutine 并释放相关资源（v6.x 评估 §4.2 P1-6）。
+// 幂等：重复调用安全。未配置 TTL 时也可安全调用。
+func (c *InMemoryCache) Close() error {
+	c.closeOnce.Do(func() {
+		close(c.stopCh)
+	})
+	return nil
+}
+
 // ttlCleanupLoop 定期清理过期缓存（perf-v6 Task 8）
 // 间隔为 TTL/2，保证过期 entry 不会长时间占用内存
+// v6.x 评估 §4.2 P1-6：select 监听 stopCh，Close() 后退出
 func (c *InMemoryCache) ttlCleanupLoop(ttl time.Duration) {
+	defer close(c.loopDone)
 	interval := ttl / 2
 	if interval < time.Second {
 		interval = time.Second
 	}
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	for range ticker.C {
-		c.cleanupExpired(ttl)
+	for {
+		select {
+		case <-ticker.C:
+			c.cleanupExpired(ttl)
+		case <-c.stopCh:
+			return
+		}
 	}
 }
 
 // cleanupExpired 扫描并删除过期 entry（perf-v6 Task 8）
+// v6.x 评估 §4.2 P1-7：删除时必须同步清理 LSH 索引，
+// 否则过期 entry 仍被 probeCandidates 返回（死对象无法 GC + 慢路径反复扫描）
 func (c *InMemoryCache) cleanupExpired(ttl time.Duration) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -150,6 +177,9 @@ func (c *InMemoryCache) cleanupExpired(ttl time.Duration) {
 		entry := elem.Value.(*CacheEntry)
 		c.lruList.Remove(elem)
 		delete(c.lruMap, entry.Key)
+		if entry.vector != nil {
+			c.lsh.remove(entry, entry.vector) // v6.x 评估 §4.2 P1-7
+		}
 	}
 }
 
@@ -283,6 +313,16 @@ func (c *InMemoryCache) Set(ctx context.Context, query string, resp *CompletionR
 
 	fp := PromptFingerprint(query)
 
+	return c.setByKeyAndVector(fp, query, vec, resp)
+}
+
+// setByKeyAndVector 按给定指纹键 + 向量写入缓存（Set / SetRequest 共用）。
+// 保证两条写入路径的"更新语义 + LRU 淘汰 + LSH 索引维护"完全一致。
+func (c *InMemoryCache) setByKeyAndVector(fp, query string, vec []float32, resp *CompletionResponse) error {
+	if resp == nil {
+		return nil
+	}
+
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -329,14 +369,79 @@ func (c *InMemoryCache) Set(ctx context.Context, query string, resp *CompletionR
 	return nil
 }
 
+// GetRequest 按完整 CompletionRequest 指纹精确查找（v6.x 评估 §4.2 P1-5）。
+// 与 Get(query) 的区别：键覆盖完整输入空间（model + 全消息序列 +
+// temperature/max_tokens/response_format，见 RequestFingerprint），
+// 避免"相同最后一条 user 消息"在不同 system prompt / 参数下假命中。
+func (c *InMemoryCache) GetRequest(ctx context.Context, req *CompletionRequest) (*CompletionResponse, bool) {
+	fp := RequestFingerprint(req)
+
+	c.mu.RLock()
+	elem, ok := c.lruMap[fp]
+	var expired bool
+	if ok {
+		entry := elem.Value.(*CacheEntry)
+		expired = c.ttl > 0 && time.Since(entry.CreatedAt) > c.ttl
+	}
+	c.mu.RUnlock()
+
+	atomicAdd(&c.totalQuery, 1)
+
+	if !ok {
+		atomicAdd(&c.misses, 1)
+		return nil, false
+	}
+
+	if expired {
+		// 过期删除：与 cleanupExpired 一致，同步清理 LSH 索引（P1-7）
+		c.mu.Lock()
+		if cur, still := c.lruMap[fp]; still && cur == elem {
+			entry := cur.Value.(*CacheEntry)
+			c.lruList.Remove(cur)
+			delete(c.lruMap, fp)
+			if entry.vector != nil {
+				c.lsh.remove(entry, entry.vector)
+			}
+		}
+		c.mu.Unlock()
+		atomicAdd(&c.misses, 1)
+		return nil, false
+	}
+
+	// 命中：O(1) 升级到最新（已淘汰 elem 上 MoveToBack 为 no-op）
+	c.mu.Lock()
+	c.lruList.MoveToBack(elem)
+	c.mu.Unlock()
+
+	entry := elem.Value.(*CacheEntry)
+	entry.AddHit()
+	atomicAdd(&c.hits, 1)
+	if entry.Response != nil {
+		atomicAdd(&c.tokensSave, int64(entry.Response.Usage.TotalTokens))
+	}
+	return entry.Response, true
+}
+
+// SetRequest 按完整 CompletionRequest 指纹写入缓存（v6.x 评估 §4.2 P1-5）。
+// 向量由请求指纹确定性派生（不走 embedder，避免额外远端调用）：
+// 请求键条目以精确匹配为主，慢路径相似度为辅。
+func (c *InMemoryCache) SetRequest(ctx context.Context, req *CompletionRequest, resp *CompletionResponse) error {
+	fp := RequestFingerprint(req)
+	vec := fingerprintToVector(fp)
+	return c.setByKeyAndVector(fp, extractLastUserQuery(req.Messages), vec, resp)
+}
+
 // Stats 返回缓存统计
+// v6.x 评估 §4.2 P1-1：计数器由 atomic.AddInt64 写入，Stats 必须用
+// atomic.LoadInt64 读取，否则并发 Get/Set + Stats 构成数据竞争（-race 可检出）。
 func (c *InMemoryCache) Stats(_ context.Context) CacheStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	total := c.totalQuery
-	hits := c.hits
-	misses := c.misses
+	total := atomic.LoadInt64(&c.totalQuery)
+	hits := atomic.LoadInt64(&c.hits)
+	misses := atomic.LoadInt64(&c.misses)
+	tokensSave := atomic.LoadInt64(&c.tokensSave)
 
 	var hitRate float64
 	if total > 0 {
@@ -349,21 +454,23 @@ func (c *InMemoryCache) Stats(_ context.Context) CacheStats {
 		CacheMisses:  misses,
 		HitRate:      hitRate,
 		EntryCount:   c.lruList.Len(),
-		TokensSaved:  c.tokensSave,
+		TokensSaved:  tokensSave,
 	}
 }
 
 // Clear 清空缓存
+// v6.x 评估 §4.2 P1-1：计数器重置同样走 atomic.StoreInt64，
+// 避免与并发 atomic.AddInt64 构成竞争。
 func (c *InMemoryCache) Clear(_ context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.lruList = list.New()
 	c.lruMap = make(map[string]*list.Element, c.maxSize)
 	c.lsh = newLSHCache() // perf-v6 Task 1：重建 LSH 索引
-	c.totalQuery = 0
-	c.hits = 0
-	c.misses = 0
-	c.tokensSave = 0
+	atomic.StoreInt64(&c.totalQuery, 0)
+	atomic.StoreInt64(&c.hits, 0)
+	atomic.StoreInt64(&c.misses, 0)
+	atomic.StoreInt64(&c.tokensSave, 0)
 	return nil
 }
 
@@ -394,49 +501,20 @@ func (c *InMemoryCache) Invalidate(_ context.Context, key string) error {
 
 func (c *InMemoryCache) SetWithVector(query string, resp *CompletionResponse, vector []float32) error {
 	fp := PromptFingerprint(query)
+	return c.setByKeyAndVector(fp, query, vector, resp)
+}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	// 如果 fp 已存在，先删除旧 entry（更新语义）
-	if oldElem, ok := c.lruMap[fp]; ok {
-		oldEntry := oldElem.Value.(*CacheEntry)
-		c.lruList.Remove(oldElem)
-		delete(c.lruMap, fp)
-		if oldEntry.vector != nil {
-			c.lsh.remove(oldEntry, oldEntry.vector) // perf-v6 Task 1
-		}
-	}
-
-	// O(1) 淘汰最旧
-	for c.lruList.Len() >= c.maxSize {
-		front := c.lruList.Front()
-		if front == nil {
-			break
-		}
-		evicted := front.Value.(*CacheEntry)
-		c.lruList.Remove(front)
-		delete(c.lruMap, evicted.Key)
-		if evicted.vector != nil {
-			c.lsh.remove(evicted, evicted.vector) // perf-v6 Task 1
-		}
-	}
-
-	entry := &CacheEntry{
-		Key:       fp,
-		Query:     query,
-		Response:  resp,
-		CreatedAt: time.Now(),
-		Model:     resp.Model,
-		vector:    vector,
-	}
-	elem := c.lruList.PushBack(entry)
-	c.lruMap[fp] = elem
-	// perf-v6 Task 1：维护 LSH 索引
-	if vector != nil {
-		c.lsh.add(entry, vector)
-	}
-	return nil
+// RequestLLMCache 完整请求键缓存扩展接口（v6.x 评估 §4.2 P1-5）。
+//
+// LLMCache 的可选扩展：实现者按 RequestFingerprint（完整输入空间：
+// model + 全消息序列 + temperature/max_tokens/response_format）做键，
+// 避免仅基于"最后一条 user 消息"的假命中。未实现该接口的缓存
+// （如第三方 LLMCache 实现）自动回退到 query 级 Get/Set，语义保持兼容。
+//
+// 包内实现：InMemoryCache / FingerprintCache / SQLiteCache / HybridCache / NoopCache。
+type RequestLLMCache interface {
+	GetRequest(ctx context.Context, req *CompletionRequest) (*CompletionResponse, bool)
+	SetRequest(ctx context.Context, req *CompletionRequest, resp *CompletionResponse) error
 }
 
 // CachedProvider 带 LLM 缓存的 Provider 装饰器
@@ -478,8 +556,42 @@ func NewCachedProviderWithManager(inner Provider, mgr *CacheManager, minScore fl
 	}, nil
 }
 
+// requestCache 返回底层缓存的请求键扩展（若支持）。
+// manager 与裸 cache 两条装配路径都覆盖。
+func (p *CachedProvider) requestCache() RequestLLMCache {
+	if p.manager != nil {
+		if rc, ok := p.manager.cache.(RequestLLMCache); ok {
+			return rc
+		}
+		return nil
+	}
+	if rc, ok := p.cache.(RequestLLMCache); ok {
+		return rc
+	}
+	return nil
+}
+
 // Complete 实现 Provider 接口 — 先查缓存，未命中再调用内部 Provider
+//
+// v6.x 评估 §4.2 P1-5：缓存键从 extractLastUserQuery（仅最后一条 user 消息）
+// 切换到 RequestFingerprint（完整输入空间）。不同 system prompt / 模型 /
+// temperature / 历史消息的相同 query 不再互相假命中。
+// 底层缓存不支持请求键时，回退到原有 query 级语义（兼容第三方 LLMCache）。
 func (p *CachedProvider) Complete(ctx context.Context, req *CompletionRequest) (*CompletionResponse, error) {
+	// 优先：完整请求指纹键
+	if rc := p.requestCache(); rc != nil {
+		if cached, ok := rc.GetRequest(ctx, req); ok {
+			return cached, nil
+		}
+		resp, err := p.inner.Complete(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		_ = rc.SetRequest(ctx, req, resp)
+		return resp, nil
+	}
+
+	// 回退：query 级键（仅最后一条 user 消息）
 	query := extractLastUserQuery(req.Messages)
 
 	if query != "" {

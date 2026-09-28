@@ -85,3 +85,49 @@ func TestHTTP2_TransportConfig(t *testing.T) {
 		t.Errorf("TLSHandshakeTimeout = %v, want 10s", tr.TLSHandshakeTimeout)
 	}
 }
+
+// TestNewDefaultLLMTransport_SharedSingleton 复现 v6.x 评估 §4.2 P1-3：
+// NewDefaultLLMTransport 名为主享 transport，实际每次调用都 new 全新实例，
+// 12 个 Provider 各自持有独立连接池，"共享"名不副实。
+// 修复：包级单例（sync.OnceValues），重复调用必须返回同一实例。
+func TestNewDefaultLLMTransport_SharedSingleton(t *testing.T) {
+	t1 := NewDefaultLLMTransport()
+	t2 := NewDefaultLLMTransport()
+	if t1 != t2 {
+		t.Fatal("NewDefaultLLMTransport 必须返回包级共享单例（连接池复用）")
+	}
+	// NewDefaultLLMClient 也必须复用同一 transport
+	c1 := NewDefaultLLMClient(5 * time.Second)
+	c2 := NewDefaultLLMClient(10 * time.Second)
+	if c1.Transport != t1 || c2.Transport != t1 {
+		t.Error("NewDefaultLLMClient 必须复用共享 transport 单例")
+	}
+	// timeout 参数语义保留：每个 client 仍可独立设置整体超时
+	if c1.Timeout != 5*time.Second || c2.Timeout != 10*time.Second {
+		t.Errorf("client timeout 语义丢失: c1=%v c2=%v", c1.Timeout, c2.Timeout)
+	}
+}
+
+// TestNewDefaultLLMStreamClient_NoOverallTimeout 验证流式客户端语义：
+// 不设置 Client.Timeout（避免长流被整体超时掐断），
+// 由 Transport.ResponseHeaderTimeout 限制响应头耗时。
+func TestNewDefaultLLMStreamClient_NoOverallTimeout(t *testing.T) {
+	c := NewDefaultLLMStreamClient()
+	if c == nil {
+		t.Fatal("NewDefaultLLMStreamClient returned nil")
+	}
+	if c.Timeout != 0 {
+		t.Errorf("stream client Timeout = %v, want 0（长流不得被整体超时掐断）", c.Timeout)
+	}
+	tr, ok := c.Transport.(*http.Transport)
+	if !ok {
+		t.Fatalf("stream client Transport type = %T, want *http.Transport", c.Transport)
+	}
+	if tr.ResponseHeaderTimeout != defaultResponseHeaderTimeout {
+		t.Errorf("ResponseHeaderTimeout = %v, want %v", tr.ResponseHeaderTimeout, defaultResponseHeaderTimeout)
+	}
+	// 流式 transport 同样是共享单例
+	if NewDefaultLLMStreamClient().Transport != c.Transport {
+		t.Error("stream transport 应为包级共享单例")
+	}
+}

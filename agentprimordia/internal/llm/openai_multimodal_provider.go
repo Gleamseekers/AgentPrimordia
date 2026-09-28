@@ -18,6 +18,8 @@ import (
 type OpenAIMultimodalProvider struct {
 	config Config
 	client *http.Client
+	// v6.x 评估 §4.2 P1-4：流式专用 client（无整体超时 + ResponseHeaderTimeout）
+	streamClient *http.Client
 }
 
 // NewOpenAIMultimodalProvider 创建 OpenAI 多模态 Provider
@@ -37,8 +39,9 @@ func NewOpenAIMultimodalProvider(cfg Config) (*OpenAIMultimodalProvider, error) 
 	}
 
 	return &OpenAIMultimodalProvider{
-		config: cfg,
-		client: NewDefaultLLMClient(defaultTimeout),
+		config:       cfg,
+		client:       NewDefaultLLMClient(defaultTimeout),
+		streamClient: NewDefaultLLMStreamClient(),
 	}, nil
 }
 
@@ -124,7 +127,8 @@ func (p *OpenAIMultimodalProvider) StreamMultimodal(ctx context.Context, req *Co
 	httpReq.Header.Set("Authorization", "Bearer "+p.config.APIKey)
 	httpReq.Header.Set("User-Agent", userAgent)
 
-	resp, err := p.client.Do(httpReq)
+	// v6.x 评估 §4.2 P1-4：流式路径使用无整体超时的 stream client
+	resp, err := p.streamClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}

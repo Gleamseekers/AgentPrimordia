@@ -173,7 +173,8 @@ func (p *AzureOpenAIProvider) Stream(ctx context.Context, req *CompletionRequest
 	}
 	p.setHeaders(httpReq)
 
-	resp, err := p.client.Do(httpReq)
+	// v6.x 评估 §4.2 P1-4：流式路径使用无整体超时的 stream client
+	resp, err := p.streamClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}

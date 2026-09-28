@@ -19,8 +19,11 @@ import (
 // 具体 Provider 通过嵌入 BaseProvider 复用这些公共方法，减少模板代码。
 
 // BaseProvider 封装 HTTP 客户端与共享配置（APIKey / BaseURL / 模型解析等）。
+// v6.x 评估 §4.2 P1-4：client（非流式，带整体超时）与 streamClient（流式，
+// 无整体超时 + ResponseHeaderTimeout）分离，避免长流被 Client.Timeout 掐断。
 type BaseProvider struct {
-	client *http.Client
+	client       *http.Client
+	streamClient *http.Client
 }
 
 // NewBaseProvider 创建 BaseProvider 实例。
@@ -29,13 +32,21 @@ func NewBaseProvider(timeout time.Duration) *BaseProvider {
 		timeout = defaultTimeout
 	}
 	return &BaseProvider{
-		client: NewDefaultLLMClient(timeout),
+		client:       NewDefaultLLMClient(timeout),
+		streamClient: NewDefaultLLMStreamClient(),
 	}
 }
 
-// Client 返回 HTTP 客户端。
+// Client 返回 HTTP 客户端（非流式）。
 func (p *BaseProvider) Client() *http.Client {
 	return p.client
+}
+
+// StreamClient 返回流式请求专用 HTTP 客户端（v6.x 评估 §4.2 P1-4）。
+// 无 Client.Timeout 整体超时；响应头超时由 transport 的
+// ResponseHeaderTimeout 约束；流式总时长由调用方 ctx deadline 控制。
+func (p *BaseProvider) StreamClient() *http.Client {
+	return p.streamClient
 }
 
 // DoRequest 发送 HTTP POST 请求，返回原始 JSON 响应字节。

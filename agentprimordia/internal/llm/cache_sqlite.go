@@ -259,6 +259,71 @@ func (c *SQLiteCache) semanticSearch(ctx context.Context, query string, similari
 
 func (c *SQLiteCache) Set(ctx context.Context, query string, resp *CompletionResponse) error {
 	fp := PromptFingerprint(query)
+	return c.setByFingerprint(ctx, fp, query, query, resp)
+}
+
+// GetRequest 按完整 CompletionRequest 指纹精确查找（v6.x 评估 §4.2 P1-5）。
+// 与 Get(query) 的区别：键覆盖完整输入空间（model + 全消息序列 +
+// temperature/max_tokens/response_format，见 RequestFingerprint），
+// 避免"相同最后一条 user 消息"在不同 system prompt / 参数下假命中。
+func (c *SQLiteCache) GetRequest(ctx context.Context, req *CompletionRequest) (*CompletionResponse, bool) {
+	fp := RequestFingerprint(req)
+
+	atomic.AddInt64(&c.totalQuery, 1)
+
+	var respID, content, usageJSON string
+	var createdAt string
+	err := c.db.QueryRowContext(ctx,
+		"SELECT response_id, content, usage, created_at FROM cache_entries WHERE fingerprint = ?",
+		fp,
+	).Scan(&respID, &content, &usageJSON, &createdAt)
+	if err != nil {
+		atomic.AddInt64(&c.misses, 1)
+		return nil, false
+	}
+
+	if c.ttl > 0 {
+		ct, perr := time.Parse(time.RFC3339, createdAt)
+		if perr != nil {
+			slog.Warn("缓存条目时间解析失败", "created_at", createdAt, "error", perr)
+		} else if !ct.IsZero() && time.Since(ct) > c.ttl {
+			if _, derr := c.db.ExecContext(ctx, "DELETE FROM cache_entries WHERE fingerprint = ?", fp); derr != nil {
+				slog.Warn("缓存条目删除失败", "fingerprint", fp, "error", derr)
+			}
+			atomic.AddInt64(&c.misses, 1)
+			return nil, false
+		}
+	}
+
+	if _, uerr := c.db.ExecContext(ctx, "UPDATE cache_entries SET hit_count = hit_count + 1 WHERE fingerprint = ?", fp); uerr != nil {
+		slog.Warn("缓存命中计数更新失败", "fingerprint", fp, "error", uerr)
+	}
+	resp := &CompletionResponse{ID: respID, Content: content}
+	if usageJSON != "" {
+		var u Usage
+		// perf-v6 round 8 Task 1：使用 pooled reader
+		if err := jsonutil.Unmarshal([]byte(usageJSON), &u); err != nil {
+			slog.Warn("缓存 usage 反序列化失败", "error", err)
+		}
+		resp.Usage = u
+	}
+	atomic.AddInt64(&c.hits, 1)
+	if resp.Usage.TotalTokens > 0 {
+		atomic.AddInt64(&c.tokensSave, int64(resp.Usage.TotalTokens))
+	}
+	return resp, true
+}
+
+// SetRequest 按完整 CompletionRequest 指纹写入缓存（v6.x 评估 §4.2 P1-5）。
+// 语义向量由请求指纹确定性派生（query 列仍存最后一条 user 消息便于排查）。
+func (c *SQLiteCache) SetRequest(ctx context.Context, req *CompletionRequest, resp *CompletionResponse) error {
+	fp := RequestFingerprint(req)
+	return c.setByFingerprint(ctx, fp, extractLastUserQuery(req.Messages), fp, resp)
+}
+
+// setByFingerprint 按给定指纹写入缓存（Set / SetRequest 共用）。
+// fp 为存储主键；query 为可读性列；vecText 为语义向量的派生源文本。
+func (c *SQLiteCache) setByFingerprint(ctx context.Context, fp, query, vecText string, resp *CompletionResponse) error {
 	// perf-v6 round 8 Task 1：使用 pooled buffer 序列化
 	usageJSON, err := jsonutil.Marshal(resp.Usage)
 	if err != nil {
@@ -267,7 +332,7 @@ func (c *SQLiteCache) Set(ctx context.Context, query string, resp *CompletionRes
 
 	var vecJSON string
 	if c.enableSem {
-		vec := fingerprintToVector(query)
+		vec := fingerprintToVector(vecText)
 		// perf-v6 round 8 Task 1：使用 pooled buffer 序列化
 		vj, err := jsonutil.Marshal(vec)
 		if err != nil {
@@ -303,6 +368,9 @@ func (c *SQLiteCache) Set(ctx context.Context, query string, resp *CompletionRes
 	return execErr
 }
 
+// Stats 返回缓存统计
+// v6.x 评估 §4.2 P1-1：计数器由 atomic.AddInt64 写入，Stats 必须用
+// atomic.LoadInt64 读取，否则并发下构成数据竞争（-race 可检出）。
 func (c *SQLiteCache) Stats(ctx context.Context) CacheStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -310,16 +378,17 @@ func (c *SQLiteCache) Stats(ctx context.Context) CacheStats {
 	var count int
 	c.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM cache_entries").Scan(&count)
 
-	total := c.totalQuery
-	hits := c.hits
-	misses := c.misses
+	total := atomic.LoadInt64(&c.totalQuery)
+	hits := atomic.LoadInt64(&c.hits)
+	misses := atomic.LoadInt64(&c.misses)
+	tokensSave := atomic.LoadInt64(&c.tokensSave)
 	var hitRate float64
 	if total > 0 {
 		hitRate = float64(hits) / float64(total)
 	}
 	return CacheStats{
 		TotalQueries: total, CacheHits: hits, CacheMisses: misses,
-		HitRate: hitRate, EntryCount: count, TokensSaved: c.tokensSave,
+		HitRate: hitRate, EntryCount: count, TokensSaved: tokensSave,
 	}
 }
 

@@ -23,6 +23,8 @@ const (
 type GLMProvider struct {
 	config Config
 	client *http.Client
+	// v6.x 评估 §4.2 P1-4：流式专用 client（无整体超时 + ResponseHeaderTimeout）
+	streamClient *http.Client
 }
 
 // NewGLMProvider 创建智谱 GLM Provider
@@ -42,8 +44,9 @@ func NewGLMProvider(cfg Config) (*GLMProvider, error) {
 	}
 
 	return &GLMProvider{
-		config: cfg,
-		client: NewDefaultLLMClient(defaultTimeout),
+		config:       cfg,
+		client:       NewDefaultLLMClient(defaultTimeout),
+		streamClient: NewDefaultLLMStreamClient(),
 	}, nil
 }
 
@@ -133,7 +136,8 @@ func (p *GLMProvider) StreamMultimodal(ctx context.Context, req *CompletionReque
 	httpReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.config.APIKey))
 	httpReq.Header.Set("User-Agent", userAgent)
 
-	resp, err := p.client.Do(httpReq)
+	// v6.x 评估 §4.2 P1-4：流式路径使用无整体超时的 stream client
+	resp, err := p.streamClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
 	}

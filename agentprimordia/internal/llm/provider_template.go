@@ -66,6 +66,9 @@ const (
 type TemplateProvider struct {
 	config Config
 	client *http.Client // 使用包内已定义的 http.Client（来自 net/http）
+	// TODO: 新 Provider 必须同时持有流式专用 client（v6.x 评估 §4.2 P1-4）：
+	//   streamClient *http.Client // NewDefaultLLMStreamClient()：无整体超时，
+	//                              // Stream 路径必须用它，避免长流被 Client.Timeout 掐断
 }
 
 // NewTemplateProvider 拒绝创建 — 这是模板不是真 Provider。
@@ -100,7 +103,9 @@ func (p *TemplateProvider) Stream(ctx context.Context, req *CompletionRequest) (
 	// TODO: 实现流式 API 调用
 	// 1. 使用 ResolveModel 解析模型名称
 	// 2. 构建请求体（stream: true）
-	// 3. 发送 HTTP 请求
+	// 3. 发送 HTTP 请求（必须用 p.streamClient，参考 openai_provider.go：
+	//    流式路径禁用 Client.Timeout，改用 ResponseHeaderTimeout + ctx deadline，
+	//    见 v6.x 评估 §4.2 P1-4）
 	// 4. 检查响应状态码
 	// 5. 创建 buffered channel: ch := make(chan Chunk, 32)
 	// 6. 在 goroutine 中：

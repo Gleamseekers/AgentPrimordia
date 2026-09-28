@@ -5,11 +5,14 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -241,29 +244,34 @@ func (c *FingerprintCache) setByKey(key string, resp *CompletionResponse) error 
 	return nil
 }
 
+// Stats 返回缓存统计
+// v6.x 评估 §4.2 P1-1：计数器由 atomic.AddInt64 写入，Stats 必须用
+// atomic.LoadInt64 读取，否则并发下构成数据竞争（-race 可检出）。
 func (c *FingerprintCache) Stats(_ context.Context) CacheStats {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	total := c.totalQuery
-	hits := c.hits
-	misses := c.misses
+	total := atomic.LoadInt64(&c.totalQuery)
+	hits := atomic.LoadInt64(&c.hits)
+	misses := atomic.LoadInt64(&c.misses)
+	tokensSave := atomic.LoadInt64(&c.tokensSave)
 	var hitRate float64
 	if total > 0 {
 		hitRate = float64(hits) / float64(total)
 	}
 	return CacheStats{TotalQueries: total, CacheHits: hits, CacheMisses: misses,
-		HitRate: hitRate, EntryCount: len(c.entries), TokensSaved: c.tokensSave}
+		HitRate: hitRate, EntryCount: len(c.entries), TokensSaved: tokensSave}
 }
 
 func (c *FingerprintCache) Clear(_ context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.entries = make(map[string]*fingerprintEntry)
-	c.totalQuery = 0
-	c.hits = 0
-	c.misses = 0
-	c.tokensSave = 0
+	// v6.x 评估 §4.2 P1-1：重置走 atomic.StoreInt64，避免与并发 AddInt64 竞争
+	atomic.StoreInt64(&c.totalQuery, 0)
+	atomic.StoreInt64(&c.hits, 0)
+	atomic.StoreInt64(&c.misses, 0)
+	atomic.StoreInt64(&c.tokensSave, 0)
 	return nil
 }
 
@@ -285,6 +293,15 @@ func (NoopCache) Set(context.Context, string, *CompletionResponse) error        
 func (NoopCache) Stats(_ context.Context) CacheStats                               { return CacheStats{} }
 func (NoopCache) Clear(_ context.Context) error                                    { return nil }
 func (NoopCache) Invalidate(_ context.Context, _ string) error                     { return nil }
+
+// GetRequest / SetRequest 实现 RequestLLMCache（v6.x 评估 §4.2 P1-5）：
+// NoopCache 永远不命中。
+func (NoopCache) GetRequest(context.Context, *CompletionRequest) (*CompletionResponse, bool) {
+	return nil, false
+}
+func (NoopCache) SetRequest(context.Context, *CompletionRequest, *CompletionResponse) error {
+	return nil
+}
 
 type HybridCache struct {
 	fingerprint LLMCache
@@ -336,6 +353,47 @@ func (h *HybridCache) Invalidate(ctx context.Context, key string) error {
 	return nil
 }
 
+// GetRequest / SetRequest 实现 RequestLLMCache（v6.x 评估 §4.2 P1-5）：
+// 请求键查找优先走 fingerprint 层，未命中再走 semantic 层。
+// 注意：semantic 为具体类型 *InMemoryCache（已实现 RequestLLMCache），直接调用。
+func (h *HybridCache) GetRequest(ctx context.Context, req *CompletionRequest) (*CompletionResponse, bool) {
+	if rc, ok := h.fingerprint.(RequestLLMCache); ok {
+		if resp, hit := rc.GetRequest(ctx, req); hit {
+			return resp, true
+		}
+	}
+	if h.semantic != nil {
+		return h.semantic.GetRequest(ctx, req)
+	}
+	return nil, false
+}
+
+func (h *HybridCache) SetRequest(ctx context.Context, req *CompletionRequest, resp *CompletionResponse) error {
+	if rc, ok := h.fingerprint.(RequestLLMCache); ok {
+		_ = rc.SetRequest(ctx, req, resp)
+	}
+	if h.semantic != nil {
+		_ = h.semantic.SetRequest(ctx, req, resp)
+	}
+	return nil
+}
+
+// Close 释放底层缓存资源（v6.x 评估 §4.2 P1-6）：
+// 传播到实现 io.Closer 的下层缓存（如 InMemoryCache 的 TTL 清理 goroutine）。
+func (h *HybridCache) Close() error {
+	if c, ok := h.fingerprint.(interface{ Close() error }); ok {
+		if err := c.Close(); err != nil {
+			return err
+		}
+	}
+	if h.semantic != nil {
+		if err := h.semantic.Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func PromptFingerprint(text string) string {
 	// perf-v6 Task 7：缓存 prompt → fingerprint，避免重复 sha256
 	if v, ok := promptFingerprintCache.get(text); ok {
@@ -361,6 +419,8 @@ func PromptFingerprint(text string) string {
 //     按 "role\x1fcontent\x1ftoolName" 形式拼接后做规范化 + sha256。
 //   - 工具定义按 Function.Name 排序后拼接 name + parameters 的稳定 JSON。
 //   - Model 字段作为前缀参与，避免跨模型串缓存。
+//   - temperature / max_tokens / response_format 参与指纹
+//     （v6.x 评估 §4.2 P1-5：同消息不同采样参数不得串缓存）。
 //
 // 安全：使用 \x1f (US) 作为分隔符，规避 user content 自带的换行注入风险。
 //
@@ -386,6 +446,32 @@ func RequestFingerprint(req *CompletionRequest) string {
 		b.WriteByte('\x1f')
 		if len(m.ToolCalls) > 0 {
 			b.WriteString(strings.ToLower(m.ToolCallID))
+		}
+		b.WriteByte('\n')
+	}
+	// v6.x 评估 §4.2 P1-5：采样参数参与指纹。
+	// Temperature 为指针：显式 0 与"未设置"必须区分（不同默认温度解析结果）。
+	if req.Temperature != nil {
+		b.WriteString("temp=")
+		b.WriteString(strconv.FormatFloat(*req.Temperature, 'g', -1, 64))
+		b.WriteByte('\x1f')
+	}
+	if req.MaxTokens > 0 {
+		b.WriteString("max_tokens=")
+		b.WriteString(strconv.Itoa(req.MaxTokens))
+		b.WriteByte('\x1f')
+	}
+	if req.ResponseFormat != nil {
+		b.WriteString("rf=")
+		b.WriteString(string(req.ResponseFormat.Type))
+		if req.ResponseFormat.JSONSchema != nil {
+			b.WriteByte('\x1f')
+			b.WriteString(req.ResponseFormat.JSONSchema.Name)
+			// encoding/json 对 map key 排序，序列化稳定
+			if raw, err := json.Marshal(req.ResponseFormat.JSONSchema.Schema); err == nil {
+				b.WriteByte('\x1f')
+				b.Write(raw)
+			}
 		}
 		b.WriteByte('\n')
 	}
@@ -631,4 +717,37 @@ func (m *CacheManager) Clear(ctx context.Context) error {
 		return cache.Clear(ctx)
 	}
 	return nil
+}
+
+// GetRequest 委托底层缓存的完整请求键查找（v6.x 评估 §4.2 P1-5）。
+// enabled=false 或底层缓存不支持请求键时返回未命中。
+func (m *CacheManager) GetRequest(ctx context.Context, req *CompletionRequest) (*CompletionResponse, bool) {
+	m.mu.RLock()
+	enabled := m.enabled
+	cache := m.cache
+	m.mu.RUnlock()
+
+	if !enabled || cache == nil {
+		return nil, false
+	}
+	rc, ok := cache.(RequestLLMCache)
+	if !ok {
+		return nil, false
+	}
+	return rc.GetRequest(ctx, req)
+}
+
+// SetRequest 委托底层缓存的完整请求键写入（v6.x 评估 §4.2 P1-5）。
+func (m *CacheManager) SetRequest(ctx context.Context, req *CompletionRequest, resp *CompletionResponse) error {
+	m.mu.RLock()
+	cache := m.cache
+	m.mu.RUnlock()
+	if cache == nil {
+		return nil
+	}
+	rc, ok := cache.(RequestLLMCache)
+	if !ok {
+		return nil
+	}
+	return rc.SetRequest(ctx, req, resp)
 }

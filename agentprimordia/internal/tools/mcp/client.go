@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -24,7 +26,124 @@ const (
 
 	// maxToolResultLen 单个 MCP tool结果文本最大长度
 	maxToolResultLen = 100 * 1024
+
+	// maxStdioLineBytes stdio 单行最大字节数（16MB）。
+	// 旧实现 c.stdout.ReadString('\n') 无上限：异常/恶意的超长行会持续
+	// 膨胀读取缓冲直至 OOM。现限制单行上限，超限行跳过（保持行边界同步）
+	// 而非退出 readLoop，避免后续请求全部挂死。
+	maxStdioLineBytes = 16 << 20
+
+	// stdioWriteTimeout stdio 写入超时：子进程不读 stdin 时，避免持锁写入
+	// 永久阻塞（exec 管道为 *os.File，支持 SetWriteDeadline）。
+	stdioWriteTimeout = 30 * time.Second
 )
+
+// errStdioLineTooLong 单行超过 maxStdioLineBytes 上限
+var errStdioLineTooLong = errors.New("stdio line exceeds max length")
+
+// stdioDeadlineWriter 支持写超时的写入器（exec 管道 *os.File 实现该方法）
+type stdioDeadlineWriter interface {
+	SetWriteDeadline(t time.Time) error
+}
+
+// withStdioWriteDeadline 在写入期间为 w 设置写超时，返回恢复函数。
+// 超时值取 stdioWriteTimeout 与 ctx deadline 中较短的——请求方取消/超时时
+// 写入同步失败，不会继续阻塞。w 不支持 deadline 时退化为直写。
+func withStdioWriteDeadline(w io.Writer, ctx context.Context) func() {
+	dw, ok := w.(stdioDeadlineWriter)
+	if !ok {
+		return func() {}
+	}
+	timeout := stdioWriteTimeout
+	if deadline, ok := ctx.Deadline(); ok {
+		if d := time.Until(deadline); d < timeout {
+			timeout = d
+		}
+	}
+	_ = dw.SetWriteDeadline(time.Now().Add(timeout))
+	return func() { _ = dw.SetWriteDeadline(time.Time{}) }
+}
+
+// readStdioLineLimited 从 r 读取一行（含结尾 '\n'）。
+// 单行超过 limit 字节时，丢弃该行剩余内容（直到换行符）并返回 errStdioLineTooLong，
+// 使调用方可以跳过该行继续读取；其他读取错误（含 io.EOF）原样返回。
+func readStdioLineLimited(r *bufio.Reader, limit int) ([]byte, error) {
+	var buf []byte
+	for {
+		slice, err := r.ReadSlice('\n')
+		if errors.Is(err, bufio.ErrBufferFull) {
+			buf = append(buf, slice...)
+			if len(buf) > limit {
+				// 丢弃该行剩余部分直到换行符，保持后续行边界同步
+				for {
+					_, err2 := r.ReadSlice('\n')
+					if err2 == nil {
+						break
+					}
+					if !errors.Is(err2, bufio.ErrBufferFull) {
+						// EOF 等错误：已到流末尾，无需继续丢弃
+						return nil, errStdioLineTooLong
+					}
+				}
+				return nil, errStdioLineTooLong
+			}
+			continue
+		}
+		if err != nil {
+			// io.EOF 或其他错误：连同已读数据返回，由调用方决定如何处理
+			buf = append(buf, slice...)
+			return buf, err
+		}
+		buf = append(buf, slice...)
+		if len(buf) > limit {
+			return nil, errStdioLineTooLong
+		}
+		return buf, nil
+	}
+}
+
+// childEnvWhitelist MCP 子进程环境变量白名单。
+// 旧实现 cmd.Env 为 nil（或直接 os.Environ()）时子进程继承完整宿主环境，
+// 含 API Key 等敏感变量，存在泄露风险。现显式构造最小环境，
+// 仅传递必要项 + 用户显式配置（Config.Env）。
+var childEnvWhitelist = map[string]bool{
+	"PATH": true, "HOME": true, "TMPDIR": true,
+	"LANG": true, "LC_ALL": true, "USER": true, "LOGNAME": true,
+	// Go 工具链相关（MCP server 常以 go run 方式启动，非敏感信息）
+	"GOPATH": true, "GOROOT": true, "GOCACHE": true,
+	"GOMODCACHE": true, "GOPROXY": true, "GOFLAGS": true, "GOTOOLCHAIN": true,
+}
+
+// buildChildEnv 构建 MCP 子进程环境变量：白名单内的宿主变量 + 用户显式配置
+// （后者覆盖前者，可引入白名单外自定义项）。其余宿主变量一律不传递。
+func buildChildEnv(extra map[string]string) []string {
+	allowed := make(map[string]bool, len(childEnvWhitelist)+8)
+	for k := range childEnvWhitelist {
+		allowed[k] = true
+	}
+	if runtime.GOOS == "windows" {
+		// Windows 下 npx.cmd 等批处理启动器依赖的基础变量
+		for _, k := range []string{"SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "TEMP", "TMP", "USERPROFILE"} {
+			allowed[k] = true
+		}
+	}
+
+	env := make(map[string]string, len(allowed))
+	for _, kv := range os.Environ() {
+		if k, v, ok := strings.Cut(kv, "="); ok && allowed[k] {
+			env[k] = v
+		}
+	}
+	for k, v := range extra {
+		env[k] = v // 用户显式配置优先（可覆盖白名单项，也可引入自定义项）
+	}
+
+	result := make([]string, 0, len(env))
+	for k, v := range env {
+		result = append(result, k+"="+v)
+	}
+	return result
+}
 
 // Client MCP 客户端，通过 stdio JSON-RPC 与 MCP 服务器通信。
 // 客户端负责管理子进程的完整生命周期：启动、心跳检测、优雅关闭。
@@ -72,13 +191,10 @@ func NewClient(cfg Config) (*Client, error) {
 
 	cmd := exec.Command(cfg.Command, cfg.Args...)
 
-	// 设置环境变量
-	if len(cfg.Env) > 0 {
-		cmd.Env = os.Environ()
-		for k, v := range cfg.Env {
-			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
-		}
-	}
+	// 设置环境变量：最小白名单 + 用户显式配置。
+	// 旧实现仅在用户配置了 Env 时才基于 os.Environ() 追加、否则继承完整宿主
+	// 环境（含 API Key 等敏感变量）；现一律显式构造最小环境，避免密钥泄露。
+	cmd.Env = buildChildEnv(cfg.Env)
 
 	// 创建 stdin/stdout 管道
 	stdin, err := cmd.StdinPipe()
@@ -385,7 +501,9 @@ func (c *Client) Close() error {
 
 // ===== 内部方法 =====
 
-// readLoop 后台持续读取子进程 stdout 的 JSON-RPC 响应
+// readLoop 后台持续读取子进程 stdout 的 JSON-RPC 响应。
+// 单行上限 maxStdioLineBytes：超限行跳过而非退出循环，避免 readLoop
+// 静默退出后所有后续请求挂死；读取错误（EOF 等）才退出。
 func (c *Client) readLoop() {
 	for {
 		select {
@@ -394,20 +512,25 @@ func (c *Client) readLoop() {
 		default:
 		}
 
-		line, err := c.stdout.ReadString('\n')
+		line, err := readStdioLineLimited(c.stdout, maxStdioLineBytes)
 		if err != nil {
+			if errors.Is(err, errStdioLineTooLong) {
+				// 超长行：记录并跳过，readLoop 继续存活
+				c.logger.Warn("MCP 响应行超过单行上限，已跳过", "limit", maxStdioLineBytes)
+				continue
+			}
 			// 管道关闭或读取错误，退出循环
 			return
 		}
 
-		line = strings.TrimSpace(line)
-		if line == "" {
+		lineStr := strings.TrimSpace(string(line))
+		if lineStr == "" {
 			continue
 		}
 
 		var resp jsonRPCResponse
-		if err := json.Unmarshal([]byte(line), &resp); err != nil {
-			c.logger.Warn("解析 JSON-RPC 响应失败", "line", line, "error", err)
+		if err := json.Unmarshal([]byte(lineStr), &resp); err != nil {
+			c.logger.Warn("解析 JSON-RPC 响应失败", "line", lineStr, "error", err)
 			continue
 		}
 
@@ -454,9 +577,12 @@ func (c *Client) sendRequest(ctx context.Context, method string, params any) (js
 	c.pending[id] = respCh
 	c.pendingMu.Unlock()
 
-	// 写入 stdin
+	// 写入 stdin。持锁写入并设置写超时：子进程不读 stdin 时写入在 deadline
+	// 后失败，不会永久占用写锁导致后续请求全部挂死。
 	c.mu.Lock()
+	restore := withStdioWriteDeadline(c.stdin, ctx)
 	_, err = fmt.Fprintf(c.stdin, "%s\n", string(reqBody))
+	restore()
 	c.mu.Unlock()
 
 	if err != nil {
@@ -506,10 +632,13 @@ func (c *Client) sendNotification(ctx context.Context, method string, params any
 		return fmt.Errorf("failed to serialize notification: %w", err)
 	}
 
+	// 持锁写入并设置写超时，避免子进程不读 stdin 时永久阻塞
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	restore := withStdioWriteDeadline(c.stdin, ctx)
 	_, err = fmt.Fprintf(c.stdin, "%s\n", string(body))
+	restore()
 	return err
 }
 

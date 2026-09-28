@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"agentprimordia/internal/logger"
 	"agentprimordia/internal/tools"
 )
 
@@ -51,11 +52,28 @@ func looksLikeAbsolutePath(tok string) bool {
 
 // blockedCommandNames 黑名单模式下的规范化命令名集合（按 token basename 匹配）。
 // 相比此前的子串匹配（可被 "rm -fr" flags 重排、/bin/rm 路径前缀、大小写变形
-// 轻易绕过），此处对 tokenizeCommand 的结果逐 token 取 basename 后比对。
+// 轻易绕过），此处对 tokenizeCommand 的结果逐 token 取 basename 后比对，
+// 并经 isBlockedCommandName 归一化（小写 + 首个点分分量），覆盖
+// "mkfs.ext4" 等命令变体。
 var blockedCommandNames = map[string]bool{
 	"rm": true, "mkfs": true, "dd": true,
 	"shutdown": true, "reboot": true, "halt": true, "poweroff": true,
 	"fdisk": true,
+}
+
+// isBlockedCommandName 判断 token basename 是否为黑名单命令。
+// 归一化规则：转小写（覆盖大小写变形）；额外取首个点分分量
+// （"mkfs.ext4" → "mkfs"，覆盖命令变体——此前变体后缀名不在集合中被绕过）。
+// 路径前缀（/bin/rm）由调用方 path.Base 先行剥离。
+func isBlockedCommandName(base string) bool {
+	lower := strings.ToLower(base)
+	if blockedCommandNames[lower] {
+		return true
+	}
+	if i := strings.Index(lower, "."); i > 0 {
+		return blockedCommandNames[lower[:i]]
+	}
+	return false
 }
 
 // blockedCommandPatterns 黑名单模式下仍需保留的整串危险模式（shell 函数定义等）。
@@ -130,10 +148,24 @@ func (s *Shell) WithWhitelist(commands []string) *Shell {
 	return s
 }
 
-// WithBlacklist 启用黑名单模式（不推荐，安全性较低）
+// warnBlacklistRisk 黑名单模式启用时的风险告警。
+// 包级变量便于测试替换捕获；默认走 logger.Warn（stderr，Info 级别可见）。
+var warnBlacklistRisk = func() {
+	logger.Warn(
+		"SECURITY: shell blacklist mode enabled — blacklist is fundamentally weaker than whitelist and can be bypassed by command mutation; use WithWhitelist instead. WithBlacklist is deprecated and will be removed in v8.0.0",
+	)
+}
+
+// WithBlacklist 启用黑名单模式（不推荐，安全性较低）。
+//
+// Deprecated: 黑名单模式根本弱于白名单——已知可被命令变形绕过（token 化
+// 匹配仅覆盖已枚举的变形，无法穷尽）。请改用 WithWhitelist 显式声明允许的
+// 命令集。启用时会打 Warning 日志提示风险。
+// Removed in v8.0.0.
 func (s *Shell) WithBlacklist() *Shell {
 	s.whitelistMode = false
 	s.whitelist = nil
+	warnBlacklistRisk()
 	return s
 }
 
@@ -313,11 +345,12 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 	} else {
 		// 黑名单模式：token basename 规范化匹配（修复：子串匹配可被
 		// "rm -fr" flags 重排、/bin/rm 路径前缀、大小写变形绕过）。
-		if blockedCommandNames[lowerBase] {
+		// isBlockedCommandName 额外覆盖 "mkfs.ext4" 等命令变体。
+		if isBlockedCommandName(baseName) {
 			return tools.NewErrorResult(fmt.Sprintf("command blocked for safety reasons: '%s' is not allowed", baseName)), nil
 		}
 		for _, arg := range cmdArgs {
-			if blockedCommandNames[strings.ToLower(path.Base(arg))] {
+			if isBlockedCommandName(path.Base(arg)) {
 				return tools.NewErrorResult(fmt.Sprintf("command blocked for safety reasons: argument '%s' is not allowed", arg)), nil
 			}
 		}

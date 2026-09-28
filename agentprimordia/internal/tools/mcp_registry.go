@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -48,6 +49,50 @@ type MCPClientEntry struct {
 type MCPRegistry struct {
 	mu      sync.RWMutex
 	servers map[string]*MCPClientEntry
+}
+
+// mcpEnvWhitelist MCP 子进程环境变量白名单。
+// 外部 MCP Server 是独立进程，默认（cmd.Env 为 nil）会继承完整宿主环境，
+// 将宿主 API Key 等敏感变量泄露给第三方 server。这里仅传递必要项，
+// 其余宿主变量一律不传递；需要更多变量时由使用方在配置中显式指定。
+var mcpEnvWhitelist = map[string]bool{
+	"PATH": true, "HOME": true, "TMPDIR": true,
+	"LANG": true, "LC_ALL": true, "USER": true, "LOGNAME": true,
+	// Go 工具链相关（MCP server 常以 go run 方式启动，非敏感信息）
+	"GOPATH": true, "GOROOT": true, "GOCACHE": true,
+	"GOMODCACHE": true, "GOPROXY": true, "GOFLAGS": true, "GOTOOLCHAIN": true,
+}
+
+// buildMCPSubprocessEnv 构建 MCP 子进程环境变量：白名单内的宿主变量 + 用户
+// 显式配置（后者覆盖前者，可引入白名单外自定义项，如 NODE_ENV）。
+// 返回去重后的 KEY=VALUE 列表。
+func buildMCPSubprocessEnv(extra map[string]string) []string {
+	allowed := make(map[string]bool, len(mcpEnvWhitelist)+8)
+	for k := range mcpEnvWhitelist {
+		allowed[k] = true
+	}
+	if runtime.GOOS == "windows" {
+		// Windows 下 npx.cmd 等批处理启动器依赖的基础变量
+		for _, k := range []string{"SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "TEMP", "TMP", "USERPROFILE"} {
+			allowed[k] = true
+		}
+	}
+
+	env := make(map[string]string, len(allowed))
+	for _, kv := range os.Environ() {
+		if k, v, ok := strings.Cut(kv, "="); ok && allowed[k] {
+			env[k] = v
+		}
+	}
+	for k, v := range extra {
+		env[k] = v // 用户显式配置优先（可覆盖白名单项，也可引入自定义项）
+	}
+
+	result := make([]string, 0, len(env))
+	for k, v := range env {
+		result = append(result, k+"="+v)
+	}
+	return result
 }
 
 // NewMCPRegistry 创建 MCP Server 注册中心
@@ -100,54 +145,62 @@ func (r *MCPRegistry) Start(ctx context.Context, name string) error {
 	}
 
 	entry.Status = MCPClientStarting
+	// v3.9-4：解析启动命令（Windows npx.cmd 兼容）。
+	// 必须持锁修改 entry.Config.Command——List()/Get() 会读取并拷贝该字段，
+	// 无锁写入构成数据竞争（-race 可检出）。
+	entry.Config.Command = resolveMCPCommand(entry.Config.Command)
+	// 锁内拷贝配置快照：startProcess 在锁外读取 Command/Args/Env，
+	// 直接读 entry.Config 会与并发 Start 的持锁写构成数据竞争。
+	cfg := entry.Config
 	r.mu.Unlock()
 
-	if entry.Config.BaseURL != "" {
-		return r.connectExisting(ctx, name, entry)
+	if cfg.BaseURL != "" {
+		return r.connectExisting(ctx, name, cfg.BaseURL)
 	}
 
-	// v3.9-4：解析启动命令（Windows npx.cmd 兼容）
-	entry.Config.Command = resolveMCPCommand(entry.Config.Command)
-
-	return r.startProcess(ctx, name, entry)
+	return r.startProcess(ctx, name, entry, cfg)
 }
 
 // connectExisting 连接已运行的 MCP Server
-func (r *MCPRegistry) connectExisting(ctx context.Context, name string, entry *MCPClientEntry) error {
-	client := NewMCPClient(entry.Config.BaseURL)
+func (r *MCPRegistry) connectExisting(ctx context.Context, name string, baseURL string) error {
+	client := NewMCPClient(baseURL)
 	if err := client.Initialize(ctx); err != nil {
 		r.mu.Lock()
-		entry.Status = MCPClientFailed
+		if entry, ok := r.servers[name]; ok {
+			entry.Status = MCPClientFailed
+		}
 		r.mu.Unlock()
 		return fmt.Errorf("MCP server %q initialization failed: %w", name, err)
 	}
 
 	r.mu.Lock()
-	entry.Client = client
-	entry.Tools = client.Tools()
-	entry.Status = MCPClientRunning
+	if entry, ok := r.servers[name]; ok {
+		entry.Client = client
+		entry.Tools = client.Tools()
+		entry.Status = MCPClientRunning
+	}
 	r.mu.Unlock()
 
 	return nil
 }
 
-// startProcess 启动 MCP Server 子进程并连接
-func (r *MCPRegistry) startProcess(ctx context.Context, name string, entry *MCPClientEntry) error {
-	if strings.TrimSpace(entry.Config.Command) == "" {
+// startProcess 启动 MCP Server 子进程并连接。
+// cfg 为 Start 持锁拷贝的配置快照，避免锁外读取 entry.Config 与并发写竞争。
+func (r *MCPRegistry) startProcess(ctx context.Context, name string, entry *MCPClientEntry, cfg MCPClientConfig) error {
+	if strings.TrimSpace(cfg.Command) == "" {
 		r.mu.Lock()
 		entry.Status = MCPClientFailed
 		r.mu.Unlock()
 		return fmt.Errorf("MCP Server %q command cannot be empty", name)
 	}
 
-	cmd := exec.CommandContext(ctx, entry.Config.Command, entry.Config.Args...)
+	cmd := exec.CommandContext(ctx, cfg.Command, cfg.Args...)
 
-	if len(entry.Config.Env) > 0 {
-		cmd.Env = os.Environ()
-		for k, v := range entry.Config.Env {
-			cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", k, v))
-		}
-	}
+	// 环境变量：最小白名单 + 用户显式配置。
+	// 旧实现仅在用户配置了 Env 时才基于 os.Environ() 追加、否则（cmd.Env 为 nil）
+	// 子进程继承完整宿主环境（含 API Key 等敏感变量），存在密钥泄露风险；
+	// 现一律显式构造最小环境（见 buildMCPSubprocessEnv）。
+	cmd.Env = buildMCPSubprocessEnv(cfg.Env)
 
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
@@ -369,7 +422,15 @@ func (r *MCPRegistry) Test(ctx context.Context, name string) error {
 	return entry.Client.Initialize(ctx)
 }
 
-// LoadFromConfig 从配置文件加载 MCP Server 配置
+// LoadFromConfig 从配置文件加载 MCP Server 配置。
+//
+// 配置文件完整性警示（P2）：
+//   - 配置文件通常包含各 server 的启动命令、参数与环境变量（可能含令牌），
+//     应限制文件权限（如 0o600）并纳入密钥管理，不要提交到版本库；
+//   - 每个 server 配置必须至少提供 command（子进程启动）或 baseUrl
+//     （连接已运行实例）之一，否则 Start 时才会失败；
+//   - 环境变量经 buildMCPSubprocessEnv 过滤：仅白名单宿主变量 + 本配置
+//     显式声明的 Env 会传递给子进程，宿主其余变量不会泄露。
 func (r *MCPRegistry) LoadFromConfig(path string) error {
 	data, err := os.ReadFile(path)
 	if err != nil {

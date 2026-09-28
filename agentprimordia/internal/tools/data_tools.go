@@ -7,11 +7,105 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
 	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动
 )
+
+// ===== 路径安全（CSVTool rootDir 禁锢 / 敏感文件保护，P2 安全修复）=====
+//
+// 背景：CSVTool 曾用 os.Open/os.Create 对任意路径读写，无 rootDir/scope/
+// 敏感文件保护，是绕过 filesystem 工具全部防护的一条路径。此处仿
+// internal/tools/builtin/filesystem.go 的模式补足同等级防护：
+//   - rootDir 禁锢（NewCSVToolWithRoot / WithRootDir opt-in，legacy 构造不变）；
+//   - 路径穿越（".." 与绝对路径越界）拒绝；
+//   - 符号链接逃逸拒绝；
+//   - 敏感文件模式拒绝（大小写不敏感，规则与 builtin/filesystem.go 的
+//     sensitivePatterns 保持一致——该列表在包内未导出，此处同规则复刻，
+//     修改时需同步两处）。
+
+// dataToolSensitivePatterns 敏感文件名模式（与 builtin/filesystem.go 的
+// sensitivePatterns 同规则；匹配大小写不敏感，防 ".ENV" 绕过）。
+var dataToolSensitivePatterns = []string{
+	"*.env",
+	"*.env.*",
+	"*credentials*",
+	"*id_rsa*",
+	"*id_dsa*",
+	"*id_ecdsa*",
+	"*id_ed25519*",
+	"authorized_keys",
+	"*shadow*",
+	"*.htpasswd*",
+	"*.kdbx",
+	"*.pem",
+	"*.key",
+	"*.p12",
+	"*.pfx",
+	"*.jks",
+	"*.keystore",
+	"*.secret",
+	"*.token",
+	"*ssh_config*",
+	"*known_hosts*",
+	"*.gitconfig",
+	"*.git-credentials*",
+	"*.npmrc",
+	"*.pypirc",
+	"*netrc",
+}
+
+// matchSensitiveFileName 大小写不敏感地匹配敏感文件名模式。
+func matchSensitiveFileName(name string) bool {
+	lower := strings.ToLower(name)
+	for _, pattern := range dataToolSensitivePatterns {
+		if matched, _ := filepath.Match(strings.ToLower(pattern), lower); matched {
+			return true
+		}
+	}
+	return false
+}
+
+// isWithinRoot 判断 absPath 是否位于 absRoot 内（含自身）。
+func isWithinRoot(absPath, absRoot string) bool {
+	return absPath == absRoot || strings.HasPrefix(absPath, absRoot+string(os.PathSeparator))
+}
+
+// checkSymlinkEscape 校验路径（或其最近已存在父目录）解析符号链接后
+// 仍在根目录内。路径不存在时（如写入新文件）校验父目录。
+func checkSymlinkEscape(absPath, absRoot string) error {
+	evalRoot, rootErr := filepath.EvalSymlinks(absRoot)
+	if rootErr != nil {
+		evalRoot = absRoot
+	}
+	evalRoot = filepath.Clean(evalRoot)
+
+	evalPath, evalErr := filepath.EvalSymlinks(absPath)
+	if evalErr == nil {
+		evalPath = filepath.Clean(evalPath)
+		if !isWithinRoot(evalPath, evalRoot) {
+			return fmt.Errorf("access denied: symlink target is outside allowed root directory")
+		}
+		return nil
+	}
+	if !os.IsNotExist(evalErr) {
+		return fmt.Errorf("access denied: cannot resolve path symlinks: %v", evalErr)
+	}
+	// 路径尚不存在：校验父目录
+	parent := filepath.Dir(absPath)
+	evalParent, parentErr := filepath.EvalSymlinks(parent)
+	if parentErr == nil {
+		if !isWithinRoot(filepath.Clean(evalParent), evalRoot) {
+			return fmt.Errorf("access denied: parent directory symlink target is outside allowed root directory")
+		}
+	} else if !os.IsNotExist(parentErr) {
+		return fmt.Errorf("access denied: cannot resolve parent directory symlinks: %v", parentErr)
+	}
+	return nil
+}
 
 // ===== CSV 处理tool =====
 
@@ -19,9 +113,14 @@ import (
 type CSVTool struct {
 	name        string
 	description string
+	// rootDir 禁锢根目录（绝对路径）。为空表示 legacy 模式：不设路径禁锢，
+	// 仅保留敏感文件保护。安全敏感场景应使用 NewCSVToolWithRoot 或
+	// WithRootDir 显式禁锢。
+	rootDir string
 }
 
-// NewCSVTool 创建新的 CSV tool
+// NewCSVTool 创建新的 CSV tool（legacy 兼容：不设 rootDir 禁锢）。
+// 安全敏感场景请使用 NewCSVToolWithRoot 或 WithRootDir 显式禁锢根目录。
 func NewCSVTool() *CSVTool {
 	return &CSVTool{
 		name: "csv_processor",
@@ -43,6 +142,69 @@ func NewCSVTool() *CSVTool {
 - aggregate_column (optional): 聚合的列名
 - aggregate_func (optional): 聚合函数 [sum|avg|min|max|count]`,
 	}
+}
+
+// NewCSVToolWithRoot 创建带 rootDir 禁锢的 CSV tool（仿 filesystem.go）。
+// 之后所有读写路径必须解析到 rootDir 内，越界/穿越/symlink 逃逸均被拒。
+func NewCSVToolWithRoot(rootDir string) (*CSVTool, error) {
+	abs, err := filepath.Abs(rootDir)
+	if err != nil {
+		return nil, fmt.Errorf("invalid root directory: %w", err)
+	}
+	info, err := os.Stat(abs)
+	if err != nil {
+		return nil, fmt.Errorf("root directory not accessible: %w", err)
+	}
+	if !info.IsDir() {
+		return nil, fmt.Errorf("root path is not a directory: %s", abs)
+	}
+	return NewCSVTool().WithRootDir(abs), nil
+}
+
+// WithRootDir 设置 rootDir 禁锢（链式）。空字符串表示清除禁锢（恢复 legacy）。
+func (t *CSVTool) WithRootDir(rootDir string) *CSVTool {
+	if strings.TrimSpace(rootDir) == "" {
+		t.rootDir = ""
+		return t
+	}
+	if abs, err := filepath.Abs(rootDir); err == nil {
+		t.rootDir = abs
+	}
+	return t
+}
+
+// resolveCSVPath 校验并解析 CSV 文件路径：
+//  1. 敏感文件模式拒绝（大小写不敏感，无论是否配置 rootDir）；
+//  2. 配置 rootDir 时：相对路径相对 rootDir 解析，绝对路径必须在 rootDir 内，
+//     拒绝 ".." 穿越与 symlink 逃逸；未配置时保持 legacy 行为（原样返回）。
+func (t *CSVTool) resolveCSVPath(filePath string) (string, error) {
+	if strings.TrimSpace(filePath) == "" {
+		return "", fmt.Errorf("parameter 'file_path' must be a non-empty string")
+	}
+	clean := filepath.Clean(filePath)
+	if matchSensitiveFileName(filepath.Base(clean)) {
+		return "", fmt.Errorf("access denied: sensitive file '%s' is protected", clean)
+	}
+	if t.rootDir == "" {
+		// legacy 模式：不禁锢（兼容既有调用方），敏感文件保护已生效
+		return filePath, nil
+	}
+
+	full := clean
+	if !filepath.IsAbs(full) {
+		full = filepath.Join(t.rootDir, full)
+	}
+	absFull, err := filepath.Abs(full)
+	if err != nil {
+		return "", fmt.Errorf("invalid path: %w", err)
+	}
+	if !isWithinRoot(absFull, t.rootDir) {
+		return "", fmt.Errorf("access denied: path is outside allowed root directory")
+	}
+	if err := checkSymlinkEscape(absFull, t.rootDir); err != nil {
+		return "", err
+	}
+	return absFull, nil
 }
 
 func (t *CSVTool) Name() string        { return t.name }
@@ -95,7 +257,12 @@ func (t *CSVTool) readCSV(params map[string]any) (*Result, error) {
 	if !ok {
 		return nil, fmt.Errorf("parameter 'file_path' must be a string")
 	}
-	file, err := os.Open(filePath)
+	// 路径 jail 校验：rootDir 禁锢 + 穿越拒绝 + 敏感文件保护
+	resolvedPath, err := t.resolveCSVPath(filePath)
+	if err != nil {
+		return nil, err
+	}
+	file, err := os.Open(resolvedPath)
 	if err != nil {
 		return nil, fmt.Errorf("open file error: %w", err)
 	}
@@ -255,6 +422,11 @@ func (t *CSVTool) writeCSV(params map[string]any) (*Result, error) {
 	if !ok {
 		return nil, fmt.Errorf("parameter 'file_path' must be a string")
 	}
+	// 路径 jail 校验：rootDir 禁锢 + 穿越拒绝 + 敏感文件保护
+	resolvedPath, err := t.resolveCSVPath(filePath)
+	if err != nil {
+		return nil, err
+	}
 	dataBytes, err := json.Marshal(params["data"])
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal CSV data: %w", err)
@@ -265,7 +437,7 @@ func (t *CSVTool) writeCSV(params map[string]any) (*Result, error) {
 		return nil, fmt.Errorf("invalid 'data' parameter: %w", err)
 	}
 
-	file, err := os.Create(filePath)
+	file, err := os.Create(resolvedPath)
 	if err != nil {
 		return nil, fmt.Errorf("create file error: %w", err)
 	}
@@ -448,6 +620,57 @@ type SQLiteTool struct {
 	desc   string
 	db     *sql.DB
 	dbPath string
+	// queryRowLimit executeQuery 的默认行数上限（<=0 时用 defaultQueryRowLimit）。
+	// 修复前 executeQuery 无行数上限，单条 SELECT 可将整库灌进上下文。
+	queryRowLimit int
+}
+
+// defaultQueryRowLimit executeQuery 默认行数上限（无 LIMIT 子句时注入）。
+const defaultQueryRowLimit = 1000
+
+// limitClauseRe 匹配 SQL 中已存在的 LIMIT 子句（大小写不敏感，词边界）。
+var limitClauseRe = regexp.MustCompile(`(?i)\blimit\b`)
+
+// WithQueryRowLimit 设置 executeQuery 的默认行数上限（<=0 恢复默认值）。
+// 仅影响未显式带 LIMIT 子句的 SELECT；SQL 中显式 LIMIT 与 params["limit"]
+// 参数优先级更高。
+func (t *SQLiteTool) WithQueryRowLimit(n int) *SQLiteTool {
+	t.queryRowLimit = n
+	return t
+}
+
+// effectiveRowLimit 计算本次查询的行数上限与是否可注入 LIMIT 子句。
+// 优先级：params["limit"] > SQL 显式 LIMIT（尊重用户选择，不注入） > 默认值。
+// 返回 limit<=0 表示不设上限。
+func (t *SQLiteTool) effectiveRowLimit(params map[string]any, sqlStr string) (limit int, inject bool) {
+	if v, ok := params["limit"].(float64); ok && v > 0 {
+		// params 显式覆盖：SQL 无 LIMIT 时可注入，否则退化为扫描期硬截断
+		return int(v), !limitClauseRe.MatchString(sqlStr)
+	}
+	if limitClauseRe.MatchString(sqlStr) {
+		return 0, false
+	}
+	if t.queryRowLimit > 0 {
+		return t.queryRowLimit, true
+	}
+	return defaultQueryRowLimit, true
+}
+
+// appendRowLimit 给无 LIMIT 子句的 SELECT 语句注入行数上限（调用方传入
+// limit+1 以便判定截断）。仅对简单 SELECT（无注释、以 SELECT 开头）生效；
+// 其余形态返回原句，由调用方退化为扫描期硬截断。
+func appendRowLimit(sqlStr string, limit int) string {
+	trimmed := strings.TrimSpace(sqlStr)
+	trimmed = strings.TrimRight(trimmed, "; \t\r\n")
+	upper := strings.ToUpper(trimmed)
+	if !strings.HasPrefix(upper, "SELECT") {
+		return sqlStr
+	}
+	if strings.Contains(trimmed, "--") || strings.Contains(trimmed, "/*") {
+		// 含注释：注入可能产生语法错误，交回扫描期硬截断
+		return sqlStr
+	}
+	return trimmed + fmt.Sprintf(" LIMIT %d", limit)
 }
 
 // NewSQLiteTool 创建新的 SQLite tool
@@ -473,7 +696,8 @@ func (t *SQLiteTool) Parameters() json.RawMessage {
 		"properties": {
 			"action": {"type": "string", "enum": ["query", "execute", "tables", "schema"]},
 			"sql": {"type": "string"},
-			"table_name": {"type": "string"}
+			"table_name": {"type": "string"},
+			"limit": {"type": "number", "description": "最大返回行数（可选，覆盖默认上限；仅对 query 生效）"}
 		},
 		"required": ["action"]
 	}`)
@@ -510,7 +734,23 @@ func (t *SQLiteTool) executeQuery(ctx context.Context, params map[string]any) (*
 	if err := validateSQLSafety(sqlStr); err != nil {
 		return NewErrorResult(fmt.Sprintf("SQL safety check failed: %v", err)), nil
 	}
-	rows, err := t.db.QueryContext(ctx, sqlStr)
+
+	// 行数上限：默认给无 LIMIT 子句的 SELECT 注入 LIMIT（P2 修复）。
+	// 注入时多读 1 行（LIMIT limit+1）用于判定是否发生截断，再裁回 limit。
+	limit, inject := t.effectiveRowLimit(params, sqlStr)
+	execSQL := sqlStr
+	scanCap := 0
+	if limit > 0 {
+		if inject {
+			execSQL = appendRowLimit(sqlStr, limit+1)
+			scanCap = limit + 1
+		} else {
+			// params 覆盖显式 LIMIT 的场景：不注入，扫描期硬截断兜底
+			scanCap = limit
+		}
+	}
+
+	rows, err := t.db.QueryContext(ctx, execSQL)
 	if err != nil {
 		return nil, fmt.Errorf("query error: %w", err)
 	}
@@ -522,7 +762,14 @@ func (t *SQLiteTool) executeQuery(ctx context.Context, params map[string]any) (*
 	}
 
 	results := make([]map[string]any, 0)
+	truncated := false
 	for rows.Next() {
+		// 扫描期硬截断：注入 LIMIT 未生效（如含注释的语句）时的兜底，
+		// 保证任何形态的查询都不会把无上限行数灌进上下文。
+		if scanCap > 0 && len(results) >= scanCap {
+			truncated = true
+			break
+		}
 		values := make([]any, len(columns))
 		valuePtrs := make([]any, len(columns))
 		for i := range values {
@@ -538,14 +785,25 @@ func (t *SQLiteTool) executeQuery(ctx context.Context, params map[string]any) (*
 		results = append(results, row)
 	}
 
+	// 多读的判定行裁掉，如实标注截断，避免调用方误以为拿到全量结果
+	if limit > 0 && len(results) > limit {
+		results = results[:limit]
+		truncated = true
+	}
+
 	output, _ := json.MarshalIndent(results, "", "  ")
+	metadata := map[string]any{
+		"columns_count": strconv.Itoa(len(columns)),
+		"rows_count":    strconv.Itoa(len(results)),
+		"tool":          "sqlite_processor",
+	}
+	if truncated {
+		metadata["truncated"] = "true"
+		metadata["row_limit"] = strconv.Itoa(limit)
+	}
 	return &Result{
-		Content: string(output),
-		Metadata: map[string]any{
-			"columns_count": strconv.Itoa(len(columns)),
-			"rows_count":    strconv.Itoa(len(results)),
-			"tool":          "sqlite_processor",
-		},
+		Content:  string(output),
+		Metadata: metadata,
 	}, nil
 }
 

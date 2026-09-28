@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"agentprimordia/internal/tools"
@@ -19,6 +20,10 @@ const (
 	httpClientDefaultMaxBodySize  = 1 * 1024 * 1024 // 1MB
 	httpClientDefaultUserAgent    = "AgentPrimordia/1.0 (HTTP Client Tool)"
 	httpClientDefaultMaxRedirects = 10
+
+	// httpClientMaxRequestBody 请求体大小上限（10MB）：超大 body 在发起
+	// 网络请求前直接拒绝，避免无界内存放大与网络滥用。
+	httpClientMaxRequestBody = 10 * 1024 * 1024
 )
 
 // HTTPClient 增强型 HTTP 客户端tool，支持多种认证方式和响应处理
@@ -27,6 +32,9 @@ type HTTPClient struct {
 	maxBodySize  int64
 	maxRedirects int
 	allowPrivate bool // 是否允许访问私有 IP
+
+	transportOnce sync.Once
+	transport     *http.Transport
 }
 
 // HTTPRequest HTTP 请求参数
@@ -208,6 +216,10 @@ func (c *HTTPClient) Execute(ctx context.Context, args json.RawMessage) (*tools.
 			bodyBytes = raw
 		}
 	}
+	// 请求体大小上限：超大 body 在发起网络请求前拒绝，避免无界内存放大
+	if len(bodyBytes) > httpClientMaxRequestBody {
+		return tools.NewErrorResult(fmt.Sprintf("request body too large: %d bytes exceeds limit %d", len(bodyBytes), httpClientMaxRequestBody)), nil
+	}
 
 	// 解析 auth
 	var auth HTTPAuth
@@ -267,9 +279,10 @@ func (c *HTTPClient) Execute(ctx context.Context, args json.RawMessage) (*tools.
 			return nil
 		},
 	}
-	if !c.allowPrivate {
-		client.Transport = c.newSecureTransport()
-	}
+	// 共享 Transport（懒初始化单例）：旧实现每请求新建 Transport 且从不
+	// CloseIdleConnections，连接与 goroutine 随请求数线性泄漏；共享后由
+	// 连接池统一复用，IdleConnTimeout 自动回收空闲连接。
+	client.Transport = c.httpTransport()
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -386,25 +399,40 @@ func (c *HTTPClient) formatResponseBody(body []byte, contentType string) string 
 	return string(body)
 }
 
-// newSecureTransport 创建安全 HTTP Transport，在 TCP 连接时实时校验 IP，防止 SSRF
-func (c *HTTPClient) newSecureTransport() *http.Transport {
-	dialer := &net.Dialer{Timeout: c.timeout}
-	return &http.Transport{
-		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-			host, port, err := net.SplitHostPort(addr)
-			if err != nil {
-				return nil, fmt.Errorf("invalid address: %w", err)
-			}
-			ips, err := net.LookupIP(host)
-			if err != nil {
-				return nil, fmt.Errorf("DNS lookup failed for %s: %w", host, err)
-			}
-			for _, ip := range ips {
-				if err := validateIPNotInternal(ip); err != nil {
-					return nil, err
+// httpTransport 返回本实例共享的安全 HTTP Transport（懒初始化单例）。
+// SSRF 防护在 DialContext 中实时校验 IP（默认阻止内网/保留地址，见
+// validateIPNotInternal，防止 DNS rebinding）；allowPrivate 为 true 时
+// 跳过校验（仅限测试环境）。
+func (c *HTTPClient) httpTransport() *http.Transport {
+	c.transportOnce.Do(func() {
+		dialer := &net.Dialer{Timeout: c.timeout}
+		c.transport = &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				if c.allowPrivate {
+					// 测试放行模式：直接拨号，不做 IP 校验
+					return dialer.DialContext(ctx, network, addr)
 				}
-			}
-			return dialer.DialContext(ctx, network, net.JoinHostPort(ips[0].String(), port))
-		},
-	}
+				host, port, err := net.SplitHostPort(addr)
+				if err != nil {
+					return nil, fmt.Errorf("invalid address: %w", err)
+				}
+				ips, err := net.LookupIP(host)
+				if err != nil {
+					return nil, fmt.Errorf("DNS lookup failed for %s: %w", host, err)
+				}
+				for _, ip := range ips {
+					if err := validateIPNotInternal(ip); err != nil {
+						return nil, err
+					}
+				}
+				return dialer.DialContext(ctx, network, net.JoinHostPort(ips[0].String(), port))
+			},
+			MaxIdleConns:          100,
+			MaxIdleConnsPerHost:   10,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		}
+	})
+	return c.transport
 }

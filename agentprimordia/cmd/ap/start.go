@@ -89,8 +89,13 @@ func runStart(args []string) error {
 		infof("项目 %q 已存在，跳过创建", name)
 	}
 
-	// 步骤 2: go mod tidy（仅在框架可用且非 workspace 时）
-	// 检测是否为 standalone 模式（无本地框架）
+	// 步骤 2: 依赖准备
+	//
+	// 设计约束（v7.3 修正）：
+	//   - 生成项目的 go.mod 已通过 replace 自洽，构建阶段改用 GOWORK=off 隔离；
+	//   - 绝不调用 `go work use` 改写用户的 go.work（此前会污染用户工作区且不可逆感知）；
+	//   - 无本地框架时无法解析依赖（模块路径 agentprimordia 无 /vN 后缀，v2+ 标签
+	//     不可经 GOPROXY require），此时明确失败，不制造"看似成功实则编译失败"的假象。
 	absTarget, err := filepath.Abs(targetDir)
 	if err != nil {
 		return fmt.Errorf("获取绝对路径失败: %w", err)
@@ -99,53 +104,35 @@ func runStart(args []string) error {
 	if frameworkDir == "" {
 		frameworkDir = findFrameworkRoot(absTarget)
 	}
-	
-	// 检测是否在 go.work workspace 内
-	inWorkspace := findGoWorkspace(absTarget) != ""
-	
-	if inWorkspace {
-		// workspace 模式：使用 go work use 添加项目
-		infof("检测到 Go workspace，正在添加项目...")
-		workspaceDir := findGoWorkspace(absTarget)
-		// 计算项目相对于 workspace 根的路径
-		relPath, err := filepath.Rel(workspaceDir, absTarget)
-		if err != nil {
-			relPath = targetDir
-		}
-		workUseCmd := exec.Command("go", "work", "use", "./"+relPath)
-		workUseCmd.Dir = workspaceDir
-		if err := workUseCmd.Run(); err != nil {
-			infof("自动添加到 go.work 失败，请手动运行: cd %s && go work use ./%s", workspaceDir, relPath)
-		} else {
-			successf("已添加到 go.work")
-		}
-		
-		if frameworkDir != "" {
-			// 在 workspace 内且有本地框架，需要添加 replace 指令
-			frameRel, _ := filepath.Rel(absTarget, frameworkDir)
-			infof("请在 %s/go.mod 添加:", targetDir)
-			fmt.Printf("  replace agentprimordia => %s\n", frameRel)
-			fmt.Printf("  然后运行: cd %s && go mod tidy\n", targetDir)
-		} else {
-			infof("请在 %s/go.mod 添加 replace 指令指向框架源码目录", targetDir)
-		}
+
+	if frameworkDir == "" {
 		fmt.Println()
-	} else if frameworkDir == "" {
-		// standalone 模式：无法 go mod tidy，提供手动指引
-		infof("未检测到本地框架源码，跳过 go mod tidy")
-		infof("请手动在 %s/go.mod 添加:", targetDir)
-		fmt.Printf("  replace agentprimordia => <框架源码目录>\n")
-		fmt.Printf("  然后运行: cd %s && go mod tidy\n", targetDir)
+		errorf("未检测到本地框架源码，无法解析依赖")
+		infof("原因：模块路径 agentprimordia 无 /vN 后缀，v2+ 标签不可经 GOPROXY require（详见 docs/版本规范.md）")
+		infof("修复（任选其一）后重试：")
+		fmt.Printf("  1) 从仓库源码获取框架：git clone <AgentPrimordia 仓库> && cd agentprimordia && go build -o ap ./cmd/ap/\n")
+		fmt.Printf("  2) 在 %s/go.mod 添加：replace agentprimordia => <框架源码目录>，再运行 ap run\n", targetDir)
+		return fmt.Errorf("缺少本地框架源码，已创建项目但未启动")
+	}
+
+	// 有本地框架：依赖已由生成 go.mod 的 replace 自洽。
+	if workspaceDir := findGoWorkspace(absTarget); workspaceDir != "" {
+		infof("检测到上级 go.work（%s）；本项目依赖已由 go.mod 的 replace 自洽", workspaceDir)
+		infof("构建将以 GOWORK=off 隔离运行，不会改写你的 go.work")
 		fmt.Println()
-	} else {
+	}
+
+	// 新建项目的 init 已执行过 go mod tidy；仅对既有项目补做。
+	if projectExists {
 		fmt.Printf("  安装依赖 (go mod tidy) ...\n")
 		tidyCmd := exec.Command("go", "mod", "tidy")
 		tidyCmd.Dir = targetDir
+		tidyCmd.Env = isolatedGoEnv(targetDir)
 		tidyCmd.Stdout = os.Stdout
 		tidyCmd.Stderr = os.Stderr
 		if err := tidyCmd.Run(); err != nil {
 			errorf("go mod tidy 失败: %v", err)
-			infof("尝试手动执行: cd %s && go mod tidy", name)
+			infof("尝试手动执行: cd %s && GOWORK=off go mod tidy", name)
 			return fmt.Errorf("依赖安装失败")
 		}
 		successf("依赖安装完成")

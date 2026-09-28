@@ -80,11 +80,19 @@ func runRun(args []string) error {
 	spinner := newSpinner(fmt.Sprintf("编译 %s", binaryName))
 	buildCmd := exec.Command("go", "build", "-o", binaryName, ".")
 	buildCmd.Dir = dir
+	// 本地 replace 项目以 GOWORK=off 隔离构建：依赖已由 go.mod 自洽，
+	// 无需把项目加入（更不应改写）用户的 go.work。
+	buildCmd.Env = isolatedGoEnv(dir)
 	buildOutput, buildErr := buildCmd.CombinedOutput()
 	spinner.Stop()
 
 	if buildErr != nil {
-		return fmt.Errorf("build failed: %s\n  hint: run %s for details", strings.TrimSpace(string(buildOutput)), bold("go build ."))
+		msg := strings.TrimSpace(string(buildOutput))
+		hint := fmt.Sprintf("run %s for details", bold("go build ."))
+		if strings.Contains(msg, "not one of the workspace modules") {
+			hint = "该项目位于 go.work 工作区内但未被 use；可用 GOWORK=off go build . 隔离构建，或手动 go work use ."
+		}
+		return fmt.Errorf("build failed: %s\n  hint: %s", msg, hint)
 	}
 	defer os.Remove(filepath.Join(dir, binaryName))
 
@@ -212,6 +220,7 @@ func watchAndRun(dir, binaryName, prompt string) error {
 			spinner := newSpinner(fmt.Sprintf("编译 %s", binaryName))
 			buildCmd := exec.Command("go", "build", "-o", binaryName, ".")
 			buildCmd.Dir = dir
+			buildCmd.Env = isolatedGoEnv(dir)
 			output, err := buildCmd.CombinedOutput()
 			spinner.Stop()
 

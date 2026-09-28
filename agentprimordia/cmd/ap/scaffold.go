@@ -266,6 +266,49 @@ func findGoWorkUp(start string) bool {
 	return false
 }
 
+// hasLocalFrameworkReplace 判断项目 go.mod 是否以本地路径 replace 框架模块。
+//
+// 生成项目的 go.mod 已通过 replace 自洽（agentprimordia 与 pgvector 均指向本地源码），
+// 因此构建/整理依赖时应以 GOWORK=off 隔离运行：既无需依赖用户的 go.work，
+// 也避免为了构建而改写（go work use）用户的 go.work。
+func hasLocalFrameworkReplace(dir string) bool {
+	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "replace agentprimordia ") ||
+			strings.HasPrefix(line, "replace agentprimordia/") {
+			return true
+		}
+	}
+	return false
+}
+
+// isolatedGoEnv 返回 go 子命令所需环境。
+// 若项目以本地 replace 自洽，则关闭 workspace 模式（GOWORK=off），
+// 避免"当前模块不在 go.work 中"导致构建失败，同时不改写用户的 go.work。
+func isolatedGoEnv(dir string) []string {
+	env := os.Environ()
+	if hasLocalFrameworkReplace(dir) {
+		env = setEnvVar(env, "GOWORK", "off")
+	}
+	return env
+}
+
+// setEnvVar 在 env 中覆盖或追加 key=value（不产生重复项）。
+func setEnvVar(env []string, key, value string) []string {
+	prefix := key + "="
+	for i, e := range env {
+		if strings.HasPrefix(e, prefix) {
+			env[i] = prefix + value
+			return env
+		}
+	}
+	return append(env, prefix+value)
+}
+
 // cwd 返回当前工作目录（出错时退回 "."）。
 func cwd() string {
 	dir, err := os.Getwd()

@@ -1,5 +1,7 @@
 # Binaries
-ap
+# 注意：必须锚定到本目录（/ap），否则裸 `ap` 会同时匹配 cmd/ap/ 目录，
+# 静默吞掉该目录下任何新增未跟踪文件（2026-09-27 修复，此前已误伤 cmd/ap/start_test.go）。
+/ap
 *.exe
 *.exe~
 *.dll

@@ -11,6 +11,7 @@ import (
 	"agentprimordia/internal/agent/learning"
 	"agentprimordia/internal/agent/planning"
 	"agentprimordia/internal/agent/reflection"
+	"agentprimordia/internal/agent/tool_learning"
 	"agentprimordia/internal/agent/worldmodel"
 	"agentprimordia/internal/llm"
 	"agentprimordia/internal/memory"
@@ -116,6 +117,12 @@ type CognitionConfig struct {
 	// 默认 ReAct 行为零变更，铁律 7；三段式默认策略见
 	// docs/提案-世界模型默认策略切换.md §2.1，v7.0 才翻默认）
 	WorldModel *worldmodel.WorldModelTracker
+
+	// ToolLearner 工具学习器（v7.4 接线）。
+	// 显式注入时优先生效；nil 且记忆存储具备 List(SessionID) 能力时，
+	// 由 buildAgent 自动装配基于该存储的 MemoryToolLearner。
+	// 两者都不满足时保持 nil——回注钩子不生效（与历史行为一致）。
+	ToolLearner tool_learning.ToolLearner
 }
 
 // AgentConfig 是 Agent 的分组式配置结构。

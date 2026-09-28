@@ -313,6 +313,13 @@ var (
 	//
 	// Stability: Experimental
 	WithWorldModel = agent.WithWorldModel
+
+	// WithToolLearner 显式注入工具学习器（v7.4 接线，优先于自动装配）。
+	// 不注入且记忆存储具备会话列举能力时，会自动装配基于该存储的
+	// MemoryToolLearner，使工具经验回注闭环生效。
+	//
+	// Stability: Experimental
+	WithToolLearner = agent.WithToolLearner
 )
 
 // AgentOption 是 NewAgent 的函数式选项类型（v0.7.0 起等同于 agent.Option）

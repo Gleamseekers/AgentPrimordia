@@ -3,6 +3,7 @@ package agent
 import (
 	"fmt"
 
+	"agentprimordia/internal/agent/tool_learning"
 	"agentprimordia/internal/llm"
 )
 
@@ -87,6 +88,14 @@ func buildAgent(cfg AgentConfig) (*CapabilityAgent, error) {
 	// 注入记忆能力
 	if cfg.Memory.Store != nil {
 		cap = cap.WithMemory(cfg.Memory.Store)
+	}
+	// 注入工具学习器（v7.4 接线）：显式注入优先；否则当记忆存储具备
+	// 会话列举能力（List(SessionID)）时自动装配，使 ToolLearning 回注闭环生效。
+	// 两者都不满足时保持不装配——与历史行为一致，不引入静默失败。
+	if cfg.Cognition.ToolLearner != nil {
+		cap = cap.WithToolLearner(cfg.Cognition.ToolLearner)
+	} else if qs, ok := cfg.Memory.Store.(memoryEpisodeStore); ok && qs != nil {
+		cap = cap.WithToolLearner(tool_learning.NewMemoryToolLearner(newToolLearningMemoryAdapter(qs)))
 	}
 	if cfg.Memory.Summarizer != nil {
 		cap = cap.WithSummarizer(cfg.Memory.Summarizer)

@@ -6,6 +6,7 @@ package agent
 import (
 	"agentprimordia/internal/agent/planning"
 	"agentprimordia/internal/agent/reflection"
+	"agentprimordia/internal/agent/tool_learning"
 	"agentprimordia/internal/agent/worldmodel"
 	"agentprimordia/internal/llm"
 	"agentprimordia/internal/memory"
@@ -151,6 +152,14 @@ func WithReflectionThreshold(severity string) Option {
 // tracker 允许 nil（等价不启用，便于条件装配）。
 func WithWorldModel(t *worldmodel.WorldModelTracker) Option {
 	return func(c *AgentConfig) { c.Cognition.WorldModel = t }
+}
+
+// WithToolLearner 显式注入工具学习器（v7.4 接线，优先于自动装配）。
+// 不注入且记忆存储具备会话列举能力时，buildAgent 会自动装配
+// 基于该存储的 MemoryToolLearner；两者都不满足时回注钩子不生效。
+// 允许 nil（等价不启用，便于条件装配）。
+func WithToolLearner(tl tool_learning.ToolLearner) Option {
+	return func(c *AgentConfig) { c.Cognition.ToolLearner = tl }
 }
 
 // ===== 4 个分组注入 Option =====

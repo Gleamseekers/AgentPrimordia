@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -13,29 +14,71 @@ import (
 	"agentprimordia/internal/tools"
 )
 
-var blockedCommands = []string{
-	"rm -rf /",
-	"rm -rf\\",
-	"mkfs",
+// maxTimeoutSec 单条命令超时上限（秒）。用户可控 timeout 参数 clamp 到此，
+// 防 int(v) 大值溢出 time.Duration（P2 修复）。
+const maxTimeoutSec = 3600
+
+// isWithinAllowedWorkdirs 判断 path 是否落在任一允许的工作目录内
+// （Clean + 分隔符边界检查，防 "/home/app-secret" 绕过 "/home/app"）。
+func isWithinAllowedWorkdirs(p string, allowed []string) bool {
+	abs := filepath.Clean(p)
+	for _, dir := range allowed {
+		absDir := filepath.Clean(dir)
+		if abs == absDir || strings.HasPrefix(abs, absDir+string(filepath.Separator)) {
+			return true
+		}
+	}
+	return false
+}
+
+// looksLikeAbsolutePath 判断 token 是否呈绝对路径形态（Unix "/x"、"~/"、
+// Windows "C:\x" / "\\x"）。仅对绝对路径实施禁锢——相对路径由 cmd.Dir
+// （即已校验的 workdir）或调用方显式设定的 cwd 决定，不构成逃逸向量。
+func looksLikeAbsolutePath(tok string) bool {
+	if tok == "" {
+		return false
+	}
+	if strings.HasPrefix(tok, "/") || strings.HasPrefix(tok, "~") || strings.HasPrefix(tok, `\`) {
+		return true
+	}
+	// Windows 盘符路径（C:\ / c:/ ）
+	if len(tok) >= 3 && tok[1] == ':' && (tok[2] == '\\' || tok[2] == '/') {
+		c := tok[0]
+		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+	}
+	return false
+}
+
+// blockedCommandNames 黑名单模式下的规范化命令名集合（按 token basename 匹配）。
+// 相比此前的子串匹配（可被 "rm -fr" flags 重排、/bin/rm 路径前缀、大小写变形
+// 轻易绕过），此处对 tokenizeCommand 的结果逐 token 取 basename 后比对。
+var blockedCommandNames = map[string]bool{
+	"rm": true, "mkfs": true, "dd": true,
+	"shutdown": true, "reboot": true, "halt": true, "poweroff": true,
+	"fdisk": true,
+}
+
+// blockedCommandPatterns 黑名单模式下仍需保留的整串危险模式（shell 函数定义等）。
+var blockedCommandPatterns = []string{
 	":(){ :|:& };:",
-	"dd if=",
-	"chmod -R 777 /",
-	"shutdown",
-	"reboot",
-	"halt",
 	"> /dev/sda",
 }
 
-// defaultWhitelist 默认允许的安全命令列表
-// 不包含 curl/wget（可下载执行任意内容）、npm/pip（postinstall 脚本风险）、
-// chmod/chown（权限变更风险）等高危tool。如需使用，请通过 WithWhitelist 显式添加。
+// defaultWhitelist 默认允许的安全命令列表（2026-09-28 P0 安全修复后收敛）。
+//
+// 收录原则：**只收不可派生进程、不可解释代码的单用途命令**。以下类别
+// 曾被收录但已移除——它们使"白名单"形同虚设（被 prompt injection 控制
+// 的 agent 借此获得宿主任意代码执行，7 条攻击链实证见 shell_security_test.go）：
+//   - 进程派生器：env / printenv（env 可执行任意程序）、find（-exec）、ln（符号链接逃逸）；
+//   - 代码解释器/编译器：python / python3 / node / go / make / cargo / rustc；
+//   - 通用 VCS：git（-c/alias/ext 可执行任意命令）。
+// 确有需要的用户应经 WithWhitelist 显式追加，并自行承担相应风险
+// （显式 opt-in 是安全默认值与灵活性之间的边界）。
 var defaultWhitelist = []string{
 	"ls", "cat", "head", "tail", "wc", "echo", "pwd", "whoami",
-	"grep", "find", "sort", "uniq", "diff",
-	"git", "go", "python", "python3", "node",
-	"make", "cargo", "rustc",
-	"date", "uname", "which", "env", "printenv",
-	"mkdir", "cp", "mv", "touch", "ln",
+	"grep", "sort", "uniq", "diff",
+	"date", "uname", "which",
+	"mkdir", "cp", "mv", "touch",
 }
 
 // containsShellMetacharacters 检查命令是否包含危险的 shell 元字符。
@@ -159,42 +202,19 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 		return tools.NewErrorResult("command is required"), nil
 	}
 
-	lowerCmd := strings.ToLower(strings.TrimSpace(command))
+	// ===== 参数解析与安全校验（2026-09-28 P0 安全修复后重整）=====
+	//
+	// 校验顺序（每一层都不可被 args 路径绕过）：
+	//   1. timeout 解析并 clamp 到 [1, maxTimeoutSec]（防 int 溢出 Duration）；
+	//   2. workdir 解析与 ScopePolicy / allowedWorkdirs / Sandbox 校验；
+	//   3. argv 构建（args 路径与 command 字符串路径归一）；
+	//   4. 元字符检查：command 字符串 + argv 每一个元素（修复：args 曾完全绕过）；
+	//   5. 白名单/黑名单判定（基于 argv[0] basename）；
+	//   6. 路径禁锢：argv 中的绝对路径 token 过 allowedWorkdirs / Sandbox
+	//      （修复：shell 曾可 cat rootDir 之外任意文件）；
+	//   7. Sandbox.CanExecute 统一门。
 
-	// 检查 shell 元字符，防止命令注入
-	if hasMeta, meta := containsShellMetacharacters(command); hasMeta {
-		return tools.NewErrorResult(fmt.Sprintf("command rejected: shell metacharacter '%s' is not allowed", meta)), nil
-	}
-
-	// 白名单模式检查：只允许白名单中的命令
-	if s.whitelistMode {
-		cmdName := strings.Fields(lowerCmd)[0]
-		allowed := false
-		for _, w := range s.whitelist {
-			if cmdName == strings.ToLower(w) {
-				allowed = true
-				break
-			}
-		}
-		if !allowed {
-			return tools.NewErrorResult(fmt.Sprintf("command '%s' is not in the allowed list: %v", cmdName, s.whitelist)), nil
-		}
-	} else {
-		// 黑名单模式：检查危险命令
-		for _, blocked := range blockedCommands {
-			if strings.Contains(lowerCmd, strings.ToLower(blocked)) {
-				return tools.NewErrorResult(fmt.Sprintf("command blocked for safety reasons: matches pattern '%s'", blocked)), nil
-			}
-		}
-	}
-
-	// Sandbox 统一安全检查：如果注入了沙箱，必须通过验证
-	if s.sandbox != nil {
-		if err := s.sandbox.CanExecute(s.sandboxAgentID, command); err != nil {
-			return tools.NewErrorResult(fmt.Sprintf("sandbox denied execution: %v", err)), nil
-		}
-	}
-
+	// 1. timeout（clamp 防溢出）
 	timeoutSec := int(s.defaultTimeout.Seconds())
 	if raw, ok := params["timeout"]; ok && len(raw) > 0 {
 		var v float64
@@ -205,15 +225,20 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 			timeoutSec = int(v)
 		}
 	}
+	if timeoutSec < 1 {
+		timeoutSec = 1
+	}
+	if timeoutSec > maxTimeoutSec {
+		timeoutSec = maxTimeoutSec
+	}
 
+	// 2. workdir
 	workdir := ""
 	if raw, ok := params["workdir"]; ok && len(raw) > 0 {
 		if err := unmarshalRaw(raw, &workdir); err != nil {
 			return tools.NewErrorResult(fmt.Sprintf("invalid parameter 'workdir': %v", err)), nil
 		}
 	}
-
-	// 验证 workdir 是否在允许范围内
 
 	// ScopePolicy 权限检查：以 workdir 为资源路径
 	if s.scopePolicy != nil && workdir != "" {
@@ -225,21 +250,12 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 	if workdir != "" && len(s.allowedWorkdirs) > 0 {
 		// 使用 filepath.Clean + 分隔符边界检查，与 scope.go 的 Allow 实现一致。
 		// 防止 "/home/app" 被路径 "/home/app-secret" 绕过。
-		allowed := false
-		absWorkdir := filepath.Clean(workdir)
-		for _, dir := range s.allowedWorkdirs {
-			absDir := filepath.Clean(dir)
-			if absWorkdir == absDir || strings.HasPrefix(absWorkdir, absDir+string(filepath.Separator)) {
-				allowed = true
-				break
-			}
-		}
-		if !allowed {
+		if !isWithinAllowedWorkdirs(workdir, s.allowedWorkdirs) {
 			return tools.NewErrorResult(fmt.Sprintf("workdir '%s' is not in the allowed directories", workdir)), nil
 		}
 	}
 
-	// Sandbox 路径验证
+	// Sandbox 路径验证（workdir）
 	if s.sandbox != nil && workdir != "" {
 		if err := s.sandbox.ValidatePath(s.sandboxAgentID, workdir, 1); err != nil { // 1 = ReadWrite
 			return tools.NewErrorResult(fmt.Sprintf("sandbox denied workdir access: %v", err)), nil
@@ -249,10 +265,10 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 	execCtx, cancel := context.WithTimeout(ctx, time.Duration(timeoutSec)*time.Second)
 	defer cancel()
 
+	// 3. argv 构建（两条路径归一为 name + cmdArgs）
 	var name string
 	var cmdArgs []string
 
-	// 如果显式提供 args 数组，command 只作为可执行文件名
 	if raw, ok := params["args"]; ok && len(raw) > 0 {
 		if err := unmarshalRaw(raw, &cmdArgs); err != nil {
 			return tools.NewErrorResult(fmt.Sprintf("invalid parameter 'args': %v", err)), nil
@@ -266,6 +282,75 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 		}
 		name = tokens[0]
 		cmdArgs = tokens[1:]
+	}
+
+	// 4. 元字符检查：command 字符串 + argv 每一个元素。
+	// 修复前只检查 command 字符串，显式 args 完全绕过——注入方可用
+	// args 携带 "sh -c '...'" 等载荷（当 argv[0] 可派生 shell 时触发）。
+	if hasMeta, meta := containsShellMetacharacters(command); hasMeta {
+		return tools.NewErrorResult(fmt.Sprintf("command rejected: shell metacharacter '%s' is not allowed", meta)), nil
+	}
+	for i, arg := range cmdArgs {
+		if hasMeta, meta := containsShellMetacharacters(arg); hasMeta {
+			return tools.NewErrorResult(fmt.Sprintf("args[%d] rejected: shell metacharacter '%s' is not allowed", i, meta)), nil
+		}
+	}
+
+	// 5. 白名单/黑名单判定（基于 argv[0] basename，两条路径同一标准）
+	baseName := path.Base(name)
+	lowerBase := strings.ToLower(baseName)
+	if s.whitelistMode {
+		allowed := false
+		for _, w := range s.whitelist {
+			if lowerBase == strings.ToLower(path.Base(w)) {
+				allowed = true
+				break
+			}
+		}
+		if !allowed {
+			return tools.NewErrorResult(fmt.Sprintf("command '%s' is not in the allowed list: %v", baseName, s.whitelist)), nil
+		}
+	} else {
+		// 黑名单模式：token basename 规范化匹配（修复：子串匹配可被
+		// "rm -fr" flags 重排、/bin/rm 路径前缀、大小写变形绕过）。
+		if blockedCommandNames[lowerBase] {
+			return tools.NewErrorResult(fmt.Sprintf("command blocked for safety reasons: '%s' is not allowed", baseName)), nil
+		}
+		for _, arg := range cmdArgs {
+			if blockedCommandNames[strings.ToLower(path.Base(arg))] {
+				return tools.NewErrorResult(fmt.Sprintf("command blocked for safety reasons: argument '%s' is not allowed", arg)), nil
+			}
+		}
+		lowerWhole := strings.ToLower(command)
+		for _, pattern := range blockedCommandPatterns {
+			if strings.Contains(lowerWhole, pattern) {
+				return tools.NewErrorResult(fmt.Sprintf("command blocked for safety reasons: matches pattern '%s'", pattern)), nil
+			}
+		}
+	}
+
+	// 6. 路径禁锢：argv 中的绝对路径 token 必须在 allowedWorkdirs 内，
+	// 且通过 Sandbox.ValidatePath（若注入）。修复前 shell 对命令参数中的
+	// 路径零校验，filesystem 工具的 rootDir jail 可被一句 cat 废弃。
+	for _, tok := range cmdArgs {
+		if !looksLikeAbsolutePath(tok) {
+			continue
+		}
+		if len(s.allowedWorkdirs) > 0 && !isWithinAllowedWorkdirs(tok, s.allowedWorkdirs) {
+			return tools.NewErrorResult(fmt.Sprintf("path '%s' is outside the allowed directories", tok)), nil
+		}
+		if s.sandbox != nil {
+			if err := s.sandbox.ValidatePath(s.sandboxAgentID, tok, 1); err != nil {
+				return tools.NewErrorResult(fmt.Sprintf("sandbox denied path access: %v", err)), nil
+			}
+		}
+	}
+
+	// 7. Sandbox 统一执行门
+	if s.sandbox != nil {
+		if err := s.sandbox.CanExecute(s.sandboxAgentID, command); err != nil {
+			return tools.NewErrorResult(fmt.Sprintf("sandbox denied execution: %v", err)), nil
+		}
 	}
 
 	cmd := exec.CommandContext(execCtx, name, cmdArgs...)

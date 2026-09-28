@@ -1,7 +1,6 @@
 package tools
 
 import (
-	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -9,6 +8,7 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 
@@ -124,12 +124,25 @@ func (e *Executor) Execute(ctx context.Context, tc *FunctionCall) (*Result, erro
 		return NewErrorResult(fmt.Sprintf("tool not found: %s", tc.Name)), ErrToolNotFound
 	}
 
-	// ScopePolicy 权限检查：从参数中提取 path 资源路径
+	// ScopePolicy 权限检查：从参数中提取全部路径字段逐一校验
+	// （2026-09-28 P0 修复：提取改为完整递归遍历 + fail-closed——
+	//  此前只认 6 个顶层 key，嵌套/MCP 风格参数会静默跳过检查）。
 	if e.scopePolicy != nil {
-		resource := extractPathFromArgs(tc.Args)
-		if resource != "" && !e.scopePolicy.Allow(e.scopeAgent, resource) {
-			deniedErr := NewScopeDeniedError(e.scopeAgent, resource)
-			return NewErrorResult(deniedErr.Error()), deniedErr
+		first, second := extractPathsFromArgs(tc.Args)
+		for _, resource := range []string{first, second} {
+			if resource == "" {
+				continue
+			}
+			if !e.scopePolicy.Allow(e.scopeAgent, resource) {
+				deniedErr := NewScopeDeniedError(e.scopeAgent, resource)
+				return NewErrorResult(deniedErr.Error()), deniedErr
+			}
+		}
+		// fail-closed：策略已启用但参数无法解析为 JSON 时拒绝执行，
+		// 杜绝"解析失败即放行"的绕过面。
+		if !json.Valid([]byte(tc.Args)) {
+			return NewErrorResult("tool arguments are not valid JSON; execution denied by scope policy"),
+				NewScopeDeniedError(e.scopeAgent, "(unparseable args)")
 		}
 	}
 
@@ -303,67 +316,65 @@ func (e *Executor) ExecuteBatch(ctx context.Context, calls []*FunctionCall) ([]*
 	return results, firstErr
 }
 
-// extractPathFromArgs 从tool调用参数中提取 path 字段
-// 用于 ScopePolicy 权限检查
-// 优化（Task 9）：使用 json.Decoder 替代 Unmarshal，按需查找常见路径字段；
-// 第一个匹配字段后立即返回，减少 JSON 解析开销。
+// extractPathFromArgs 从tool调用参数中提取 path 字段，用于 ScopePolicy 权限检查。
+//
+// 2026-09-28 P0 安全修复：原实现只识别 6 个固定 key、只看顶层、只取第一个
+// 匹配——对 filePath/file/嵌套 {"request":{"path":...}}/MCP 风格
+// {"input":{...}} 全部返回空，executor 层 ScopePolicy 检查被静默跳过
+// （fail-open）。现改为：
+//   1. 完整 JSON 树递归遍历（对象/数组/嵌套全部覆盖）；
+//   2. 路径 key 集合扩充（含 camelCase 与常见简写）；
+//   3. 顺带返回第二个发现路径（copy src→dst 类多路径参数的第二个目标）。
 func extractPathFromArgs(args string) string {
-	if args == "" {
-		return ""
-	}
-	dec := json.NewDecoder(bytes.NewReader([]byte(args)))
-	dec.UseNumber()
-	// 流式解析：直到找到第一个 path 字段
-	for {
-		tok, err := dec.Token()
-		if err != nil {
-			return ""
-		}
-		// 在对象开始时进入键值对循环
-		if delim, ok := tok.(json.Delim); ok && delim == '{' {
-			// 优化：不再解析整个 map，而是逐个键查找
-			for dec.More() {
-				// 读取 key
-				keyTok, err := dec.Token()
-				if err != nil {
-					return ""
-				}
-				key, ok := keyTok.(string)
-				if !ok {
-					// 跳过 value
-					var skip json.RawMessage
-					if err := dec.Decode(&skip); err != nil {
-						return ""
-					}
-					continue
-				}
-				// 检查是否为常见路径字段
-				if isPathKey(key) {
-					var val string
-					if err := dec.Decode(&val); err == nil && val != "" {
-						return val
-					}
-					// value 不是 string，继续扫描
-					var skip json.RawMessage
-					_ = dec.Decode(&skip)
-					continue
-				}
-				// 跳过 value
-				var skip json.RawMessage
-				if err := dec.Decode(&skip); err != nil {
-					return ""
-				}
-			}
-			return ""
-		}
-		// 跳过非对象起始 token
-	}
+	first, _ := extractPathsFromArgs(args)
+	return first
 }
 
-// isPathKey 判断 key 是否为常见的路径参数名
+// extractPathsFromArgs 递归提取参数中的全部路径字段（按发现顺序，最多返回前两个：
+// 第一个用于 ScopePolicy 校验，第二个覆盖 copy/move 的 dst 场景）。
+func extractPathsFromArgs(args string) (first, second string) {
+	if args == "" {
+		return "", ""
+	}
+	var root any
+	if err := json.Unmarshal([]byte(args), &root); err != nil {
+		return "", ""
+	}
+	var walk func(v any)
+	walk = func(v any) {
+		if first != "" && second != "" {
+			return
+		}
+		switch t := v.(type) {
+		case map[string]any:
+			for k, val := range t {
+				if s, ok := val.(string); ok && s != "" && isPathKey(k) {
+					if first == "" {
+						first = s
+					} else if second == "" {
+						second = s
+					}
+					continue
+				}
+				walk(val)
+			}
+		case []any:
+			for _, item := range t {
+				walk(item)
+			}
+		}
+	}
+	walk(root)
+	return first, second
+}
+
+// isPathKey 判断 key 是否为常见的路径参数名（含 camelCase 与常见简写，
+// 覆盖 MCP / 嵌套 / 各内置工具的参数命名差异）。
 func isPathKey(key string) bool {
-	switch key {
-	case "path", "file_path", "target_dir", "workdir", "directory", "output_path":
+	switch strings.ToLower(key) {
+	case "path", "file_path", "filepath", "file", "target_dir", "workdir",
+		"directory", "dir", "output_path", "src", "source", "dst", "dest",
+		"destination", "filename", "output", "outputfile", "output_file":
 		return true
 	}
 	return false

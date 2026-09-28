@@ -22,12 +22,21 @@ const (
 	maxMatches        int   = 1000
 )
 
+// sensitivePatterns 敏感文件名模式（2026-09-28 P0 安全修复扩充）：
+// 补入 authorized_keys / shadow / 数据库密钥库 / 其他 SSH 私钥类型，
+// 匹配统一走 matchSensitivePattern（大小写不敏感，防 ".ENV" 绕过）。
 var sensitivePatterns = []string{
 	"*.env",
 	"*.env.*",
 	"*credentials*",
 	"*id_rsa*",
+	"*id_dsa*",
+	"*id_ecdsa*",
 	"*id_ed25519*",
+	"authorized_keys",
+	"*shadow*",
+	"*.htpasswd*",
+	"*.kdbx",
 	"*.pem",
 	"*.key",
 	"*.p12",
@@ -39,9 +48,22 @@ var sensitivePatterns = []string{
 	"*ssh_config*",
 	"*known_hosts*",
 	"*.gitconfig",
+	"*.git-credentials*",
 	"*.npmrc",
 	"*.pypirc",
 	"*netrc",
+}
+
+// matchSensitivePattern 大小写不敏感地匹配敏感文件名模式。
+// filepath.Match 大小写敏感，".ENV" 曾绕过 "*.env"（P0 攻击链 7）。
+func matchSensitivePattern(name string) bool {
+	lower := strings.ToLower(name)
+	for _, pattern := range sensitivePatterns {
+		if matched, _ := filepath.Match(strings.ToLower(pattern), lower); matched {
+			return true
+		}
+	}
+	return false
 }
 
 type FileSystem struct {
@@ -234,12 +256,9 @@ func (f *FileSystem) Execute(ctx context.Context, args json.RawMessage) (*tools.
 		}
 	}
 
-	// 敏感文件保护：读/写/编辑均拒绝
-	for _, pattern := range sensitivePatterns {
-		matched, _ := filepath.Match(pattern, filepath.Base(cleanPath))
-		if matched {
-			return tools.NewErrorResult(fmt.Sprintf("access denied: sensitive file '%s' is protected", cleanPath)), nil
-		}
+	// 敏感文件保护：读/写/编辑均拒绝（大小写不敏感）
+	if matchSensitivePattern(filepath.Base(cleanPath)) {
+		return tools.NewErrorResult(fmt.Sprintf("access denied: sensitive file '%s' is protected", cleanPath)), nil
 	}
 
 	switch action {
@@ -656,11 +675,8 @@ func (f *FileSystem) searchDirectory(_ context.Context, dirPath string, params m
 			}
 		}
 
-		for _, pattern := range sensitivePatterns {
-			matched, _ := filepath.Match(pattern, d.Name())
-			if matched {
-				return nil
-			}
+		if matchSensitivePattern(d.Name()) {
+			return nil
 		}
 
 		fileInfo, statErr := d.Info()

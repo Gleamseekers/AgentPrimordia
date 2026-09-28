@@ -68,7 +68,8 @@ func TestShell_Parameters(t *testing.T) {
 }
 
 func TestExecuteSimpleCommand_Echo(t *testing.T) {
-	sh := NewShell()
+	// go 已不在默认白名单（P0 安全修复），需显式 opt-in。
+	sh := NewShell().WithWhitelist([]string{"go"})
 	args, _ := json.Marshal(map[string]any{
 		"action":  "execute",
 		"command": testOutputCmd(),
@@ -204,7 +205,8 @@ func TestWorkingDirectory(t *testing.T) {
 }
 
 func TestExitCode_Success(t *testing.T) {
-	sh := NewShell()
+	// go 已不在默认白名单（P0 安全修复），需显式 opt-in。
+	sh := NewShell().WithWhitelist([]string{"go"})
 	args, _ := json.Marshal(map[string]any{
 		"action":  "execute",
 		"command": testOutputCmd(),

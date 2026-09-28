@@ -44,6 +44,10 @@ func DefaultToolkit(cfg ToolkitConfig) (*tools.Registry, error) {
 
 	if cfg.EnableShell {
 		shell := NewShell()
+		// 安全默认（2026-09-28 P0 修复）：shell 与 filesystem 工具一样
+		// 禁锢在 RootDir 内——此前 shell 对命令参数中的路径零校验，
+		// filesystem 的 rootDir jail 可被一句 "cat /etc/passwd" 废弃。
+		shell.WithAllowedWorkdirs([]string{cfg.RootDir})
 		if cfg.ScopePolicy != nil {
 			shell.WithScopePolicy(cfg.ScopePolicy, cfg.ScopeAgent)
 		}

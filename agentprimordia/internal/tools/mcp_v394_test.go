@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -172,7 +174,19 @@ func TestResolveMCPCommand(t *testing.T) {
 		t.Errorf("绝对路径应不变，实际 %q", got)
 	}
 
-	// npx 解析：在 PATH 中能找到 npx.cmd（Windows）时返回 .cmd 后缀
+	// npx 解析：在 PATH 中能找到 npx.cmd（Windows）时返回 .cmd 后缀。
+	// 为避免依赖宿主是否安装 npx（CI / 容器常无 Node），构造隔离的临时 PATH 垫片，
+	// 使该断言在任意环境确定性通过（AGENTS §5：外部依赖需隔离）。
+	shimDir := t.TempDir()
+	shimName := "npx"
+	if runtime.GOOS == "windows" {
+		shimName += ".cmd"
+	}
+	if err := os.WriteFile(filepath.Join(shimDir, shimName), []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatalf("写入 npx 垫片失败: %v", err)
+	}
+	t.Setenv("PATH", shimDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+
 	got := resolveMCPCommand("npx")
 	if !strings.HasPrefix(got, "npx") {
 		t.Errorf("npx 解析结果应以 npx 开头，实际 %q", got)
@@ -185,9 +199,6 @@ func TestResolveMCPCommand(t *testing.T) {
 
 	// 平台一致性检查：lookup 逻辑在两个平台都应指向实际可用的可执行文件
 	if _, err := exec.LookPath(got); err != nil {
-		// Windows 上 npx 可能未安装（PATH 无 npx），允许 fallback 为原命令
-		if runtime.GOOS != "windows" {
-			t.Errorf("LookPath(%q) 失败: %v", got, err)
-		}
+		t.Errorf("LookPath(%q) 失败: %v", got, err)
 	}
 }

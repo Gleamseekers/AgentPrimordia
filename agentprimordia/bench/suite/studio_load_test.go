@@ -102,9 +102,23 @@ func TestStudio_ConcurrentLoad(t *testing.T) {
 	var okCount atomic.Int64
 	var wg sync.WaitGroup
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	// 连接池必须与并发度匹配：默认 Transport 的 MaxIdleConnsPerHost=2
+	// 会导致 100 并发下每请求重建连接，重复/并发运行时耗尽临时端口，
+	// 产生大量"0 错误要求"下的伪失败（2026-09-27 定位并修复）。
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			MaxIdleConns:        workers,
+			MaxIdleConnsPerHost: workers,
+			IdleConnTimeout:     30 * time.Second,
+		},
+	}
+	defer client.CloseIdleConnections()
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
+
+	// 预热连接池（≥ 并发度），消除并发起跑的拨号风暴
+	warmUpConnections(ctx, client, srv.URL+"/api/v1/cluster/status", workers)
 
 	for w := range workers {
 		wg.Add(1)
@@ -282,6 +296,30 @@ func countSubstring(s, sub string) int {
 	return n
 }
 
+// warmUpConnections 串行预热连接池，避免并发起跑瞬间的拨号风暴。
+//
+// 背景（2026-09-27）：并发起跑时数百个 goroutine 同时拨号，在全量并行测试
+// （多测试二进制争抢资源）下会触发客户端侧 ECONNRESET/ECONNREFUSED/EADDRNOTAVAIL。
+// 压测目标是"服务端在并发下的行为"，客户端拨号噪声必须先排除；预热即提前建立
+// 与并发度相当的空闲连接，使并发阶段复用连接而非重新拨号。
+//
+// 注意：**不使用重试**处理写请求——POST 非幂等，重试会造成重复写入，
+// 破坏"写后读一致"计数（曾实测 812≠800）。
+func warmUpConnections(ctx context.Context, client *http.Client, url string, n int) {
+	for i := 0; i < n; i++ {
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+		if err != nil {
+			return
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			return
+		}
+		_, _ = io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+	}
+}
+
 // TestStudio_WritePathConcurrentLoad 写路径压测：并发 POST 混沌实验 + 市场部署
 // （demo 服务锁竞争点），验证写后读一致性（0 错误 + 数量核对）。
 func TestStudio_WritePathConcurrentLoad(t *testing.T) {
@@ -299,15 +337,24 @@ func TestStudio_WritePathConcurrentLoad(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
+	defer client.CloseIdleConnections()
 
 	// 注意：demo 存储有界保留上限为 maxDemoRetained=1000（v5.0 压测修复引入）。
 	// 写入总量必须 ≤ 保留上限，否则"写后读一致"断言会因旧记录被淘汰而失败。
+	//
+	// 并发度与轮次（2026-09-27 调整）：总写入量保持不变（各 800 次），
+	// 但把"同时拨号数"从 200 降到 50——同时拨号过多会在全量并行测试时
+	// 触发客户端侧 ECONNRESET/EADDRNOTAVAIL 噪声，掩盖服务端行为。
 	const (
-		chaosWorkers  = 100
-		chaosRounds   = 8 // 800 次 POST /chaos/experiments（≤ 保留上限 1000）
-		deployWorkers = 100
-		deployRounds  = 8 // 800 次 POST /marketplace/deploy（≤ 保留上限 1000）
+		chaosWorkers  = 25
+		chaosRounds   = 32 // 800 次 POST /chaos/experiments（≤ 保留上限 1000）
+		deployWorkers = 25
+		deployRounds  = 32 // 800 次 POST /marketplace/deploy（≤ 保留上限 1000）
 	)
+
+	// 预热连接池（≥ 并发度），消除并发起跑的拨号风暴
+	warmUpConnections(ctx, client, srv.URL+"/api/v1/cluster/status", chaosWorkers+deployWorkers)
+
 	var (
 		chaosOK    atomic.Int64
 		deployOK   atomic.Int64
@@ -376,8 +423,9 @@ func TestStudio_WritePathConcurrentLoad(t *testing.T) {
 
 	if badStatus.Load() > 0 {
 		statusMu.Lock()
-		t.Fatalf("写路径非预期状态/错误 %d 次，分布: %v", badStatus.Load(), statusHist)
+		hist := fmt.Sprintf("%v", statusHist)
 		statusMu.Unlock()
+		t.Fatalf("写路径非预期状态/错误 %d 次，分布: %s", badStatus.Load(), hist)
 	}
 	if chaosOK.Load() != chaosWorkers*chaosRounds || deployOK.Load() != deployWorkers*deployRounds {
 		t.Fatalf("chaosOK=%d deployOK=%d, want %d/%d", chaosOK.Load(), deployOK.Load(),

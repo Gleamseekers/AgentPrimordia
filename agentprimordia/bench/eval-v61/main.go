@@ -205,8 +205,8 @@ func main() {
 					break
 				}
 				if !isRateLimited(res.Error) || attempt >= *maxRetry {
-					if isRateLimited(res.Error) {
-						transient = true // 登记限流——留给幂等续跑补跑
+					if isTransientErr(res.Error) {
+						transient = true // 登记限流/网关超时/认证——留给幂等续跑补跑
 					}
 					break
 				}
@@ -406,14 +406,16 @@ func runUnit(prov llm.Provider, item lhItem, round int, arm string) unitResult {
 	return res
 }
 
-// isRateLimited 网关限流/余额类瞬态错误判定（计划书⑥：异常登记后补跑）。
-// 余额耗尽（401 CreditsError）与限流（429）同为 TRANSIENT——不落盘，
-// 留给幂等续跑（充值/配额恢复后补齐）。
+// isRateLimited 网关限流/瞬态超时判定（可退避重试）。
+//
+// 语义边界（v7.3 修正）：本函数**只**判定"退避重试有意义"的限流与网关瞬态超时。
+// 余额/认证类错误（401 Insufficient balance / CreditsError / auth_error）不属于限流，
+// 退避重试无意义，由 isAuthErr 独立判定、"瞬态归类"由 isTransientErr 统一给出。
+// 历史上曾把余额错误并入本函数，导致 TestIsRateLimited 与实现互相矛盾（红测试）。
 func isRateLimited(err string) bool {
 	e := strings.ToLower(err)
 	if strings.Contains(err, "429") || strings.Contains(e, "rate_limit") ||
-		strings.Contains(e, "rate limit") || strings.Contains(e, "insufficient balance") ||
-		strings.Contains(e, "creditserror") || strings.Contains(e, "http 401") {
+		strings.Contains(e, "rate limit") {
 		return true
 	}
 	// 网关瞬态超时（502/503/504）：服务端侧瞬态，登记后补跑
@@ -423,6 +425,18 @@ func isRateLimited(err string) bool {
 		}
 	}
 	return false
+}
+
+// isAuthErr 网关认证/余额类错误判定（退避重试无意义，直接登记 TRANSIENT 不落盘）。
+func isAuthErr(err string) bool {
+	e := strings.ToLower(err)
+	return strings.Contains(e, "insufficient balance") || strings.Contains(e, "creditserror") ||
+		strings.Contains(e, "http 401") || strings.Contains(e, "auth_error")
+}
+
+// isTransientErr 暂时性异常归类（限流 / 网关超时 / 余额 / 认证）——不落盘，留给幂等续跑补跑。
+func isTransientErr(err string) bool {
+	return isRateLimited(err) || isAuthErr(err)
 }
 
 // isBalanceErr 网关账户余额耗尽判定（与限流同属暂时性异常：不落盘，留给幂等续跑补跑）。

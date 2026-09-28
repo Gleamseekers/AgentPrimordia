@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	agentmarket "agentprimordia/internal/agent/marketplace"
 	"agentprimordia/internal/marketplace"
 )
 
@@ -74,6 +76,8 @@ func runMarketplace(args []string) error {
 		return runMarketplaceRun(args[1:])
 	case "list":
 		return runMarketplaceList(args[1:])
+	case "catalog":
+		return runMarketplaceCatalog(args[1:])
 	case "--help", "-h", "help":
 		printMarketplaceHelp()
 		return nil
@@ -94,6 +98,9 @@ Commands:
   publish           publish a template to the marketplace
   run <id>          deploy and run an agent from template
   list              list installed templates
+  catalog add <url>   从远程目录导入模板（可选 --signature/--public-key 验签）
+  catalog list        列出本地模板目录（持久化）
+  catalog remove <id> 从本地模板目录移除
 
 Options:
   --category CAT    filter by category (research/coding/analysis/chat/automation)
@@ -105,6 +112,8 @@ Examples:
   ap marketplace install tmpl-code-review
   ap marketplace publish
   ap marketplace run tmpl-code-review
+  ap marketplace catalog add https://example.com/templates.json
+  ap marketplace catalog list
 `)
 }
 
@@ -490,4 +499,132 @@ func truncateStr(s string, maxLen int) string {
 		return s
 	}
 	return s[:maxLen] + "..."
+}
+
+// ===== 模板目录（catalog）：远程协议 + 持久化（v7.4 接线）=====
+
+// marketplaceRegistryPath 本地模板目录的持久化文件。
+func marketplaceRegistryPath() string {
+	return filepath.Join(marketplaceDir, "registry.json")
+}
+
+// newMarketplaceRegistry 构造注入 JSON 文件持久化的模板注册表。
+// 该注册表在进程重启后自动恢复，是 agent/marketplace 持久化能力的生产构造点。
+func newMarketplaceRegistry() *agentmarket.TemplateRegistry {
+	return agentmarket.NewTemplateRegistry(
+		agentmarket.WithStore(agentmarket.NewJSONFileStore(marketplaceRegistryPath())),
+	)
+}
+
+// runMarketplaceCatalog 处理 ap marketplace catalog <add|list|remove>。
+func runMarketplaceCatalog(args []string) error {
+	if len(args) == 0 {
+		printMarketplaceCatalogHelp()
+		return nil
+	}
+	switch args[0] {
+	case "add":
+		return runMarketplaceCatalogAdd(args[1:])
+	case "list":
+		return runMarketplaceCatalogList(args[1:])
+	case "remove":
+		return runMarketplaceCatalogRemove(args[1:])
+	case "--help", "-h", "help":
+		printMarketplaceCatalogHelp()
+		return nil
+	default:
+		return fmt.Errorf("unknown catalog subcommand %q, run %s for help", args[0], bold("ap marketplace catalog --help"))
+	}
+}
+
+func printMarketplaceCatalogHelp() {
+	fmt.Print(`ap marketplace catalog — 远程模板目录与本地持久化
+
+Usage:
+  ap marketplace catalog <subcommand> [arguments]
+
+Subcommands:
+  add <url> [--signature B64 --public-key PEM]   从远程目录导入模板
+  list                                           列出本地模板目录
+  remove <id>                                    从本地模板目录移除
+
+说明：
+  - 提供 --signature 与 --public-key 任一即强制 cosign（ECDSA P-256）验签，失败拒绝导入；
+  - 目录响应支持 {"templates":[...]} 或裸数组 [...];
+  - 导入结果持久化到 <marketplaceDir>/registry.json，进程重启后自动恢复。
+`)
+}
+
+func runMarketplaceCatalogAdd(args []string) error {
+	var url, signature, publicKey string
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--signature":
+			i++
+			if i >= len(args) {
+				return fmt.Errorf("--signature 需要指定 base64 值")
+			}
+			signature = args[i]
+		case "--public-key":
+			i++
+			if i >= len(args) {
+				return fmt.Errorf("--public-key 需要指定 PEM 文件路径或内容")
+			}
+			publicKey = args[i]
+		case "--help", "-h":
+			printMarketplaceCatalogHelp()
+			return nil
+		default:
+			if url == "" {
+				url = args[i]
+			}
+		}
+	}
+	if url == "" {
+		return fmt.Errorf("用法: ap marketplace catalog add <url> [--signature B64 --public-key PEM]")
+	}
+	if err := os.MkdirAll(marketplaceDir, 0o755); err != nil {
+		return fmt.Errorf("创建模板目录失败: %w", err)
+	}
+
+	reg := newMarketplaceRegistry()
+	if err := reg.LoadError(); err != nil {
+		infof("本地模板目录加载失败（将重新导入）: %v", err)
+	}
+	n, err := reg.FetchCatalog(context.Background(), url, signature, publicKey, nil)
+	if err != nil {
+		return fmt.Errorf("拉取模板目录失败: %w", err)
+	}
+	successf("已导入 %d 个模板（持久化于 %s）", n, marketplaceRegistryPath())
+	return nil
+}
+
+func runMarketplaceCatalogList(args []string) error {
+	_ = args
+	reg := newMarketplaceRegistry()
+	if err := reg.LoadError(); err != nil {
+		return fmt.Errorf("加载本地模板目录失败: %w", err)
+	}
+	list := reg.List()
+	if len(list) == 0 {
+		infof("本地模板目录为空（用 ap marketplace catalog add <url> 导入）")
+		return nil
+	}
+	fmt.Println("本地模板目录:")
+	for _, tmpl := range list {
+		fmt.Printf("  %-28s v%-10s %s\n", tmpl.ID, tmpl.Version, tmpl.Name)
+	}
+	return nil
+}
+
+func runMarketplaceCatalogRemove(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("用法: ap marketplace catalog remove <id>")
+	}
+	reg := newMarketplaceRegistry()
+	if err := reg.Unregister(args[0]); err != nil {
+		return fmt.Errorf("移除模板失败: %w", err)
+	}
+	successf("已移除模板 %s", args[0])
+	return nil
 }

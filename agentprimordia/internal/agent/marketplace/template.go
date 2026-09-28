@@ -146,14 +146,76 @@ type TemplateRegistry struct {
 	mu        sync.RWMutex
 	templates map[string]*AgentTemplate
 	ratings   map[string][]float64 // templateID -> ratings list
+
+	// store 可选持久化后端（v7.4）：非 nil 时构造自动加载、变更即落盘。
+	store   TemplateStore
+	loadErr error
 }
 
-// NewTemplateRegistry 创建模板注册表
-func NewTemplateRegistry() *TemplateRegistry {
-	return &TemplateRegistry{
+// RegistryOption 配置 TemplateRegistry。
+type RegistryOption func(*TemplateRegistry)
+
+// WithStore 注入持久化后端：构造时自动加载既有模板，之后每次变更落盘。
+func WithStore(s TemplateStore) RegistryOption {
+	return func(r *TemplateRegistry) { r.store = s }
+}
+
+// NewTemplateRegistry 创建模板注册表。
+// 未传入 WithStore 时行为与历史一致（纯内存）。
+func NewTemplateRegistry(opts ...RegistryOption) *TemplateRegistry {
+	r := &TemplateRegistry{
 		templates: make(map[string]*AgentTemplate),
 		ratings:   make(map[string][]float64),
 	}
+	for _, opt := range opts {
+		opt(r)
+	}
+	if r.store != nil {
+		_ = r.Reload() // 加载失败记录在 loadErr，由 LoadError() 暴露
+	}
+	return r
+}
+
+// LoadError 返回构造时自动加载的错误（未注入存储或加载成功时为 nil）。
+func (r *TemplateRegistry) LoadError() error { return r.loadErr }
+
+// Reload 从持久化后端重新加载模板（覆盖当前内存内容）。
+func (r *TemplateRegistry) Reload() error {
+	if r.store == nil {
+		return nil
+	}
+	loaded, err := r.store.Load()
+	if err != nil {
+		r.loadErr = err
+		return err
+	}
+	next := make(map[string]*AgentTemplate, len(loaded))
+	for _, t := range loaded {
+		if t != nil && t.ID != "" {
+			next[t.ID] = t
+		}
+	}
+	r.mu.Lock()
+	r.templates = next
+	r.mu.Unlock()
+	r.loadErr = nil
+	return nil
+}
+
+// persist 把当前模板快照写回持久化后端（未注入存储时为空操作）。
+// 在锁外调用，避免文件 IO 阻塞读写。
+func (r *TemplateRegistry) persist() error {
+	if r.store == nil {
+		return nil
+	}
+	r.mu.RLock()
+	snapshot := make([]*AgentTemplate, 0, len(r.templates))
+	for _, t := range r.templates {
+		cp := *t
+		snapshot = append(snapshot, &cp)
+	}
+	r.mu.RUnlock()
+	return r.store.Save(snapshot)
 }
 
 // Register 注册模板
@@ -164,9 +226,8 @@ func (r *TemplateRegistry) Register(tmpl *AgentTemplate) error {
 	}
 
 	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if _, exists := r.templates[tmpl.ID]; exists {
+		r.mu.Unlock()
 		return fmt.Errorf("marketplace: template %q already exists", tmpl.ID)
 	}
 
@@ -175,7 +236,9 @@ func (r *TemplateRegistry) Register(tmpl *AgentTemplate) error {
 	tmpl.UpdatedAt = now
 
 	r.templates[tmpl.ID] = tmpl
-	return nil
+	r.mu.Unlock()
+
+	return r.persist()
 }
 
 // Update 更新模板
@@ -185,29 +248,31 @@ func (r *TemplateRegistry) Update(tmpl *AgentTemplate) error {
 	}
 
 	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if _, exists := r.templates[tmpl.ID]; !exists {
+		r.mu.Unlock()
 		return fmt.Errorf("marketplace: template %q not found", tmpl.ID)
 	}
 
 	tmpl.UpdatedAt = time.Now()
 	r.templates[tmpl.ID] = tmpl
-	return nil
+	r.mu.Unlock()
+
+	return r.persist()
 }
 
 // Unregister 注销模板
 func (r *TemplateRegistry) Unregister(id string) error {
 	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if _, exists := r.templates[id]; !exists {
+		r.mu.Unlock()
 		return fmt.Errorf("marketplace: template %q not found", id)
 	}
 
 	delete(r.templates, id)
 	delete(r.ratings, id)
-	return nil
+	r.mu.Unlock()
+
+	return r.persist()
 }
 
 // Get 获取模板
@@ -291,10 +356,9 @@ func (r *TemplateRegistry) RateTemplate(id string, rating float64) error {
 	}
 
 	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	tmpl, exists := r.templates[id]
 	if !exists {
+		r.mu.Unlock()
 		return fmt.Errorf("marketplace: template %q not found", id)
 	}
 
@@ -307,18 +371,21 @@ func (r *TemplateRegistry) RateTemplate(id string, rating float64) error {
 	}
 	tmpl.Rating = sum / float64(len(r.ratings[id]))
 	tmpl.UpdatedAt = time.Now()
+	r.mu.Unlock()
 
-	return nil
+	return r.persist()
 }
 
 // IncrementDownloads 增加下载计数
 func (r *TemplateRegistry) IncrementDownloads(id string) {
 	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if tmpl, exists := r.templates[id]; exists {
 		tmpl.Downloads++
 	}
+	r.mu.Unlock()
+
+	// 下载计数为高频路径，持久化失败不影响主流程（best-effort）
+	_ = r.persist()
 }
 
 // TopByDownloads 按下载量排序获取前 N 个模板

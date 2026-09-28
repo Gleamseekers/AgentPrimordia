@@ -5365,6 +5365,21 @@
           "name": "LLMPlanner",
           "kind": "alias",
           "doc": "LLMPlanner 使用 LLM 进行任务规划"
+        },
+        {
+          "name": "EnhancedPlanner",
+          "kind": "alias",
+          "doc": "EnhancedPlanner 增强规划器（高风险动作需审批）"
+        },
+        {
+          "name": "ManagedPlan",
+          "kind": "alias",
+          "doc": "ManagedPlan 受管计划（状态机 + 转换审计）"
+        },
+        {
+          "name": "PlanState",
+          "kind": "alias",
+          "doc": "PlanState 计划状态"
         }
       ],
       "constants": [
@@ -5387,12 +5402,45 @@
           "name": "TaskFailed",
           "value": "planning.TaskFailed",
           "doc": "TaskFailed 任务失败"
+        },
+        {
+          "name": "PlanStatePending",
+          "value": "planning.PlanStatePending",
+          "doc": "PlanStatePending 计划待启动"
+        },
+        {
+          "name": "PlanStateActive",
+          "value": "planning.PlanStateActive",
+          "doc": "PlanStateActive 计划执行中"
+        },
+        {
+          "name": "PlanStateBlocked",
+          "value": "planning.PlanStateBlocked",
+          "doc": "PlanStateBlocked 计划阻塞（可恢复）"
+        },
+        {
+          "name": "PlanStateCompleted",
+          "value": "planning.PlanStateCompleted",
+          "doc": "PlanStateCompleted 计划完成"
+        },
+        {
+          "name": "PlanStateFailed",
+          "value": "planning.PlanStateFailed",
+          "doc": "PlanStateFailed 计划失败"
         }
       ],
       "variables": [
         {
           "name": "NewLLMPlanner",
           "doc": "NewLLMPlanner 创建 LLMPlanner 实例"
+        },
+        {
+          "name": "NewEnhancedPlanner",
+          "doc": "NewEnhancedPlanner 创建增强规划器（高风险动作审批门 + 计划状态机）"
+        },
+        {
+          "name": "NewManagedPlan",
+          "doc": "NewManagedPlan 创建受管计划（状态机驱动：pending→active→blocked→completed/failed）"
         }
       ]
     },

@@ -17,8 +17,7 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/llm"
+	ap "agentprimordia/pkg"
 	"agentprimordia/testutil"
 )
 
@@ -61,7 +60,7 @@ func main() {
 	// ─── 2. 创建增强规划器 ───
 	// 定义高风险动作列表——这些动作执行前需要通过审批门
 	highRiskActions := []string{"deploy", "delete", "rm", "drop"}
-	enhanced := planning.NewEnhancedPlanner(mockLLM, highRiskActions)
+	enhanced := ap.NewEnhancedPlanner(mockLLM, highRiskActions)
 
 	ctx := context.Background()
 
@@ -75,12 +74,12 @@ func main() {
 	printPlan(plan)
 
 	// 用 ManagedPlan 包装，启用状态机管理
-	managed := planning.NewManagedPlan(plan)
+	managed := ap.NewManagedPlan(plan)
 	fmt.Printf("计划状态: %s\n\n", managed.State)
 
 	// ─── 4. 状态机演示：pending → active ───
 	fmt.Println("【第 2 步】激活计划")
-	if err := managed.Transition(planning.PlanStateActive, "开始执行子任务"); err != nil {
+	if err := managed.Transition(ap.PlanStateActive, "开始执行子任务"); err != nil {
 		log.Fatalf("状态转换失败: %v", err)
 	}
 	fmt.Printf("计划状态: %s\n\n", managed.State)
@@ -89,7 +88,7 @@ func main() {
 	fmt.Println("【第 3 步】执行子任务（模拟）")
 
 	// 模拟 s1 成功
-	plan.SubTasks[0].Status = planning.TaskCompleted
+	plan.SubTasks[0].Status = ap.TaskCompleted
 	plan.SubTasks[0].Result = "需求文档已获取"
 	enhanced.Deadlock.RecordSuccess("s1")
 	fmt.Printf("  s1 完成: %s\n", plan.SubTasks[0].Result)
@@ -100,7 +99,7 @@ func main() {
 	fmt.Printf("  是否需要重规划: %v\n\n", needsReplan)
 
 	// 模拟 s2 失败
-	plan.SubTasks[1].Status = planning.TaskFailed
+	plan.SubTasks[1].Status = ap.TaskFailed
 	plan.SubTasks[1].Result = "外部服务超时"
 	enhanced.Deadlock.RecordFailure("s2")
 	fmt.Printf("  s2 失败: %s\n", plan.SubTasks[1].Result)
@@ -177,17 +176,17 @@ func main() {
 	fmt.Println("【第 7 步】完成计划")
 	// 标记所有子任务完成
 	for i := range plan.SubTasks {
-		plan.SubTasks[i].Status = planning.TaskCompleted
+		plan.SubTasks[i].Status = ap.TaskCompleted
 	}
 
 	// blocked → active（模拟从阻塞恢复）
-	_ = managed.Transition(planning.PlanStateBlocked, "等待外部服务恢复")
+	_ = managed.Transition(ap.PlanStateBlocked, "等待外部服务恢复")
 	fmt.Printf("  当前状态: %s\n", managed.State)
-	_ = managed.Transition(planning.PlanStateActive, "外部服务恢复，继续执行")
+	_ = managed.Transition(ap.PlanStateActive, "外部服务恢复，继续执行")
 	fmt.Printf("  当前状态: %s\n", managed.State)
 
 	// active → completed
-	if err := managed.Transition(planning.PlanStateCompleted, "所有子任务执行完成"); err != nil {
+	if err := managed.Transition(ap.PlanStateCompleted, "所有子任务执行完成"); err != nil {
 		log.Fatalf("状态转换失败: %v", err)
 	}
 	fmt.Printf("  最终状态: %s\n", managed.State)
@@ -202,7 +201,7 @@ func main() {
 
 	// 演示非法状态转换（终态不可再转换）
 	fmt.Println("\n尝试从终态转换（预期失败）:")
-	err = managed.Transition(planning.PlanStateActive, "try restart")
+	err = managed.Transition(ap.PlanStateActive, "try restart")
 	if err != nil {
 		fmt.Printf("  预期错误: %v\n", err)
 	}
@@ -211,7 +210,7 @@ func main() {
 }
 
 // printPlan 格式化打印计划
-func printPlan(plan *planning.Plan) {
+func printPlan(plan *ap.Plan) {
 	fmt.Printf("  目标: %s\n", plan.Goal)
 	for _, st := range plan.SubTasks {
 		deps := "无"
@@ -223,5 +222,5 @@ func printPlan(plan *planning.Plan) {
 	}
 }
 
-// 确保 mockLLM 实现 llm.Provider 接口（编译期检查）
-var _ llm.Provider = (*testutil.MockProvider)(nil)
+// 确保 mockLLM 实现 ap.Provider 接口（编译期检查）
+var _ ap.Provider = (*testutil.MockProvider)(nil)

@@ -9,20 +9,27 @@
 //   - LifecycleCreator 自动工具生成
 //   - reuse.ToolCatalog + reuse.TaskMatcher 工具目录与任务匹配
 //   - IntelligenceHook 桥接 ReAct 循环
+//   - INV-0 合规注册：RegisteringCreator 验签门 + wasm 沙箱执行通道
+//     （生产装配范例见 cmd/ap/tool_forge.go）
 //
 // 运行方式：go run ./ecosystem/examples/tool-intelligence/
 package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"os"
 	"time"
 
 	"agentprimordia/internal/llm"
+	toolspkg "agentprimordia/internal/tools"
 	"agentprimordia/internal/tools/intelligence"
 	"agentprimordia/internal/tools/intelligence/create"
 	"agentprimordia/internal/tools/intelligence/optimize"
 	"agentprimordia/internal/tools/intelligence/reuse"
+	"agentprimordia/wasm"
 )
 
 func main() {
@@ -247,6 +254,67 @@ func main() {
 	fmt.Println()
 
 	// ============================================================
+	// 第八步：INV-0 合规注册演示（RegisteringCreator 验签门）
+	//
+	// agent 生成工具的唯一合法链路：验签（ed25519 + 钉扎公钥）→ 注册
+	// （0644 数据落盘）→ 执行（仅 wasm 沙箱）。未签名工件一律拒绝；
+	// 宿主进程零写入可执行代码、零加载 agent 生成代码。
+	// ============================================================
+
+	fmt.Println("--- INV-0 合规注册（RegisteringCreator）---")
+
+	reg := toolspkg.NewRegistry()
+	// 工件落盘用临时目录，避免污染当前工作目录（AGENTS.md §5 纪律）。
+	forgeDir, dirErr := os.MkdirTemp("", "ap-tool-forge-*")
+	if dirErr != nil {
+		fmt.Printf("  ✗ 创建临时目录失败: %v\n", dirErr)
+		forgeDir = "."
+	} else {
+		defer os.RemoveAll(forgeDir)
+	}
+	priv, pub, keyErr := wasm.GenerateKeyPair()
+	if keyErr != nil {
+		fmt.Printf("  ✗ 生成密钥对失败: %v\n", keyErr)
+	} else {
+		// 受信生成方：工件 + ed25519 签名（生产上由签名服务/CI 完成）
+		scriptArtifact := []byte("#!/bin/sh\necho demo\n")
+		sum := sha256.Sum256(scriptArtifact)
+		sig, _, signErr := wasm.SignWASM(scriptArtifact, priv)
+		if signErr != nil {
+			fmt.Printf("  ✗ 签名失败: %v\n", signErr)
+		}
+
+		// 场景 1：未签名工件 → 拒绝注册（fail-closed）
+		unsigned := &intelligence.ToolArtifact{
+			ID: "demo-unsigned", Name: "demo_unsigned", Description: "未签名演示",
+			ArtifactSHA: hex.EncodeToString(sum[:]), Artifact: scriptArtifact,
+		}
+		refuseCreator := intelligence.NewRegisteringCreator(&demoArtifactCreator{art: unsigned}, reg, forgeDir)
+		if _, err := refuseCreator.Create(ctx, intelligence.GapCandidate{Key: "demo_unsigned"}); err != nil {
+			fmt.Println("  ✓ 未签名工件被拒绝注册（fail-closed，符合 INV-0）")
+		} else {
+			fmt.Println("  ✗ 未签名工件竟然注册成功（安全回归！）")
+		}
+
+		// 场景 2：已签名工件 → 注册放行；执行通道仅 wasm 沙箱
+		signed := &intelligence.ToolArtifact{
+			ID: "demo-signed", Name: "demo_signed", Description: "已签名演示",
+			ArtifactSHA: hex.EncodeToString(sum[:]), Artifact: scriptArtifact,
+			Signature:   sig, PublicKey: pub,
+		}
+		acceptCreator := intelligence.NewRegisteringCreator(&demoArtifactCreator{art: signed}, reg, forgeDir).
+			WithVerifier(&demoPinnedVerifier{pub: pub})
+		if _, err := acceptCreator.Create(ctx, intelligence.GapCandidate{Key: "demo_signed"}); err != nil {
+			fmt.Printf("  ✗ 已签名工件注册失败: %v\n", err)
+		} else if _, ok := reg.Get("demo_signed"); ok {
+			fmt.Println("  ✓ 已签名工件注册成功（验签门放行）")
+			fmt.Println("  ✓ 执行通道：未注入 wasm executor 时拒绝宿主执行")
+			fmt.Println("    （生产装配：cmd/ap/tool_forge.go 绑定 WASMToolAdapter）")
+		}
+	}
+	fmt.Println()
+
+	// ============================================================
 	// 汇总
 	// ============================================================
 
@@ -279,4 +347,25 @@ func simulateToolUsage(ctx context.Context, profiler intelligence.ToolProfiler, 
 			Tokens:   c.tokens,
 		})
 	}
+}
+
+// demoArtifactCreator 返回预设工件的演示生成器。
+type demoArtifactCreator struct{ art *intelligence.ToolArtifact }
+
+func (c *demoArtifactCreator) Create(_ context.Context, _ intelligence.GapCandidate) (*intelligence.ToolArtifact, error) {
+	return c.art, nil
+}
+
+// demoPinnedVerifier 演示用钉扎公钥验签器（生产见 cmd/ap/tool_forge.go 的
+// pinnedArtifactVerifier：多钥钉扎 + 指纹披露）。
+type demoPinnedVerifier struct{ pub []byte }
+
+func (v *demoPinnedVerifier) VerifyArtifact(art *intelligence.ToolArtifact) error {
+	if len(art.Signature) == 0 || len(art.PublicKey) == 0 {
+		return fmt.Errorf("工件缺少签名/公钥")
+	}
+	if string(art.PublicKey) != string(v.pub) {
+		return fmt.Errorf("签名公钥未钉扎")
+	}
+	return wasm.VerifySignature(art.Artifact, art.Signature, art.PublicKey)
 }

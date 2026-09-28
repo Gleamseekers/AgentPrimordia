@@ -34,4 +34,30 @@ const (
 var (
 	// NewLLMPlanner 创建 LLMPlanner 实例
 	NewLLMPlanner = planning.NewLLMPlanner
+	// NewEnhancedPlanner 创建增强规划器（高风险动作审批门 + 计划状态机）
+	NewEnhancedPlanner = planning.NewEnhancedPlanner
+	// NewManagedPlan 创建受管计划（状态机驱动：pending→active→blocked→completed/failed）
+	NewManagedPlan = planning.NewManagedPlan
+)
+
+// EnhancedPlanner 增强规划器（高风险动作需审批）
+type EnhancedPlanner = planning.EnhancedPlanner
+
+// ManagedPlan 受管计划（状态机 + 转换审计）
+type ManagedPlan = planning.ManagedPlan
+
+// PlanState 计划状态
+type PlanState = planning.PlanState
+
+const (
+	// PlanStatePending 计划待启动
+	PlanStatePending = planning.PlanStatePending
+	// PlanStateActive 计划执行中
+	PlanStateActive = planning.PlanStateActive
+	// PlanStateBlocked 计划阻塞（可恢复）
+	PlanStateBlocked = planning.PlanStateBlocked
+	// PlanStateCompleted 计划完成
+	PlanStateCompleted = planning.PlanStateCompleted
+	// PlanStateFailed 计划失败
+	PlanStateFailed = planning.PlanStateFailed
 )

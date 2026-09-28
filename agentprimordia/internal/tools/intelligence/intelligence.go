@@ -87,6 +87,12 @@ type ToolArtifact struct {
 	Description string `json:"description"`
 	ArtifactSHA string `json:"artifact_sha"`
 	Artifact    []byte `json:"artifact"`
+	// Signature 工件签名（ed25519 over SHA-256(Artifact)，cosign 同款口径）。
+	// 与 PublicKey 成对必填——RegisteringCreator 的验签门依此放行；
+	// 缺失即拒绝注册（INV-0：签名前置）。
+	Signature []byte `json:"signature,omitempty"`
+	// PublicKey 签名方公钥（ed25519）。组装根可钉扎公钥集合轮换窗口。
+	PublicKey []byte `json:"public_key,omitempty"`
 }
 
 // ToolCallRecord 工具调用记录

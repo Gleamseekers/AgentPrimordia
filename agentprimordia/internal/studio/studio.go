@@ -259,30 +259,36 @@ type StudioHandler struct {
 	autonomyReal bool // 是否注入真实自治运行时（未注入时响应标 X-Data-Source: demo）
 	skillsReal   bool
 	realtimeReal bool
-	mux          *http.ServeMux
+	// v7.3 整改：基础四面板此前"默认全 demo 但无任何标注"，
+	// 补机器可读标识，避免 Studio 被误读为已接入真实引擎。
+	chaosReal       bool
+	clusterReal     bool
+	learningReal    bool
+	marketplaceReal bool
+	mux             *http.ServeMux
 }
 
 // Option 配置 StudioHandler。
 type Option func(*StudioHandler)
 
-// WithChaos 注入混沌实验服务（默认为 demo 实现）。
+// WithChaos 注入混沌实验服务（未注入时为 demo 实现，响应标 X-Data-Source: demo）。
 func WithChaos(s ChaosService) Option {
-	return func(h *StudioHandler) { h.chaos = s }
+	return func(h *StudioHandler) { h.chaos = s; h.chaosReal = true }
 }
 
-// WithCluster 注入集群状态服务（默认为 demo 实现）。
+// WithCluster 注入集群状态服务（未注入时为 demo 实现，响应标 X-Data-Source: demo）。
 func WithCluster(s ClusterService) Option {
-	return func(h *StudioHandler) { h.cluster = s }
+	return func(h *StudioHandler) { h.cluster = s; h.clusterReal = true }
 }
 
-// WithLearning 注入学习监控服务（默认为 demo 实现）。
+// WithLearning 注入学习监控服务（未注入时为 demo 实现，响应标 X-Data-Source: demo）。
 func WithLearning(s LearningService) Option {
-	return func(h *StudioHandler) { h.learning = s }
+	return func(h *StudioHandler) { h.learning = s; h.learningReal = true }
 }
 
-// WithMarketplace 注入模板市场服务（默认为 demo 实现）。
+// WithMarketplace 注入模板市场服务（未注入时为 demo 实现，响应标 X-Data-Source: demo）。
 func WithMarketplace(s MarketplaceService) Option {
-	return func(h *StudioHandler) { h.marketplace = s }
+	return func(h *StudioHandler) { h.marketplace = s; h.marketplaceReal = true }
 }
 
 // WithAutonomy 注入自治监控服务（默认为 demo 空实现，返回空数组并标 X-Data-Source: demo）。

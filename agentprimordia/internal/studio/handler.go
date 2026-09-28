@@ -8,27 +8,38 @@ import (
 	"time"
 )
 
+// markDemoIf 在未注入真实服务时标注 X-Data-Source: demo。
+// 头部必须在业务 handler 写响应体之前设置（本包装先设置再调用 next）。
+func markDemoIf(real bool, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !real {
+			w.Header().Set("X-Data-Source", "demo")
+		}
+		next(w, r)
+	}
+}
+
 // registerRoutes 注册 Studio 面板端点（Go 1.22+ 方法路由）。
 func (h *StudioHandler) registerRoutes() {
 	// Learning Dashboard (HTML)
 	h.mux.HandleFunc("GET /dashboard/learning", h.learningDashboard)
-	// Chaos Lab
-	h.mux.HandleFunc("GET /api/v1/chaos/experiments", h.listExperiments)
-	h.mux.HandleFunc("POST /api/v1/chaos/experiments", h.createExperiment)
-	h.mux.HandleFunc("POST /api/v1/chaos/experiments/abort", h.abortExperiment)
+	// Chaos Lab（v7.3：未注入真实服务时标 demo）
+	h.mux.HandleFunc("GET /api/v1/chaos/experiments", markDemoIf(h.chaosReal, h.listExperiments))
+	h.mux.HandleFunc("POST /api/v1/chaos/experiments", markDemoIf(h.chaosReal, h.createExperiment))
+	h.mux.HandleFunc("POST /api/v1/chaos/experiments/abort", markDemoIf(h.chaosReal, h.abortExperiment))
 	// Cluster Dashboard
-	h.mux.HandleFunc("GET /api/v1/cluster/status", h.clusterStatus)
+	h.mux.HandleFunc("GET /api/v1/cluster/status", markDemoIf(h.clusterReal, h.clusterStatus))
 	// Learning Monitor
-	h.mux.HandleFunc("GET /api/v1/learning/stats", h.learningStats)
-	h.mux.HandleFunc("GET /api/v1/learning/capabilities", h.learningCapabilities)
-	h.mux.HandleFunc("GET /api/v1/learning/capability-history", h.learningCapabilityHistory)
-	h.mux.HandleFunc("GET /api/v1/learning/pipeline/stats", h.learningPipelineStats)
+	h.mux.HandleFunc("GET /api/v1/learning/stats", markDemoIf(h.learningReal, h.learningStats))
+	h.mux.HandleFunc("GET /api/v1/learning/capabilities", markDemoIf(h.learningReal, h.learningCapabilities))
+	h.mux.HandleFunc("GET /api/v1/learning/capability-history", markDemoIf(h.learningReal, h.learningCapabilityHistory))
+	h.mux.HandleFunc("GET /api/v1/learning/pipeline/stats", markDemoIf(h.learningReal, h.learningPipelineStats))
 	// Marketplace
-	h.mux.HandleFunc("GET /api/v1/marketplace/templates", h.marketplaceTemplates)
-	h.mux.HandleFunc("POST /api/v1/marketplace/deploy", h.marketplaceDeploy)
-	h.mux.HandleFunc("GET /api/v1/marketplace/deployments", h.marketplaceDeployments)
-	h.mux.HandleFunc("POST /api/v1/marketplace/deployments/{id}/stop", h.marketplaceStopDeployment)
-	h.mux.HandleFunc("POST /api/v1/marketplace/deployments/{id}/start", h.marketplaceStartDeployment)
+	h.mux.HandleFunc("GET /api/v1/marketplace/templates", markDemoIf(h.marketplaceReal, h.marketplaceTemplates))
+	h.mux.HandleFunc("POST /api/v1/marketplace/deploy", markDemoIf(h.marketplaceReal, h.marketplaceDeploy))
+	h.mux.HandleFunc("GET /api/v1/marketplace/deployments", markDemoIf(h.marketplaceReal, h.marketplaceDeployments))
+	h.mux.HandleFunc("POST /api/v1/marketplace/deployments/{id}/stop", markDemoIf(h.marketplaceReal, h.marketplaceStopDeployment))
+	h.mux.HandleFunc("POST /api/v1/marketplace/deployments/{id}/start", markDemoIf(h.marketplaceReal, h.marketplaceStartDeployment))
 	// Autonomy Monitor (v3.3)
 	h.mux.HandleFunc("GET /api/v1/autonomy/goals", h.autonomyGoals)
 	h.mux.HandleFunc("GET /api/v1/autonomy/alerts", h.autonomyAlerts)

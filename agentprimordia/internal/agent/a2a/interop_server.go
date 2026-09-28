@@ -122,6 +122,7 @@ func (s *OpenInteropServer) handleTaskSend(w http.ResponseWriter, id any, params
 
 	s.mu.Lock()
 	s.tasks[task.ID] = task
+	snapshot := cloneOpenTask(task) // 锁内快照，锁外序列化（防 executeTask 并发改写）
 	s.mu.Unlock()
 
 	// 异步执行任务
@@ -129,7 +130,7 @@ func (s *OpenInteropServer) handleTaskSend(w http.ResponseWriter, id any, params
 		go s.executeTask(task)
 	}
 
-	writeInteropJSONRPCResult(w, id, task)
+	writeInteropJSONRPCResult(w, id, snapshot)
 }
 
 func (s *OpenInteropServer) executeTask(task *OpenTask) {
@@ -146,8 +147,8 @@ func (s *OpenInteropServer) executeTask(task *OpenTask) {
 	}
 	s.mu.Unlock()
 
-	// 广播 SSE 事件
-	s.broadcastTaskEvent(task)
+	// 广播 SSE 事件（传快照，防与后续读写竞争）
+	s.broadcastTaskEvent(cloneOpenTask(task))
 }
 
 func (s *OpenInteropServer) handleTaskGet(w http.ResponseWriter, id any, params json.RawMessage) {
@@ -158,13 +159,17 @@ func (s *OpenInteropServer) handleTaskGet(w http.ResponseWriter, id any, params 
 
 	s.mu.RLock()
 	task, ok := s.tasks[p.TaskID]
+	var snapshot *OpenTask
+	if ok {
+		snapshot = cloneOpenTask(task) // RLock 内快照，锁外序列化
+	}
 	s.mu.RUnlock()
 
 	if !ok {
 		writeInteropJSONRPCError(w, id, OpenErrTaskNotFound, "Task not found")
 		return
 	}
-	writeInteropJSONRPCResult(w, id, task)
+	writeInteropJSONRPCResult(w, id, snapshot)
 }
 
 func (s *OpenInteropServer) handleTaskCancel(w http.ResponseWriter, id any, params json.RawMessage) {
@@ -181,14 +186,15 @@ func (s *OpenInteropServer) handleTaskCancel(w http.ResponseWriter, id any, para
 		return
 	}
 	task.Status = OpenTaskStatus{State: OpenTaskCanceled, Timestamp: time.Now()}
+	snapshot := cloneOpenTask(task) // 锁内快照
 	s.mu.Unlock()
 
 	if s.executor != nil {
 		_ = s.executor.Cancel(context.Background(), p.TaskID)
 	}
 
-	s.broadcastTaskEvent(task)
-	writeInteropJSONRPCResult(w, id, task)
+	s.broadcastTaskEvent(snapshot)
+	writeInteropJSONRPCResult(w, id, snapshot)
 }
 
 // handleTaskEvents SSE 流端点
@@ -228,17 +234,21 @@ func (s *OpenInteropServer) handleTaskEvents(w http.ResponseWriter, r *http.Requ
 		close(ch)
 	}()
 
-	// 发送当前任务状态
+	// 发送当前任务状态（RLock 内快照，锁外序列化/判断）
 	s.mu.RLock()
 	task, exists := s.tasks[taskID]
+	var snapshot *OpenTask
+	if exists {
+		snapshot = cloneOpenTask(task)
+	}
 	s.mu.RUnlock()
 
 	if exists {
-		data, _ := json.Marshal(task)
+		data, _ := json.Marshal(snapshot)
 		fmt.Fprintf(w, "event: task\ndata: %s\n\n", data)
 		flusher.Flush()
 
-		if task.Status.State == OpenTaskCompleted || task.Status.State == OpenTaskFailed || task.Status.State == OpenTaskCanceled {
+		if st := snapshot.Status.State; st == OpenTaskCompleted || st == OpenTaskFailed || st == OpenTaskCanceled {
 			return
 		}
 	}
@@ -259,7 +269,9 @@ func (s *OpenInteropServer) handleTaskEvents(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// broadcastTaskEvent 向所有订阅者广播任务事件
+// broadcastTaskEvent 向所有订阅者广播任务事件。
+// 调用方必须传入任务快照（cloneOpenTask）——本函数在 subMu 之外
+// Marshal，直接传共享 task 会与 executeTask 的锁内写竞争。
 func (s *OpenInteropServer) broadcastTaskEvent(task *OpenTask) {
 	data, err := json.Marshal(task)
 	if err != nil {
@@ -276,6 +288,31 @@ func (s *OpenInteropServer) broadcastTaskEvent(task *OpenTask) {
 			// 慢消费者，丢弃事件
 		}
 	}
+}
+
+// cloneOpenTask 返回 OpenTask 的深拷只剩（含切片/映射）。
+// 共享 task 的并发读写（executeTask 锁内写 vs 响应/SSE 锁外读）
+// 曾造成数据竞争（-race 实测）；统一"锁内快照、锁外使用"后消除。
+func cloneOpenTask(t *OpenTask) *OpenTask {
+	if t == nil {
+		return nil
+	}
+	cp := *t
+	if t.Messages != nil {
+		cp.Messages = make([]OpenMessage, len(t.Messages))
+		copy(cp.Messages, t.Messages)
+	}
+	if t.Artifacts != nil {
+		cp.Artifacts = make([]OpenArtifact, len(t.Artifacts))
+		copy(cp.Artifacts, t.Artifacts)
+	}
+	if t.Metadata != nil {
+		cp.Metadata = make(map[string]any, len(t.Metadata))
+		for k, v := range t.Metadata {
+			cp.Metadata[k] = v
+		}
+	}
+	return &cp
 }
 
 // --- JSON-RPC 响应辅助 ---

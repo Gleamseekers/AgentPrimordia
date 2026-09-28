@@ -149,8 +149,11 @@ func (b *FederatedBlackboard) Stats() FederatedStats {
 }
 
 // SimulatePartitionRecovery 分区恢复演练（确定性）：分区两端各自基于
-// 旧版本写入，恢复后仅高版本端生效——返回最终认领态与冲突计数。
+// 旧版本写入，恢复后仅高版本端生效——返回最终认领态与**本次演练的**
+// 冲突计数增量（修复：此前返回 Stats().CASConflicts 累计值，多次演练
+// 返回 1,2,3…，调用方无法区分单次冲突数）。
 func (b *FederatedBlackboard) SimulatePartitionRecovery(taskID string, a, b2 NodeID, partitions int) (Claim, int64, error) {
+	before := b.Stats().CASConflicts
 	// 端 A 先认领（版本 1）
 	c1, err := b.ClaimTask(taskID, a, -1)
 	if err != nil {
@@ -166,5 +169,5 @@ func (b *FederatedBlackboard) SimulatePartitionRecovery(taskID string, a, b2 Nod
 	b.mu.Lock()
 	b.stats.PartitionRecovers += int64(partitions)
 	b.mu.Unlock()
-	return final, b.Stats().CASConflicts, nil
+	return final, b.Stats().CASConflicts - before, nil
 }

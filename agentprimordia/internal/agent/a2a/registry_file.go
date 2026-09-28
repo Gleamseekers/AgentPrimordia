@@ -57,8 +57,9 @@ func (r *FileRegistry) Register(card *AgentCard) error {
 	defer r.mu.Unlock()
 
 	r.agents[card.AgentID] = &AgentRegistry{
-		Card:   card,
-		SeenAt: time.Now(),
+		Card:      card,
+		Endpoints: card.Endpoints, // 修复：此前漏填，save/load 往返后 Endpoints 丢失
+		SeenAt:    time.Now(),
 	}
 
 	return r.save()

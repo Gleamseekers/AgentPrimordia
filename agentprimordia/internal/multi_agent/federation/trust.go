@@ -25,7 +25,7 @@ type TrustConfig struct {
 	Verify         VerifierFunc // 资产验签（必填）
 	PinnedKeys     []string     // 钉扎签名钥指纹（≥1）
 	MaxEventWeight float64      // 单事件权重上限（刷分防御；≤0 取 1.0）
-	MinReputation  float64      // 接受贡献的声誉下限（≤0 取 -5）
+	MinReputation  float64      // 接受贡献的声誉下限（0 = 未设置取 -5；负值为合法自定义门槛）
 }
 
 // TrustLayer 社会信任层（并发安全）。
@@ -49,7 +49,9 @@ func NewTrustLayer(cfg TrustConfig) (*TrustLayer, error) {
 	if cfg.MaxEventWeight <= 0 {
 		cfg.MaxEventWeight = 1.0
 	}
-	if cfg.MinReputation <= 0 {
+	// 仅 0 视为"未设置"取默认 -5；负值是合法的自定义门槛
+	// （修复：此前 <=0 一并重置，-3 等自定义负门槛无法配置）。
+	if cfg.MinReputation == 0 {
 		cfg.MinReputation = -5
 	}
 	return &TrustLayer{
@@ -113,6 +115,12 @@ func (t *TrustLayer) ReceiveAsset(a *AssetEnvelope, now time.Time) error {
 	}
 	if t.seenPayload[a.PayloadSHA] == "" {
 		t.seenPayload[a.PayloadSHA] = a.OriginNode
+	} else if t.seenPayload[a.PayloadSHA] == a.OriginNode {
+		// 同节点重复接收同一资产：幂等放行，**不加声望**。
+		// 修复（2026-09-28 覆盖率回归暴露）：此前无条件 +1，同节点
+		// 重放同一资产即可无限刷分，与"重放不加声誉（幂等）"的
+		// 设计意图相反（federation_test.go 既有注释声明该意图）。
+		return nil
 	}
 	// 合法贡献：声誉 +（权重按事件面封顶）
 	t.reput[a.OriginNode] += 1
@@ -192,7 +200,7 @@ func (t *TrustLayer) Report() ReputationReport {
 type InterceptReport struct {
 	Attempts       int       `json:"attempts"`        // 投毒/伪造尝试总数
 	Intercepted    int       `json:"intercepted"`     // 拦截数
-	FalsePositives int       `json:"false_positives"` // 误拦数（合法贡献被拒）
+	FalsePositives int       `json:"false_positives"` // 误拦数（合法贡献被拒）——预留口径：当前无生产写入点，恒为 0；待隔离区判定可区分"合法首发被拒"后启用
 	Generated      time.Time `json:"generated"`
 }
 

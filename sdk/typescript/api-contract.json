@@ -1855,6 +1855,16 @@
           "doc": "WithWorldModel 启用世界模型状态图（v6.1 opt-in，默认关闭；提案 §2.1）"
         },
         {
+          "name": "WithToolLearner",
+          "stability": "Experimental",
+          "doc": "WithToolLearner 显式注入工具学习器（v7.4 接线，优先于自动装配）。"
+        },
+        {
+          "name": "WithCorrelationStore",
+          "stability": "Experimental",
+          "doc": "WithCorrelationStore 显式注入全链路关联存储（v7.4 接线，优先于自动构造）。"
+        },
+        {
           "name": "SessWithID",
           "doc": "SessWithID 设置自定义会话 ID，不传则自动生成。"
         },
@@ -4447,16 +4457,39 @@
           "name": "TemplateDeployResult",
           "kind": "alias",
           "doc": "TemplateDeployResult 部署结果"
+        },
+        {
+          "name": "TemplateStore",
+          "kind": "alias",
+          "doc": "TemplateStore 模板持久化后端（v7.4）：Save 全量覆盖、Load 缺失时返回空集合。"
+        },
+        {
+          "name": "JSONFileStore",
+          "kind": "alias",
+          "doc": "JSONFileStore 基于 JSON 文件的模板持久化后端（标准库实现，原子替换写入）。"
+        },
+        {
+          "name": "MarketplaceCatalog",
+          "kind": "alias",
+          "doc": "MarketplaceCatalog 远程模板目录（对象形态；亦兼容裸数组）。"
         }
       ],
       "variables": [
         {
           "name": "NewTemplateRegistry",
-          "doc": "NewTemplateRegistry 创建模板注册表"
+          "doc": "NewTemplateRegistry 创建模板注册表（v7.4 起支持 WithTemplateStore 持久化）。"
         },
         {
           "name": "NewTemplateDeployer",
           "doc": "NewTemplateDeployer 创建模板部署器"
+        },
+        {
+          "name": "WithTemplateStore",
+          "doc": "WithTemplateStore 注入模板持久化后端：构造自动加载、变更落盘。"
+        },
+        {
+          "name": "NewJSONFileStore",
+          "doc": "NewJSONFileStore 创建 JSON 文件模板持久化后端。"
         }
       ]
     },

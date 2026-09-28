@@ -183,7 +183,8 @@ func (c *HTTPClient) Execute(ctx context.Context, args json.RawMessage) (*tools.
 			return tools.NewErrorResult(fmt.Sprintf("invalid parameter 'timeout': %v", err)), nil
 		}
 		if v > 0 {
-			timeoutSec = int(v)
+			// P1 修复：clamp 到 [1, 3600] 秒，防 int(v) 大值溢出 time.Duration
+			timeoutSec = clampTimeoutSec(v)
 		}
 	}
 

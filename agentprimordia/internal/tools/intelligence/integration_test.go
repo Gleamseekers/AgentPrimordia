@@ -26,6 +26,12 @@ func (m *mockLLM) Complete(_ context.Context, _ string) (string, error) {
 	return m.script, nil
 }
 
+// passVerifier 总是通过的工件验签桩（P1 INV-0 门控：组装根注入
+// lifecycle.TrustChain 验签；此处测试注入同款语义的桩）。
+type passVerifier struct{}
+
+func (passVerifier) VerifyArtifact(_ *intelligence.ToolArtifact) error { return nil }
+
 // TestToolIntelligence_EndToEnd 端到端测试：
 // 工具调用失败 → IntelligenceHook 记录 → 缺口检测 → 工具创建 → Registry 注册
 func TestToolIntelligence_EndToEnd(t *testing.T) {
@@ -34,7 +40,7 @@ func TestToolIntelligence_EndToEnd(t *testing.T) {
 	detector := create.NewTraceGapDetector()
 	lifecycle := create.NewLifecycleCreator()
 	reg := tools.NewRegistry()
-	creator := intelligence.NewRegisteringCreator(lifecycle, reg, t.TempDir())
+	creator := intelligence.NewRegisteringCreator(lifecycle, reg, t.TempDir()).WithVerifier(passVerifier{})
 	hook := intelligence.NewIntelligenceHook(profiler, detector, creator)
 
 	ctx := context.Background()
@@ -94,7 +100,7 @@ func TestToolIntelligence_EndToEndWithLLMCreator(t *testing.T) {
 		script: "#!/bin/sh\necho 'llm-generated tool' \"$@\" 2>/dev/null || echo 'fallback'",
 	}
 	llmCreator := create.NewLLMCreator(llm)
-	creator := intelligence.NewRegisteringCreator(llmCreator, reg, t.TempDir())
+	creator := intelligence.NewRegisteringCreator(llmCreator, reg, t.TempDir()).WithVerifier(passVerifier{})
 	hook := intelligence.NewIntelligenceHook(profiler, detector, creator)
 
 	ctx := context.Background()
@@ -132,7 +138,7 @@ func TestToolIntelligence_MultipleTurns(t *testing.T) {
 	detector := create.NewTraceGapDetector()
 	lifecycle := create.NewLifecycleCreator()
 	reg := tools.NewRegistry()
-	creator := intelligence.NewRegisteringCreator(lifecycle, reg, t.TempDir())
+	creator := intelligence.NewRegisteringCreator(lifecycle, reg, t.TempDir()).WithVerifier(passVerifier{})
 	hook := intelligence.NewIntelligenceHook(profiler, detector, creator)
 
 	ctx := context.Background()

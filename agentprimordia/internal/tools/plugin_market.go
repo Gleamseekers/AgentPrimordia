@@ -24,6 +24,11 @@ type PluginManifest struct {
 	Dependencies []PluginDependency `json:"dependencies"`
 	MinVersion   string             `json:"min_version"` // 最低 SDK 版本
 	Checksum     string             `json:"checksum"`    // SHA256
+	// Signature cosign 对工件的 base64 签名（ECDSA P-256 over SHA-256，
+	// 与 marketplace.Manifest 同格式）。P1 起安装前置必填。
+	Signature string `json:"signature,omitempty"`
+	// PublicKey 发布方公钥（PEM，ECDSA P-256）。P1 起安装前置必填。
+	PublicKey string `json:"public_key,omitempty"`
 }
 
 // PluginDependency 插件依赖

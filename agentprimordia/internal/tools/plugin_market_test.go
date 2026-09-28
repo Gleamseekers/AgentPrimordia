@@ -235,9 +235,13 @@ func TestPluginInstaller_InstallFromMarket(t *testing.T) {
 	pluginDir := filepath.Join(marketDir, "my-plugin")
 	_ = os.MkdirAll(pluginDir, 0755)
 	_ = os.WriteFile(filepath.Join(pluginDir, "1.0.0.tar.gz"), pluginData, 0644)
-	_ = market.Publish(&PluginManifest{Name: "my-plugin", Version: "1.0.0", Category: "data", Checksum: checksum})
+	_ = market.Publish(&PluginManifest{
+		Name: "my-plugin", Version: "1.0.0", Category: "data", Checksum: checksum,
+		Signature: "c2lnbmF0dXJl", PublicKey: "PUBKEY",
+	})
 
 	installer, _ := NewPluginInstaller(dir, market, loader)
+	installer.WithVerifier(okVerifier)
 	err := installer.InstallFromMarket(context.Background(), "my-plugin", "1.0.0")
 	if err != nil {
 		t.Fatalf("InstallFromMarket 失败: %v", err)
@@ -279,9 +283,15 @@ func TestPluginInstaller_VerifyChecksum(t *testing.T) {
 	pluginDir := filepath.Join(marketDir, "test-plugin")
 	_ = os.MkdirAll(pluginDir, 0755)
 	_ = os.WriteFile(filepath.Join(pluginDir, "1.0.0.tar.gz"), pluginData, 0644)
-	_ = market.Publish(&PluginManifest{Name: "test-plugin", Version: "1.0.0", Category: "data", Checksum: checksum})
+	_ = market.Publish(&PluginManifest{
+		Name: "test-plugin", Version: "1.0.0", Category: "data", Checksum: checksum,
+		Signature: "c2lnbmF0dXJl", PublicKey: "PUBKEY",
+	})
 	installer, _ := NewPluginInstaller(dir, market, loader)
-	_ = installer.InstallFromMarket(context.Background(), "test-plugin", "1.0.0")
+	installer.WithVerifier(okVerifier)
+	if err := installer.InstallFromMarket(context.Background(), "test-plugin", "1.0.0"); err != nil {
+		t.Fatalf("InstallFromMarket 失败: %v", err)
+	}
 	err := installer.VerifyChecksum("test-plugin", "1.0.0")
 	if err != nil {
 		t.Fatalf("VerifyChecksum 失败: %v", err)

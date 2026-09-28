@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"agentprimordia/internal/agent"
@@ -61,15 +61,23 @@ type unitResult struct {
 	GapsFound   int      `json:"gaps_found"`
 	ToolsUsed   int      `json:"tools_used"`
 	ToolNames   []string `json:"tool_names,omitempty"`
+	ToolExec    string   `json:"tool_exec,omitempty"` // disabled = INV-0 禁用了生成工具的宿主执行（如实反映，不静默跳过）
 	DurationSec int      `json:"duration_sec"`
 	Error       string   `json:"error,omitempty"`
 }
 
-// registeringCreator 包装基础生成器，将创建的工具注册到 agent 的工具注册表
+// registeringCreator 包装基础生成器，将创建的工具注册到 agent 的工具注册表。
+//
+// INV-0 安全边界（AGENTS.md §2.3，与 internal/tools/intelligence.RegisteringCreator
+// 同模式）：宿主进程运行期不得写入并加载 agent 生成的代码——唯一合法执行
+// 位置是 wazero WASM 沙箱。本基准测量的是"缺口检测→生成→注册"闭环，
+// 不测量宿主执行：工件以 0644（数据文件，无可执行位）落盘，注册工具的
+// Execute 一律返回 INV-0 拒绝结果，绝不派生 sh 进程。
 type registeringCreator struct {
-	base *create.LifecycleCreator
-	reg  *tools.Registry
-	dir  string
+	base     *create.LifecycleCreator
+	reg      *tools.Registry
+	dir      string
+	refusals atomic.Int64 // INV-0 拒绝执行次数（如实反映到输出字段，不静默跳过）
 }
 
 func (c *registeringCreator) Create(ctx context.Context, gap intelligence.GapCandidate) (*intelligence.ToolArtifact, error) {
@@ -77,31 +85,35 @@ func (c *registeringCreator) Create(ctx context.Context, gap intelligence.GapCan
 	if err != nil || art == nil {
 		return art, err
 	}
-	// 将工件写入沙箱并注册为可执行工具
+	// 工件写入沙箱（0644 数据文件——不再落 0755 可执行包装）
 	scriptPath := filepath.Join(c.dir, ".intel-tools", art.Name)
 	if err := os.MkdirAll(filepath.Dir(scriptPath), 0755); err != nil {
 		return nil, fmt.Errorf("创建工具目录失败: %w", err)
 	}
-	if err := os.WriteFile(scriptPath, art.Artifact, 0755); err != nil {
-		return nil, fmt.Errorf("写入工具脚本失败: %w", err)
+	if err := os.WriteFile(scriptPath, art.Artifact, 0644); err != nil {
+		return nil, fmt.Errorf("写入工具工件失败: %w", err)
 	}
 
 	t := &artifactTool{
-		name:    art.Name,
-		desc:    art.Description,
-		path:    scriptPath,
-		workdir: c.dir,
+		name:     art.Name,
+		desc:     art.Description,
+		path:     scriptPath,
+		workdir:  c.dir,
+		refusals: &c.refusals,
 	}
 	_ = c.reg.Register(t)
 	return art, nil
 }
 
-// artifactTool 将 ToolArtifact 适配为 tools.Tool 接口
+// artifactTool 将 ToolArtifact 适配为 tools.Tool 接口。
+// INV-0：Execute 绝不派生宿主进程执行工件（旧实现经 /bin/sh 执行 0755
+// 脚本，已移除）；拒绝次数计入 refusals 供基准如实输出（tool_exec=disabled）。
 type artifactTool struct {
-	name    string
-	desc    string
-	path    string
-	workdir string
+	name     string
+	desc     string
+	path     string
+	workdir  string
+	refusals *atomic.Int64
 }
 
 func (t *artifactTool) Name() string        { return t.name }
@@ -117,14 +129,15 @@ func (t *artifactTool) Execute(ctx context.Context, args json.RawMessage) (*tool
 	if err := json.Unmarshal(args, &params); err != nil {
 		return tools.NewErrorResult("参数解析失败: " + err.Error()), nil
 	}
-	cmd := exec.CommandContext(ctx, "/bin/sh", t.path)
-	cmd.Args = append(cmd.Args, strings.Fields(params.Args)...)
-	cmd.Dir = t.workdir
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return tools.NewResult(fmt.Sprintf("执行出错: %v\n输出: %s", err, string(out))), nil
+	// INV-0：agent 生成的工件不得在宿主进程直接执行。本基准测量生成/注册
+	// 闭环；执行通道唯一合法位置是 wazero WASM 沙箱。拒绝执行并计数。
+	if t.refusals != nil {
+		t.refusals.Add(1)
 	}
-	return tools.NewResult(strings.TrimSpace(string(out))), nil
+	return tools.NewErrorResult(fmt.Sprintf(
+		"工具 %q 的执行被拒绝：agent 生成的工件不得在宿主进程直接执行（INV-0）；"+
+			"唯一合法执行通道为 wazero WASM 沙箱。本基准仅测量生成/注册闭环。",
+		t.name)), nil
 }
 
 func main() {
@@ -202,7 +215,11 @@ func main() {
 			if !r.Success {
 				status = "FAIL"
 			}
-			fmt.Printf(" %s (%ds, %d turns, gaps=%d, tools=%d)\n", status, r.DurationSec, r.Turns, r.GapsFound, r.ToolsUsed)
+			execNote := ""
+			if r.ToolExec != "" {
+				execNote = ", tool_exec=" + r.ToolExec
+			}
+			fmt.Printf(" %s (%ds, %d turns, gaps=%d, tools=%d%s)\n", status, r.DurationSec, r.Turns, r.GapsFound, r.ToolsUsed, execNote)
 
 			time.Sleep(*pace)
 		}
@@ -251,11 +268,12 @@ func runUnit(ctx context.Context, prov llm.Provider, item taskItem, arm string) 
 	prompt := systemPrompt(sandbox)
 
 	var hm *hooks.HookManager
+	var creator *registeringCreator
 	if arm == "B" {
 		hm = hooks.NewHookManager()
 		profiler := optimize.NewInMemoryProfiler()
 		detector := create.NewTraceGapDetector()
-		creator := &registeringCreator{base: create.NewLifecycleCreator(), reg: reg, dir: sandbox}
+		creator = &registeringCreator{base: create.NewLifecycleCreator(), reg: reg, dir: sandbox}
 		iHook := intelligence.NewIntelligenceHook(profiler, detector, creator)
 
 		// 桥接 IntelligenceHook → HookManager
@@ -310,6 +328,12 @@ func runUnit(ctx context.Context, prov llm.Provider, item taskItem, arm string) 
 	r.Turns = resp.Metrics.TotalTurns
 	r.DurationSec = int(time.Since(start).Seconds())
 	r.Success = checkAssertions(sandbox, item.SuccessAssert, resp.Content)
+
+	// INV-0 如实反映：生成工具的宿主执行被禁用时不静默跳过，
+	// 在输出字段标注 tool_exec=disabled（执行需 wazero WASM 沙箱通道）。
+	if creator != nil && creator.refusals.Load() > 0 {
+		r.ToolExec = "disabled"
+	}
 
 	return r
 }
@@ -395,6 +419,7 @@ func loadResults(path string) (map[string]unitResult, error) {
 func summarize(results map[string]unitResult) {
 	paired := make(map[string][2]bool)
 	toolUsage := make(map[string]int)
+	execDisabled := 0
 
 	for _, r := range results {
 		pair := paired[r.Item]
@@ -407,6 +432,9 @@ func summarize(results map[string]unitResult) {
 
 		for _, t := range r.ToolNames {
 			toolUsage[t]++
+		}
+		if r.ToolExec == "disabled" {
+			execDisabled++
 		}
 	}
 
@@ -462,6 +490,13 @@ func summarize(results map[string]unitResult) {
 	totalTools := len(toolUsage)
 	if totalTools > 0 {
 		fmt.Printf("\n工具复用率: %d/%d (%.1f%%)\n", reused, totalTools, 100*float64(reused)/float64(totalTools))
+	}
+
+	// INV-0 执行禁用如实披露（不静默跳过）：本基准仅测量生成/注册闭环，
+	// 生成工具的宿主执行被禁用；执行需 wazero WASM 沙箱通道。
+	if execDisabled > 0 {
+		fmt.Printf("\n注意: %d 个单元中生成工具的宿主执行被 INV-0 禁用（tool_exec=disabled）。\n", execDisabled)
+		fmt.Printf("      基准口径：仅测量缺口检测→生成→注册闭环；执行不在本基准统计内。\n")
 	}
 }
 

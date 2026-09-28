@@ -4,6 +4,7 @@ package tools
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -376,7 +377,14 @@ type MCPServer struct {
 	logger *slog.Logger
 }
 
-// NewMCPServer 创建 MCP 服务端
+// NewMCPServer 创建 MCP 服务端。
+//
+// 安全警示（P1）：默认执行器（NewExecutor）**不含 ScopePolicy**——
+// tools/call 可调用 Registry 中任意已注册工具（含 shell 等危险工具），
+// 且默认无认证（config.APIKey 为空时）。暴露到网络前必须：
+//  1. 设置 config.APIKey 启用 Bearer 认证；
+//  2. 经 SetScopePolicy 或 SetExecutor 注入权限策略/沙箱校验，
+//     收敛 tools/call 可触及的工具与资源面。
 func NewMCPServer(config MCPServerConfig, registry *Registry) *MCPServer {
 	return &MCPServer{
 		config:   config,
@@ -387,11 +395,26 @@ func NewMCPServer(config MCPServerConfig, registry *Registry) *MCPServer {
 }
 
 // SetExecutor 设置自定义 Executor，用于覆盖默认的执行器
-// 通过自定义 Executor 可以注入 ScopePolicy、Permission 等安全机制
+// 通过自定义 Executor 可以注入 ScopePolicy、Permission 等安全机制。
+// 安全警示（P1）：tools/call 经执行器可调任意已注册工具（含 shell）；
+// 面向不可信客户端暴露时，必须经此方法（或 SetScopePolicy）注入权限策略。
 func (s *MCPServer) SetExecutor(executor *Executor) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.executor = executor
+}
+
+// SetScopePolicy 为当前 Executor 注入 ScopePolicy（P1 安全加固入口）。
+// tools/call 的默认执行器无任何权限策略——可调 Registry 中任意工具；
+// 注入策略后，执行前按参数中的路径字段做 agentID 维度的 Allow 校验，
+// 拒绝即返回 isError 结果。agentID 标识当前 Agent（策略主体）。
+func (s *MCPServer) SetScopePolicy(policy ScopePolicy, agentID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.executor == nil {
+		return
+	}
+	s.executor.WithScopePolicy(policy, agentID)
 }
 
 // AddResource 添加 MCP 资源定义
@@ -425,16 +448,12 @@ func (s *MCPServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// API Key 认证检查
+	// API Key 认证检查（P1 修复：crypto/subtle 常量时间比较防 timing
+	// attack；强制 "Bearer " 方案前缀——裸 key 直接作为 Authorization
+	// 值不得放行）
 	if s.config.APIKey != "" {
-		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			writeMCPError(w, 0, -32001, "unauthorized: missing Authorization header")
-			return
-		}
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-		if token != s.config.APIKey {
-			writeMCPError(w, 0, -32001, "unauthorized: invalid API key")
+		if !bearerAuthorized(r.Header.Get("Authorization"), s.config.APIKey) {
+			writeMCPError(w, 0, -32001, "unauthorized: missing or invalid Bearer token")
 			return
 		}
 	}
@@ -530,6 +549,10 @@ func (s *MCPServer) handleToolsList(req MCPRequest) *MCPResponse {
 }
 
 func (s *MCPServer) handleToolsCall(ctx context.Context, req MCPRequest) *MCPResponse {
+	// 安全警示（P1）：本方法经（默认无 ScopePolicy 的）执行器调用
+	// Registry 中任意工具——含 shell 等宿主任意代码执行工具。
+	// 面向不可信客户端暴露 MCPServer 时，必须经 SetScopePolicy /
+	// SetExecutor 注入权限策略收敛暴露面（见 NewMCPServer 文档）。
 	params, ok := req.Params.(map[string]any)
 	if !ok {
 		return &MCPResponse{
@@ -707,4 +730,21 @@ func writeMCPError(w http.ResponseWriter, id int, code int, message string) {
 		ID:      id,
 		Error:   &MCPError{Code: code, Message: message},
 	})
+}
+
+// bearerAuthorized 常量时间校验 Bearer 令牌（P1 安全修复）。
+// 双重加固：
+//  1. 强制 Authorization 采用 "Bearer " 方案前缀——裸 key 直接当头部值
+//     不得放行（旧式 strings.TrimPrefix 不校验前缀会放行裸 key）；
+//  2. crypto/subtle.ConstantTimeCompare 防 timing attack。
+func bearerAuthorized(authHeader, apiKey string) bool {
+	if apiKey == "" { // fail-closed：空 key 一律不认证通过
+		return false
+	}
+	const prefix = "Bearer "
+	if !strings.HasPrefix(authHeader, prefix) {
+		return false
+	}
+	token := authHeader[len(prefix):]
+	return subtle.ConstantTimeCompare([]byte(token), []byte(apiKey)) == 1
 }

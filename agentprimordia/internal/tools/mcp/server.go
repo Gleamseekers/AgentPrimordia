@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -47,6 +48,7 @@ type MCPServer struct {
 	mu               sync.Mutex
 	logger           *slog.Logger
 	builtinResources *BuiltinResources
+	apiKey           string // P1 安全修复：Bearer 认证密钥，空 = 不认证（兼容既有部署）
 }
 
 // MCPServerOption configures an MCPServer.
@@ -55,6 +57,14 @@ type MCPServerOption func(*MCPServer)
 // WithLogger sets the logger for the server.
 func WithLogger(l *slog.Logger) MCPServerOption {
 	return func(s *MCPServer) { s.logger = l }
+}
+
+// WithAPIKey 启用 Bearer 认证（P1 安全修复）。
+// 设置后所有 /mcp 请求必须携带 `Authorization: Bearer <key>`，
+// 常量时间比较（crypto/subtle）防 timing attack。
+// 不设置时保持默认行为（无认证）——兼容既有内网/本地部署。
+func WithAPIKey(key string) MCPServerOption {
+	return func(s *MCPServer) { s.apiKey = key }
 }
 
 // WithBuiltinResources installs default agent-memory / session / status resources.
@@ -238,6 +248,23 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
+// bearerAuthorized 常量时间校验 Bearer 令牌（P1 安全修复）。
+// 双重加固：
+//  1. 强制 Authorization 采用 "Bearer " 方案前缀——裸 key 直接当头部值
+//     不得放行（旧式 strings.TrimPrefix 不校验前缀会放行裸 key）；
+//  2. crypto/subtle.ConstantTimeCompare 防 timing attack。
+func bearerAuthorized(authHeader, apiKey string) bool {
+	if apiKey == "" { // fail-closed：空 key 一律不认证通过
+		return false
+	}
+	const prefix = "Bearer "
+	if !strings.HasPrefix(authHeader, prefix) {
+		return false
+	}
+	token := authHeader[len(prefix):]
+	return subtle.ConstantTimeCompare([]byte(token), []byte(apiKey)) == 1
+}
+
 // handleMCP dispatches a single JSON-RPC request and writes the response.
 func (s *MCPServer) handleMCP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -246,6 +273,11 @@ func (s *MCPServer) handleMCP(w http.ResponseWriter, r *http.Request) {
 	}
 	if ct := r.Header.Get("Content-Type"); ct != "" && !strings.HasPrefix(ct, "application/json") {
 		writeJSON(w, http.StatusUnsupportedMediaType, map[string]any{"error": "unsupported content type"})
+		return
+	}
+	// P1 安全修复：Bearer 认证（设置 WithAPIKey 后强制；常量时间比较）
+	if s.apiKey != "" && !bearerAuthorized(r.Header.Get("Authorization"), s.apiKey) {
+		writeJSON(w, http.StatusUnauthorized, map[string]any{"error": "unauthorized: missing or invalid Bearer token"})
 		return
 	}
 	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20))

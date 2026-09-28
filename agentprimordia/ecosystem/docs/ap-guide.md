@@ -55,7 +55,7 @@ ap -v
 ap --version
 ```
 
-输出：`AgentPrimordia CLI v1.0.0`
+输出：`AgentPrimordia CLI v7.3.0`
 
 ### 1.4 查看帮助
 

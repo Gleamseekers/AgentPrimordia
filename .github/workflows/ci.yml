@@ -702,8 +702,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Run version consistency check
         run: bash scripts/version-check.sh
+
+      # V7.3 整改：版本真值唯一来源 = pkg/agent.go const Version。
+      # 该门无条件运行（不受 path filter 影响），对账 VERSION/TS/Helm/文档锚点/README 统计，
+      # 并覆盖 sdk/typescript/docs 与 agentprimordia/docs 的"当前版本"声明。
+      - name: Run doc version consistency check
+        run: node scripts/doc-version-consistency.mjs
 
   perf-regression:
     name: Performance Regression Check

@@ -4,7 +4,7 @@ replicaCount: 3
 
 image:
   repository: ghcr.io/agentprimordia/ap
-  tag: "v7.0.0"
+  tag: "v7.3.0"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

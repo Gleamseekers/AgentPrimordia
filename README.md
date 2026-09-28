@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.26+-00ADD8.svg)](https://golang.org)
 [![Version](https://img.shields.io/badge/version-7.3.0-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
-[![Tests](https://img.shields.io/badge/tests-538%20files-green.svg)](agentprimordia/internal/)
+[![Tests](https://img.shields.io/badge/tests-608%20files-green.svg)](agentprimordia/internal/)
 
 <p align="center">
   <img src="agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
@@ -13,9 +13,12 @@
   <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
 </p>
 
-```
-go install agentprimordia/cmd/ap@latest
-ap start my-agent
+```bash
+# 框架尚未发布为可经 GOPROXY 解析的 Go module（模块路径 agentprimordia 无点号，
+# 且 v2+ 标签受语义化导入版本限制），因此从源码获取：
+git clone <AgentPrimordia 仓库> && cd AgentPrimordia
+go build -o ap ./agentprimordia/cmd/ap/
+./ap start my-agent
 ```
 
 **30 秒。零配置。无需 API Key。** Agent 已经在跑了。
@@ -50,17 +53,18 @@ ap start my-agent
 ### 安装
 
 ```bash
-# 从源码编译
-cd agentprimordia && go build -o ap ./cmd/ap/
-
-# 或直接用 go install
-go install agentprimordia/cmd/ap@latest
+# 从源码编译（在仓库根目录）
+go build -o ap ./agentprimordia/cmd/ap/
 ```
+
+> **安装说明**：`go install agentprimordia/cmd/ap@latest` **不可用**——模块路径 `agentprimordia`
+> 首段不含点号（GOPROXY 无法解析），且 `v2+` 标签受 Go 语义化导入版本规则限制。
+> 请从源码构建；`ap start` 会自动探测本地框架源码并通过 `replace` 生成自洽项目。
 
 ### 30 秒体验（无需 API Key）
 
 ```bash
-ap start my-agent
+./ap start my-agent
 ```
 
 就这样。`ap start` 会自动创建项目、安装依赖、启动 Agent。没有 API Key？自动进入 Demo 模式，用关键词匹配模拟 LLM 响应，让你先体验完整流程。
@@ -194,10 +198,10 @@ task, _ := client.SendTask(ctx, &ap.TaskSendRequest{...})
 
 ```
 AgentPrimordia/
-├── agentprimordia/          # 核心框架（73 个包，1079 个 Go 文件）
+├── agentprimordia/          # 核心框架主模块（162 个包，1295 个 Go 文件）
 │   ├── cmd/ap/              # CLI（20 个子命令）
 │   ├── internal/            # 29 个内部包
-│   │   ├── agent/           # ReAct 引擎 + 微内核（32 个子包）
+│   │   ├── agent/           # ReAct 引擎 + 微内核（34 个子包）
 │   │   ├── pool/            # 多 Agent 并发调度
 │   │   ├── tools/           # 工具系统
 │   │   ├── memory/          # 记忆存储 + SelfModel + GrowthLog
@@ -205,7 +209,7 @@ AgentPrimordia/
 │   │   ├── studio/          # Studio 引擎 + 学习面板
 │   │   └── ...              # 完整清单见 internal/AGENTS.md
 │   ├── pkg/                 # 公共 API
-│   ├── operator/            # K8s Operator
+│   ├── operator/            # K8s Operator（独立 Go 模块，不计入上方统计）
 │   ├── bench/               # 性能基准测试
 │   └── ecosystem/           # 示例 + 插件 + 模板
 ├── pgvector/                # pgvector 向量存储扩展
@@ -250,7 +254,7 @@ ap studio                      # 启动 Studio 面板
 3. **零配置起步** — `ap start` 不需要任何配置就能跑起来
 4. **越用越强** — 学习闭环让 Agent 从每次交互中积累经验
 5. **最小依赖** — 核心零 CGO，仅 SQLite + YAML；可选 gRPC/Redis/etcd/wazero 按需引入
-6. **TDD 强制** — Red → Green → Refactor，538 个测试文件
+6. **TDD 强制** — Red → Green → Refactor，608 个测试文件
 
 ## 技术栈
 
@@ -262,6 +266,8 @@ ap studio                      # 启动 Studio 面板
 
 ## 文档
 
+- **[文档权威索引](docs/文档权威索引.md)** — 260+ 篇文档"该信哪一篇"的唯一入口（版本真值 / 当前事实 / 规划 / 历史）
+- **[实验性能力清单](docs/实验性能力清单.md)** — 哪些能力真接线、哪些仅 demo/空壳（含接线成本估计）
 - [v7.3 发布说明](agentprimordia/docs/CHANGELOG-v7.3.md)
 - [三战线用户指南](agentprimordia/docs/三战线用户指南.md)
 - [Demo 视频脚本](agentprimordia/docs/demo-video-script.md)

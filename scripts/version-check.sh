@@ -26,28 +26,30 @@ ERRORS=0
 # ===== 提取版本号 =====
 
 # Go: const Version = "x.y.z"
-GO_VERSION=$(grep -oP 'const\s+Version\s*=\s*"\K[^"]+' "$GO_FILE" 2>/dev/null || true)
+# 注意：用可移植的 sed -E（BSD/GNU 通用），不要用 grep -oP——macOS 自带 grep 无 PCRE，
+# 否则本地无法复现 CI 门（历史踩坑）。
+GO_VERSION=$(sed -E -n 's/.*const[[:space:]]+Version[[:space:]]*=[[:space:]]*"([^"]*)".*/\1/p' "$GO_FILE" 2>/dev/null | head -1 || true)
 if [ -z "$GO_VERSION" ]; then
   echo "::error::无法从 ${GO_FILE} 提取 Go 版本号"
   ERRORS=$((ERRORS + 1))
 fi
 
 # TS: "version": "x.y.z"
-TS_VERSION=$(grep -oP '"version"\s*:\s*"\K[^"]+' "$TS_FILE" 2>/dev/null || true)
+TS_VERSION=$(sed -E -n 's/.*"version"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/p' "$TS_FILE" 2>/dev/null | head -1 || true)
 if [ -z "$TS_VERSION" ]; then
   echo "::error::无法从 ${TS_FILE} 提取 TS 版本号"
   ERRORS=$((ERRORS + 1))
 fi
 
 # Docs: 版本表中 Go SDK 行的版本号
-DOC_GO_VERSION=$(grep -E '^\|\s*Go SDK' "$DOC_FILE" | grep -oP 'v?\K[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+DOC_GO_VERSION=$(grep -E '^[[:space:]]*\|[[:space:]]*Go SDK' "$DOC_FILE" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | sed -E 's/^v//' || true)
 if [ -z "$DOC_GO_VERSION" ]; then
   echo "::error::无法从 ${DOC_FILE} 版本表提取 Go SDK 版本号"
   ERRORS=$((ERRORS + 1))
 fi
 
 # Docs: 版本表中 TS SDK 行的版本号
-DOC_TS_VERSION=$(grep -E '^\|\s*TypeScript SDK' "$DOC_FILE" | grep -oP 'v?\K[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)
+DOC_TS_VERSION=$(grep -E '^[[:space:]]*\|[[:space:]]*TypeScript SDK' "$DOC_FILE" | grep -oE 'v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | sed -E 's/^v//' || true)
 
 if [ "$ERRORS" -gt 0 ]; then
   echo ""
@@ -73,7 +75,7 @@ echo ""
 
 # 去除预发布后缀，返回 x.y.z
 strip_prerelease() {
-  echo "$1" | grep -oP '^[0-9]+\.[0-9]+\.[0-9]+'
+  echo "$1" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+'
 }
 
 # 提取 major 版本号

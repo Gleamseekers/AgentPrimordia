@@ -48,6 +48,6 @@ CI 中的 `cross-language-check` job 会检测 API 漂移。
 
 ## 版本策略
 
-- Go SDK: v3.1.0（`pkg/agent.go` Version 常量）
-- TypeScript SDK: v3.0.0（`package.json` version）
+- Go SDK: v7.3.0（`pkg/agent.go` Version 常量）
+- TypeScript SDK: v7.3.0（`package.json` version）
 - 版本联动规则：TS 主版本号跟随 Go 主版本号，允许 `-beta` 后缀

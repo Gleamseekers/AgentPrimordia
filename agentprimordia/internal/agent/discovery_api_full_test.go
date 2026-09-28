@@ -1,9 +1,10 @@
-//go:build ignore
 
 package agent
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,6 +12,9 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
+
+	"agentprimordia/internal/agent/discovery"
 )
 
 // newAuthServer 创建带 API Key 的测试服务器，返回服务器和基础 URL
@@ -480,20 +484,59 @@ func TestCRUD_FullFlow(t *testing.T) {
 
 // ===== 10. DiscoveryServer 双重启动 =====
 
-func TestDiscoveryServer_DoubleStart(t *testing.T) {
+// TestDiscoveryServer_Lifecycle 服务器启停生命周期。
+// 2026-09-28：原 TestDiscoveryServer_DoubleStart 基于旧的非阻塞 Start +
+// "already started" 守卫契约；现 Start() 即 http.ListenAndServe（阻塞，
+// 供调用方以 goroutine 启动），双重启动守卫已随 API 重构移除。
+// 服务器行为由 discovery 子包 15+ 测试覆盖，此处验证 agent 门面的
+// 启停装配：goroutine 启动 → 真实服务 → Close 优雅退出。
+func TestDiscoveryServer_Lifecycle(t *testing.T) {
 	local := NewLocalDiscovery()
 	server := NewDiscoveryServer(local, "127.0.0.1:0")
 
-	if err := server.Start(); err != nil {
-		t.Fatalf("首次启动失败: %v", err)
-	}
-	defer server.Close()
+	startErr := make(chan error, 1)
+	go func() { startErr <- server.Start() }()
 
-	err := server.Start()
-	if err == nil {
-		t.Error("双重启动应返回错误，但返回了 nil")
+	// 等待真实绑定地址就绪（Start 在 goroutine 中异步 Listen；
+	// 就绪前 Addr() 返回配置值 "127.0.0.1:0"）
+	deadline := time.Now().Add(5 * time.Second)
+	const configured = "127.0.0.1:0"
+	var addr string
+	for time.Now().Before(deadline) {
+		if addr = server.Addr(); addr != configured {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
 	}
-	if !strings.Contains(err.Error(), "already started") {
-		t.Errorf("双重启动错误信息不匹配: %v", err)
+	if addr == configured {
+		t.Fatal("Addr() 未在超时内返回真实绑定地址")
+	}
+	client := NewHTTPDiscoveryClient("http://" + addr)
+	var registered bool
+	var lastErr error
+	for time.Now().Before(deadline) {
+		if err := client.Register(context.Background(), &discovery.AgentInfo{ID: "lc-1", Name: "LC", Address: addr}); err == nil {
+			registered = true
+			break
+		} else {
+			lastErr = err
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	if !registered {
+		t.Fatalf("服务器未在超时内就绪 (addr=%s): %v", addr, lastErr)
+	}
+
+	if err := server.Close(); err != nil {
+		t.Errorf("Close 失败: %v", err)
+	}
+	// ListenAndServe 关闭后应返回 http.ErrServerClosed（非阻塞错误即通过）。
+	select {
+	case err := <-startErr:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			t.Errorf("Start 返回了意外错误: %v", err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Error("Close 后 Start 未返回")
 	}
 }

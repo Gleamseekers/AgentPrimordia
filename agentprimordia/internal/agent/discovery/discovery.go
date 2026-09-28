@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -257,6 +258,10 @@ type DiscoveryServer struct {
 	server    *http.Server
 	logger    *slog.Logger
 	apiKey    string
+
+	// mu 保护 realAddr（Start 的 goroutine 写，Addr 的调用方读）
+	mu       sync.RWMutex
+	realAddr string // Start 后记录的真实绑定地址（"host:0" 场景）
 }
 
 // NewDiscoveryServer 创建发现服务服务器
@@ -303,14 +308,30 @@ func (s *DiscoveryServer) requireAuth(w http.ResponseWriter, r *http.Request) bo
 	return false
 }
 
-// Start 启动服务器
+// Start 启动服务器。
+// 使用显式 listener 而非 ListenAndServe：addr 为 "host:0" 时 Addr() 可
+// 返回真实绑定端口（ListenAndServe 不暴露 listener，Addr() 只能返回配置值
+// "127.0.0.1:0"，调用方无法发现服务）。
 func (s *DiscoveryServer) Start() error {
-	s.logger.Info("Discovery server starting", "addr", s.server.Addr)
-	return s.server.ListenAndServe()
+	ln, err := net.Listen("tcp", s.server.Addr)
+	if err != nil {
+		return err
+	}
+	s.mu.Lock()
+	s.realAddr = ln.Addr().String()
+	s.mu.Unlock()
+	s.logger.Info("Discovery server starting", "addr", s.realAddr)
+	return s.server.Serve(ln)
 }
 
-// Addr 返回服务器监听地址
+// Addr 返回服务器实际监听地址。
+// Start 之前返回配置的地址；Start 之后（含 "host:0" 场景）返回真实绑定地址。
 func (s *DiscoveryServer) Addr() string {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.realAddr != "" {
+		return s.realAddr
+	}
 	return s.server.Addr
 }
 

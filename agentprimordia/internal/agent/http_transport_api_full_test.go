@@ -1,11 +1,15 @@
-//go:build ignore
 
+// http_transport_api_full_test.go — HTTP 传输层公共 API 测试。
+// 2026-09-28：原文件被 //go:build ignore 禁用而腐烂（其测试的
+// tr.handleMessage/messageEndpoint/inboundBufSize 内部符号已随
+// HTTPTransport 迁入 internal/agent/transport 子包）。handler 级用例
+// 已由 transport 包的 TestHTTPTransportHandleInvalidMethod /
+// TestHTTPTransportHandleInvalidBody 覆盖（更优），此处仅保留
+// 公共 API（Start/Send/Receive/Addr）级用例。
 package agent
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -15,139 +19,10 @@ import (
 	"time"
 )
 
-// 测试 GET 请求访问 /api/message 被拒绝，返回 405 Method Not Allowed
-func TestHTTPTransportAPI_MethodNotAllowed(t *testing.T) {
-	tr := NewHTTPTransport()
-	server := httptest.NewServer(http.HandlerFunc(tr.handleMessage))
-	defer server.Close()
 
-	resp, err := http.Get(server.URL + messageEndpoint)
-	if err != nil {
-		t.Fatalf("GET 请求失败: %v", err)
-	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusMethodNotAllowed {
-		t.Errorf("状态码 = %d, 期望 %d", resp.StatusCode, http.StatusMethodNotAllowed)
-	}
-}
 
-// 测试 POST 无效 JSON 消息体返回 400 Bad Request
-func TestHTTPTransportAPI_InvalidJSON(t *testing.T) {
-	tr := NewHTTPTransport()
-	server := httptest.NewServer(http.HandlerFunc(tr.handleMessage))
-	defer server.Close()
 
-	resp, err := http.Post(server.URL+messageEndpoint, "application/json", bytes.NewReader([]byte("this is not json")))
-	if err != nil {
-		t.Fatalf("POST 请求失败: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("状态码 = %d, 期望 %d", resp.StatusCode, http.StatusBadRequest)
-	}
-}
-
-// 测试 POST 空消息体返回 400 Bad Request
-func TestHTTPTransportAPI_EmptyBody(t *testing.T) {
-	tr := NewHTTPTransport()
-	server := httptest.NewServer(http.HandlerFunc(tr.handleMessage))
-	defer server.Close()
-
-	resp, err := http.Post(server.URL+messageEndpoint, "application/json", bytes.NewReader([]byte{}))
-	if err != nil {
-		t.Fatalf("POST 请求失败: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusBadRequest {
-		t.Errorf("状态码 = %d, 期望 %d", resp.StatusCode, http.StatusBadRequest)
-	}
-}
-
-// 测试入站通道满时丢弃消息，返回 503 Service Unavailable
-func TestHTTPTransportAPI_ChannelFull(t *testing.T) {
-	tr := NewHTTPTransport()
-	server := httptest.NewServer(http.HandlerFunc(tr.handleMessage))
-	defer server.Close()
-
-	// 填满入站通道（容量 inboundBufSize=64），不消费任何消息
-	for i := 0; i < inboundBufSize; i++ {
-		msg := &BusMessage{
-			ID:        fmt.Sprintf("msg-fill-%d", i),
-			From:      "sender",
-			To:        "receiver",
-			Type:      BusMsgTaskRequest,
-			Content:   fmt.Sprintf("填充消息 %d", i),
-			Timestamp: time.Now(),
-		}
-		data, err := json.Marshal(msg)
-		if err != nil {
-			t.Fatalf("序列化填充消息 %d 失败: %v", i, err)
-		}
-		resp, err := http.Post(server.URL+messageEndpoint, "application/json", bytes.NewReader(data))
-		if err != nil {
-			t.Fatalf("发送填充消息 %d 失败: %v", i, err)
-		}
-		resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			t.Fatalf("填充消息 %d 状态码 = %d, 期望 %d", i, resp.StatusCode, http.StatusOK)
-		}
-	}
-
-	// 通道已满，下一条消息应返回 503
-	overflowMsg := &BusMessage{
-		ID:        "msg-overflow",
-		From:      "sender",
-		To:        "receiver",
-		Type:      BusMsgTaskRequest,
-		Content:   "溢出消息",
-		Timestamp: time.Now(),
-	}
-	data, err := json.Marshal(overflowMsg)
-	if err != nil {
-		t.Fatalf("序列化溢出消息失败: %v", err)
-	}
-	resp, err := http.Post(server.URL+messageEndpoint, "application/json", bytes.NewReader(data))
-	if err != nil {
-		t.Fatalf("发送溢出消息失败: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusServiceUnavailable {
-		t.Errorf("溢出消息状态码 = %d, 期望 %d", resp.StatusCode, http.StatusServiceUnavailable)
-	}
-}
-
-// 测试成功发送消息返回 200 OK
-func TestHTTPTransportAPI_SuccessStatus(t *testing.T) {
-	tr := NewHTTPTransport()
-	server := httptest.NewServer(http.HandlerFunc(tr.handleMessage))
-	defer server.Close()
-
-	msg := &BusMessage{
-		ID:        "msg-ok",
-		From:      "sender",
-		To:        "receiver",
-		Type:      BusMsgTaskRequest,
-		Content:   "成功发送测试",
-		Timestamp: time.Now(),
-	}
-	data, err := json.Marshal(msg)
-	if err != nil {
-		t.Fatalf("序列化消息失败: %v", err)
-	}
-	resp, err := http.Post(server.URL+messageEndpoint, "application/json", bytes.NewReader(data))
-	if err != nil {
-		t.Fatalf("POST 请求失败: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		t.Errorf("状态码 = %d, 期望 %d", resp.StatusCode, http.StatusOK)
-	}
-}
 
 // 测试 Send 方法设置 Content-Type 为 application/json
 func TestHTTPTransportAPI_ContentType(t *testing.T) {

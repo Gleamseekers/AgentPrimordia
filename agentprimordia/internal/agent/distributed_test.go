@@ -1,13 +1,32 @@
-//go:build ignore
 
 package agent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"testing"
 	"time"
 )
+
+// waitDiscoveryAddr 等待 DiscoveryServer 真实绑定地址就绪。
+// Start 在 goroutine 中异步 Listen，就绪前 Addr() 返回配置值 "127.0.0.1:0"。
+func waitDiscoveryAddr(t *testing.T, server *DiscoveryServer) string {
+	t.Helper()
+	const configured = "127.0.0.1:0"
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		addr := server.Addr()
+		if addr != configured {
+			return addr
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("DiscoveryServer 未在超时内绑定真实地址")
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+}
 
 func TestDistributed_TwoNodeTCP(t *testing.T) {
 	node1 := NewTCPTransport()
@@ -66,9 +85,13 @@ func TestDistributed_HTTPWithAuth(t *testing.T) {
 	authDisc := NewAuthenticatedDiscovery(localDisc, auth)
 
 	server := NewDiscoveryServer(localDisc, "127.0.0.1:0")
-	if err := server.Start(); err != nil {
-		t.Fatalf("DiscoveryServer Start failed: %v", err)
-	}
+	// Start 为阻塞式 Serve（显式 listener，见 discovery.Start），
+	// 以 goroutine 启动；关闭后返回 http.ErrServerClosed 属正常。
+	go func() {
+		if err := server.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			t.Logf("DiscoveryServer Start returned: %v", err)
+		}
+	}()
 	defer server.Close()
 
 	identity := &AgentIdentity{
@@ -159,12 +182,16 @@ func TestDistributed_MultiNodeBroadcast(t *testing.T) {
 func TestDistributed_DiscoveryAndCommunicate(t *testing.T) {
 	localDisc := NewLocalDiscovery()
 	server := NewDiscoveryServer(localDisc, "127.0.0.1:0")
-	if err := server.Start(); err != nil {
-		t.Fatalf("DiscoveryServer Start failed: %v", err)
-	}
+	// Start 为阻塞式 Serve（显式 listener，见 discovery.Start），
+	// 以 goroutine 启动；关闭后返回 http.ErrServerClosed 属正常。
+	go func() {
+		if err := server.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			t.Logf("DiscoveryServer Start returned: %v", err)
+		}
+	}()
 	defer server.Close()
 
-	httpDisc := NewHTTPDiscoveryClient("http://" + server.Addr())
+	httpDisc := NewHTTPDiscoveryClient("http://" + waitDiscoveryAddr(t, server))
 
 	agent1Info := &AgentInfo{
 		ID:           "agent-comm-1",

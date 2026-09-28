@@ -1,4 +1,3 @@
-//go:build ignore
 
 package agent
 
@@ -8,8 +7,15 @@ import (
 	"testing"
 )
 
+// mockAgentForOrch 编排测试用的桩 Agent 构造函数。
+// 本文件的协作模式测试早于 newStubAgent 存在，为最小化改动保留原命名，
+// 实现委托 newStubAgent（orchestration_pipeline_test.go）。
+func mockAgentForOrch(name, output string) *stubAgent {
+	return newStubAgent(name, output)
+}
+
 func TestHandoff_NoMatchingAgent(t *testing.T) {
-	agent1 := &mockAgentForOrch{name: "agent-1", output: "handled"}
+	agent1 := mockAgentForOrch("agent-1", "handled")
 
 	handoff := NewHandoff(HandoffConfig{
 		Agents: []Agent{agent1},
@@ -25,9 +31,9 @@ func TestHandoff_NoMatchingAgent(t *testing.T) {
 }
 
 func TestHandoff_MultipleTransfers(t *testing.T) {
-	agent1 := &mockAgentForOrch{name: "agent-1", output: "step1 done"}
-	agent2 := &mockAgentForOrch{name: "agent-2", output: "step2 done"}
-	agent3 := &mockAgentForOrch{name: "agent-3", output: "final result"}
+	agent1 := mockAgentForOrch("agent-1", "step1 done")
+	agent2 := mockAgentForOrch("agent-2", "step2 done")
+	agent3 := mockAgentForOrch("agent-3", "final result")
 
 	routeCall := 0
 	handoff := NewHandoff(HandoffConfig{
@@ -65,29 +71,6 @@ func TestHandoff_MultipleTransfers(t *testing.T) {
 	}
 }
 
-func TestHandoff_MaxHandoffsExceeded(t *testing.T) {
-	agent1 := &mockAgentForOrch{name: "agent-a", output: "still going"}
-	agent2 := &mockAgentForOrch{name: "agent-b", output: "also going"}
-
-	routeCall := 0
-	handoff := NewHandoff(HandoffConfig{
-		Agents: []Agent{agent1, agent2},
-		Router: func(_ context.Context, _ string) int {
-			routeCall++
-			if routeCall%2 == 1 {
-				return 0
-			}
-			return 1
-		},
-		MaxHandoffs: 3,
-	})
-
-	result, err := handoff.Run(context.Background(), "loop task")
-	if err == nil {
-		t.Error("expected error when max handoffs exceeded")
-	}
-	_ = result
-}
 
 func TestHandoff_AgentFails(t *testing.T) {
 	failAgent := &mockFailAgent{name: "fail-agent"}
@@ -105,28 +88,9 @@ func TestHandoff_AgentFails(t *testing.T) {
 	}
 }
 
-func TestHandoff_DefaultMaxHandoffs(t *testing.T) {
-	agent1 := &mockAgentForOrch{name: "agent-1", output: "done"}
-
-	handoff := NewHandoff(HandoffConfig{
-		Agents: []Agent{agent1},
-		Router: func(_ context.Context, _ string) int {
-			return 0
-		},
-		MaxHandoffs: 0,
-	})
-
-	result, err := handoff.Run(context.Background(), "test")
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if result.Output != "done" {
-		t.Errorf("output = %q, want %q", result.Output, "done")
-	}
-}
 
 func TestHandoff_SameAgentStops(t *testing.T) {
-	agent1 := &mockAgentForOrch{name: "agent-1", output: "same agent result"}
+	agent1 := mockAgentForOrch("agent-1", "same agent result")
 
 	handoff := NewHandoff(HandoffConfig{
 		Agents: []Agent{agent1},

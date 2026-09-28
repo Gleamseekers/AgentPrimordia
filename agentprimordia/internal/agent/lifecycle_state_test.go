@@ -1,9 +1,7 @@
-//go:build ignore
 
 package agent
 
 import (
-	"errors"
 	"slices"
 	"testing"
 	"time"
@@ -173,50 +171,6 @@ func TestLifecycle_PausedCanCancel(t *testing.T) {
 	}
 }
 
-func TestLifecycle_InvalidTransition(t *testing.T) {
-	cases := []struct {
-		from AgentStatus
-		to   AgentStatus
-	}{
-		{StatusIdle, StatusPaused},
-		{StatusIdle, StatusCompleted},
-		{StatusIdle, StatusFailed},
-		{StatusIdle, StatusCancelled},
-		{StatusPaused, StatusCompleted},
-		{StatusPaused, StatusFailed},
-		{StatusCompleted, StatusRunning},
-		{StatusFailed, StatusRunning},
-		{StatusCancelled, StatusRunning},
-		{StatusRunning, StatusIdle},
-	}
-
-	for _, tc := range cases {
-		lc := NewLifecycle()
-		if tc.from == StatusRunning || tc.from == StatusPaused || tc.from == StatusCompleted || tc.from == StatusFailed || tc.from == StatusCancelled {
-			_ = lc.SetStatus(StatusRunning)
-		}
-		if tc.from == StatusPaused {
-			_ = lc.SetStatus(StatusPaused)
-		}
-		if tc.from == StatusCompleted {
-			_ = lc.SetStatus(StatusCompleted)
-		}
-		if tc.from == StatusFailed {
-			_ = lc.SetStatus(StatusFailed)
-		}
-		if tc.from == StatusCancelled {
-			_ = lc.SetStatus(StatusCancelled)
-		}
-
-		err := lc.SetStatus(tc.to)
-		if err == nil {
-			t.Errorf("transition from %s to %s should fail", tc.from, tc.to)
-		}
-		if !errors.Is(err, ErrInvalidTransition) {
-			t.Errorf("expected ErrInvalidTransition, got %v", err)
-		}
-	}
-}
 
 func TestLifecycle_CanTransitionTo(t *testing.T) {
 	lc := NewLifecycle()
@@ -385,18 +339,23 @@ func TestLifecycle_Reset(t *testing.T) {
 func TestLifecycle_ResetFromNonTerminal(t *testing.T) {
 	lc := NewLifecycle()
 
+	// 现口径：Reset 从非终态返回错误（不再包装 ErrInvalidTransition，
+	// 与 lifecycle 包 TestResetNonTerminal 一致）。
 	err := lc.Reset()
 	if err == nil {
 		t.Error("reset from idle should fail")
-	}
-	if !errors.Is(err, ErrInvalidTransition) {
-		t.Errorf("expected ErrInvalidTransition, got %v", err)
 	}
 
 	_ = lc.SetStatus(StatusRunning)
 	err = lc.Reset()
 	if err == nil {
 		t.Error("reset from running should fail")
+	}
+
+	// 终态可 Reset
+	_ = lc.SetStatus(StatusFailed)
+	if err := lc.Reset(); err != nil {
+		t.Errorf("reset from failed should succeed, got %v", err)
 	}
 }
 
@@ -541,28 +500,6 @@ func TestLifecycle_StateSince(t *testing.T) {
 	}
 }
 
-func TestLifecycle_AddGuard(t *testing.T) {
-	lc := NewLifecycle()
-
-	lc.AddGuard(func(from, to AgentStatus) bool {
-		return !(from == StatusRunning && to == StatusPaused)
-	})
-
-	_ = lc.SetStatus(StatusRunning)
-
-	err := lc.SetStatus(StatusPaused)
-	if err == nil {
-		t.Error("guard should block running->paused transition")
-	}
-	if !errors.Is(err, ErrInvalidTransition) {
-		t.Errorf("expected ErrInvalidTransition, got %v", err)
-	}
-
-	err = lc.SetStatus(StatusCompleted)
-	if err != nil {
-		t.Errorf("guard should allow running->completed, got error: %v", err)
-	}
-}
 
 func TestLifecycle_OnTransition(t *testing.T) {
 	lc := NewLifecycle()

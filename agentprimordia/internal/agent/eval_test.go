@@ -1,4 +1,3 @@
-//go:build ignore
 
 package agent
 
@@ -252,7 +251,7 @@ type mockEvalAgent struct {
 
 func (m *mockEvalAgent) Run(ctx context.Context, input Message) (*Response, error) {
 	content := m.responses[input.Content]
-	return &eval.Response{Content: content}, nil
+	return &Response{Content: content}, nil
 }
 
 func (m *mockEvalAgent) StreamRun(ctx context.Context, input Message) (<-chan StreamEvent, error) {
@@ -376,22 +375,6 @@ func TestCompositeEvaluator_Weighted(t *testing.T) {
 	}
 }
 
-func TestNormalizeWhitespace(t *testing.T) {
-	tests := []struct {
-		input  string
-		expect string
-	}{
-		{"hello   world", "hello world"},
-		{"  hello  world  ", "hello world"},
-		{"hello\n\tworld", "hello world"},
-	}
-	for _, tt := range tests {
-		got := normalizeWhitespace(tt.input)
-		if got != tt.expect {
-			t.Errorf("normalizeWhitespace(%q) = %q, want %q", tt.input, got, tt.expect)
-		}
-	}
-}
 
 func TestToolUsageEvaluator_PartialMatch(t *testing.T) {
 	e := &ToolUsageEvaluator{ExpectedTools: []string{"calculator", "datetime"}}

@@ -714,3 +714,75 @@ func TestCollaborator_WithTimeout(t *testing.T) {
 		t.Fatal("expected timeout error")
 	}
 }
+
+// ===== RoleBasedSelector 补充用例（2026-09-28 自 agent 包 group_chat_test.go 迁移）=====
+// 原文件被 //go:build ignore 禁用而腐烂：其测试的 RoleBasedSelector API
+// 已迁入本包。迁移时适配 collaboration.Message/Agent 类型，保留原覆盖意图。
+
+func TestRoleBasedSelector_KeywordMatchZH(t *testing.T) {
+	agents := []Agent{
+		&mockAgent{name: "coder"},
+		&mockAgent{name: "designer"},
+	}
+	cfg := RoleBasedConfig{
+		Roles: map[string]AgentRole{
+			"coder": {
+				Name:        "代码专家",
+				Description: "负责编码实现",
+				Keywords:    []string{"code", "implement", "function", "API", "bug"},
+				Priority:    1,
+			},
+			"designer": {
+				Name:        "设计专家",
+				Description: "负责 UI/UX 设计",
+				Keywords:    []string{"UI", "design", "color", "layout", "interface"},
+				Priority:    2,
+			},
+		},
+		FallbackMode: "round_robin",
+	}
+	sel := RoleBasedSelector(cfg)
+
+	selected, err := sel(context.Background(),
+		[]Message{{Role: "user", Content: "Please implement the login API function"}}, agents)
+	if err != nil {
+		t.Fatalf("selector error = %v", err)
+	}
+	if selected.Name() != "coder" {
+		t.Errorf("expected coder agent, got %s", selected.Name())
+	}
+
+	selected2, err := sel(context.Background(),
+		[]Message{{Role: "user", Content: "Design a beautiful UI layout"}}, agents)
+	if err != nil {
+		t.Fatalf("selector error = %v", err)
+	}
+	if selected2.Name() != "designer" {
+		t.Errorf("expected designer agent, got %s", selected2.Name())
+	}
+}
+
+func TestRoleBasedSelector_FallbackModes(t *testing.T) {
+	agents := []Agent{
+		&mockAgent{name: "agent-1"},
+		&mockAgent{name: "agent-2"},
+	}
+	cfg := RoleBasedConfig{
+		Roles: map[string]AgentRole{
+			"agent-1": {Name: "A1", Keywords: []string{"special"}},
+		},
+		FallbackMode: "random",
+	}
+	sel := RoleBasedSelector(cfg)
+	msg := []Message{{Role: "user", Content: "generic message without keywords"}}
+
+	for i := 0; i < 5; i++ {
+		selected, err := sel(context.Background(), msg, agents)
+		if err != nil {
+			t.Fatalf("selector error = %v", err)
+		}
+		if selected == nil {
+			t.Error("expected non-nil agent")
+		}
+	}
+}

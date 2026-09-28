@@ -1,4 +1,3 @@
-//go:build ignore
 
 package agent
 
@@ -313,6 +312,11 @@ func TestTCPTransportAPI_MultipleSenders(t *testing.T) {
 }
 
 // 并发安全 - 并发Start/Close：并发调用Start和Close不应产生数据竞争
+// TestTCPTransportAPI_ConcurrentStartClose 并发 Start/Close 不 panic、不 race。
+// 2026-09-28：原实现直接访问 transport 包内部字段（tr.mu/tr.ln），随
+// TCPTransport 迁入 internal/agent/transport 后不可达；并发安全改由
+// -race 检测器断言（CI 全量 race 即本测试的防线），此处仅保留公共 API
+// 形态的冒烟 + Close 幂等性验证。
 func TestTCPTransportAPI_ConcurrentStartClose(t *testing.T) {
 	const iterations = 20
 	var wg sync.WaitGroup
@@ -329,12 +333,8 @@ func TestTCPTransportAPI_ConcurrentStartClose(t *testing.T) {
 			_ = tr.Close()
 		}()
 		wg.Wait()
-
-		tr.mu.RLock()
-		if tr.ln != nil {
-			tr.ln.Close()
-		}
-		tr.mu.RUnlock()
+		// Close 幂等：并发后再调用一次不应 panic。
+		_ = tr.Close()
 	}
 }
 

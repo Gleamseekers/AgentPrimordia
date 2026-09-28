@@ -1,4 +1,3 @@
-//go:build ignore
 
 package agent
 
@@ -6,6 +5,7 @@ import (
 	"context"
 	"testing"
 
+	"agentprimordia/internal/agent/session"
 	"agentprimordia/internal/llm"
 	"agentprimordia/internal/memory"
 )
@@ -131,13 +131,13 @@ func TestSession_History(t *testing.T) {
 	if len(h) != 4 { // 2 user + 2 assistant
 		t.Fatalf("expected 4 messages, got %d", len(h))
 	}
-	if h[0].Content != "q1" || h[0].Role != RoleUser {
+	if h[0].Content != "q1" || h[0].Role != session.RoleUser {
 		t.Fatal("first message should be user q1")
 	}
-	if h[1].Content != "resp1" || h[1].Role != RoleAssistant {
+	if h[1].Content != "resp1" || h[1].Role != session.RoleAssistant {
 		t.Fatal("second message should be assistant resp1")
 	}
-	if h[2].Content != "q2" || h[2].Role != RoleUser {
+	if h[2].Content != "q2" || h[2].Role != session.RoleUser {
 		t.Fatal("third message should be user q2")
 	}
 }

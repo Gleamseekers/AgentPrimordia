@@ -1,4 +1,3 @@
-//go:build ignore
 
 package agent
 
@@ -333,74 +332,6 @@ func TestGroupChat_AgentRunError(t *testing.T) {
 }
 
 // ===== RoleBasedSelector Tests =====
-
-func TestRoleBasedSelector_KeywordMatch(t *testing.T) {
-	codeAgent := &mockGroupChatAgent{name: "coder", output: "I'll write the code"}
-	designAgent := &mockGroupChatAgent{name: "designer", output: "I'll design the UI"}
-
-	cfg := RoleBasedConfig{
-		Roles: map[string]AgentRole{
-			"coder": {
-				Name:        "代码专家",
-				Description: "负责编码实现",
-				Keywords:    []string{"code", "implement", "function", "API", "bug"},
-				Priority:    1,
-			},
-			"designer": {
-				Name:        "设计专家",
-				Description: "负责 UI/UX 设计",
-				Keywords:    []string{"UI", "design", "color", "layout", "interface"},
-				Priority:    2,
-			},
-		},
-		FallbackMode: "round_robin",
-	}
-
-	selector := RoleBasedSelector(cfg)
-
-	msgWithCode := UserMessage("Please implement the login API function")
-	selected, err := selector(context.Background(), []Message{msgWithCode}, []Agent{codeAgent, designAgent})
-	if err != nil {
-		t.Fatalf("selector error = %v", err)
-	}
-	if selected.Name() != "coder" {
-		t.Errorf("expected coder agent, got %s", selected.Name())
-	}
-
-	msgWithDesign := UserMessage("Design a beautiful UI layout")
-	selected2, err := selector(context.Background(), []Message{msgWithDesign}, []Agent{codeAgent, designAgent})
-	if err != nil {
-		t.Fatalf("selector error = %v", err)
-	}
-	if selected2.Name() != "designer" {
-		t.Errorf("expected designer agent, got %s", selected2.Name())
-	}
-}
-
-func TestRoleBasedSelector_Fallback(t *testing.T) {
-	agent1 := &mockGroupChatAgent{name: "agent-1", output: "msg-1"}
-	agent2 := &mockGroupChatAgent{name: "agent-2", output: "msg-2"}
-
-	cfg := RoleBasedConfig{
-		Roles: map[string]AgentRole{
-			"agent-1": {Name: "A1", Keywords: []string{"special"}},
-		},
-		FallbackMode: "random",
-	}
-
-	selector := RoleBasedSelector(cfg)
-	msg := UserMessage("generic message without keywords")
-
-	for i := 0; i < 5; i++ {
-		selected, err := selector(context.Background(), []Message{msg}, []Agent{agent1, agent2})
-		if err != nil {
-			t.Fatalf("selector error = %v", err)
-		}
-		if selected == nil {
-			t.Error("expected non-nil agent")
-		}
-	}
-}
 
 // ===== Consensus Tests =====
 

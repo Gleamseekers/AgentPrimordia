@@ -115,9 +115,21 @@ func (d *AuthenticatedDiscovery) Register(ctx context.Context, info *AgentInfo, 
 		return errors.New("token identity does not match registration")
 	}
 
-	// 将 identity 的角色同步到 info.Capabilities，确保 ListAgentsByRole 可按角色过滤
-	if len(info.Capabilities) == 0 && len(identity.Roles) > 0 {
-		info.Capabilities = identity.Roles
+	// 将 identity 的角色合并进 info.Capabilities，确保 ListAgentsByRole 可按角色过滤。
+	// 2026-09-28 修复（分布式集成测试回归暴露）：此前仅在 Capabilities 为空时
+	// 同步——同时声明 capabilities 与 roles 的 agent（最常见形态）角色被丢弃，
+	// ListAgentsByRole 静默返回空。现改为去重合并，两者共存。
+	if len(identity.Roles) > 0 {
+		seen := make(map[string]bool, len(info.Capabilities))
+		for _, c := range info.Capabilities {
+			seen[c] = true
+		}
+		for _, r := range identity.Roles {
+			if !seen[r] {
+				info.Capabilities = append(info.Capabilities, r)
+				seen[r] = true
+			}
+		}
 	}
 
 	if err := d.inner.Register(ctx, info); err != nil {

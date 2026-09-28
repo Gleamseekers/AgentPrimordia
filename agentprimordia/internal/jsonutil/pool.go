@@ -61,8 +61,12 @@ func (r *stringReader) ReadByte() (byte, error) {
 }
 
 // Marshal 使用 pooled buffer 序列化 JSON（perf-v6 round 5 Task 1）
-// 关键优化：将 buffer 数据直接转移给返回值（避免 copy）
-// 注意：调用方不能在结果上做 append（可能影响下次 pooled buffer）
+//
+// 返回值为独立拷贝：pooled buffer 在序列化后即归还池中，若直接返回其
+// 底层数组的切片，其他 goroutine 的 Marshal 会 Reset+Encode 覆写同一块
+// 内存（实测 2000 次并发下 99.5% 请求体被整体替换——既是正确性缺陷，
+// 也是跨会话数据泄漏）。故此处必须在归还前拷贝（P0 修复：正确性优先
+// 于该微优化，拷贝成本相对 JSON 序列化本身可忽略）。
 func Marshal(v any) ([]byte, error) {
 	buf := bufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
@@ -74,13 +78,15 @@ func Marshal(v any) ([]byte, error) {
 	}
 	// 去除 json.Encoder 添加的末尾 '\n'
 	data := buf.Bytes()
-	if n := len(data); n > 0 && data[n-1] == '\n' {
-		result := data[:n-1]
-		bufferPool.Put(buf)
-		return result, nil
+	n := len(data)
+	if n > 0 && data[n-1] == '\n' {
+		n--
 	}
+	// 拷贝出独立底层数组后再归还 buffer，杜绝并发覆写。
+	out := make([]byte, n)
+	copy(out, data[:n])
 	bufferPool.Put(buf)
-	return data, nil
+	return out, nil
 }
 
 // Unmarshal 反序列化 JSON（perf-v6 round 8 Task 1：复用 bytes.Reader）

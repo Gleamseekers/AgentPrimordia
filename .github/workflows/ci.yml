@@ -68,6 +68,15 @@ jobs:
           CGO_ENABLED: 0
         run: go build ./...
 
+      # go vet 门（2026-09-28 增补）：copylocks/未用导入/printf 等类缺陷
+      # 曾因无 vet 门漏网（cmd/ap/autonomy.go 锁拷贝即实例）。
+      # vet 同时编译测试文件，可提前拦截测试代码腐烂。
+      - name: Vet
+        working-directory: agentprimordia
+        env:
+          CGO_ENABLED: 0
+        run: go vet ./...
+
       - name: Test with race detector
         if: runner.os != 'Windows'
         working-directory: agentprimordia

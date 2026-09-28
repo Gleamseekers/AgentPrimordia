@@ -227,6 +227,23 @@ func (p *GoalPlan) RemainingSteps() []PlanStep {
 	return remaining
 }
 
+// Clone 返回计划的深拷贝（不含互斥锁）。
+// GoalPlan 含 sync.RWMutex，按值拷贝会触发 go vet copylocks 且复制
+// 锁状态；恢复检查点等场景需要独立副本时必须走本方法。
+func (p *GoalPlan) Clone() *GoalPlan {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	steps := make([]PlanStep, len(p.Steps))
+	copy(steps, p.Steps)
+	return &GoalPlan{
+		GoalID:      p.GoalID,
+		Steps:       steps,
+		Version:     p.Version,
+		CreatedAt:   p.CreatedAt,
+		ReplanReason: p.ReplanReason,
+	}
+}
+
 // Validate 校验计划合法性（循环依赖检测 + 非空）
 func (p *GoalPlan) Validate() error {
 	p.mu.RLock()

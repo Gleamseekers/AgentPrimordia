@@ -45,6 +45,10 @@ func TestMemoryReadback_FastPath(t *testing.T) {
 		t.Errorf("第一次应走正常推理, got %q", r1.Content)
 	}
 
+	// 等待已解记忆的异步落库（saveSolutionMemory 为 fire-and-forget
+	// 设计，见 memory_readback.go；直接读存在竞态窗口，需显式同步）。
+	waitSolutionMemory(t, mem, "Fibonacci", 5*time.Second)
+
 	// 第二次：命中自动保存的已解记忆，直接复用（0 轮推理）——显著更快
 	r2, err := ag.Run(ctx, UserMessage("用 Go 实现 Fibonacci，负数返回 -1"))
 	if err != nil {
@@ -72,6 +76,25 @@ func TestMemoryReadback_FastPath(t *testing.T) {
 	if r3.Metrics.MemoryHit {
 		t.Error("无关任务不应命中已解记忆")
 	}
+}
+
+// waitSolutionMemory 轮询等待已解记忆落库（消除 fire-and-forget
+// 异步写入与测试读取之间的竞态——该竞态曾导致本测试 ~1% flaky）。
+func waitSolutionMemory(t *testing.T, mem *memory.InMemoryStore, keyword string, timeout time.Duration) {
+	t.Helper()
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		eps, err := mem.Search(context.Background(), keyword, nil)
+		if err == nil {
+			for _, ep := range eps {
+				if ep.Metadata["solved"] == "true" {
+					return
+				}
+			}
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	t.Fatalf("已解记忆未在 %v 内落库（keyword=%q）", timeout, keyword)
 }
 
 // TestMemoryReadback_NoSolvedEpisode 无 solved 标记时不走 fast-path。

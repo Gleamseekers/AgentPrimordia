@@ -317,9 +317,10 @@ func runAutonomyResume(args []string) error {
 		CheckpointStore: newAutonomyStore(),
 	})
 	g := rt.SubmitGoal(cp.GoalDescription, autonomy.GoalConfig{})
-	// 复用原计划快照（含各步骤已完成状态，ReadySteps 会自动跳过已完成步骤）
-	plan := *cp.PlanSnapshot
-	if err := rt.SetPlan(g.ID, &plan); err != nil {
+	// 复用原计划快照（含各步骤已完成状态，ReadySteps 会自动跳过已完成步骤）。
+	// GoalPlan 含 RWMutex，必须走 Clone 深拷贝（按值拷贝会 copylocks）。
+	plan := cp.PlanSnapshot.Clone()
+	if err := rt.SetPlan(g.ID, plan); err != nil {
 		return fmt.Errorf("恢复计划失败: %w", err)
 	}
 	fmt.Printf("从检查点恢复目标 %s（原目标 %s），继续执行...\n", g.ID, goalID)
@@ -331,7 +332,7 @@ func runAutonomyResume(args []string) error {
 	if err := rt.CompleteGoal(g.ID); err != nil {
 		return fmt.Errorf("目标完成标记失败: %w", err)
 	}
-	if err := saveFinalAutonomyCheckpoint(g.ID, cp.GoalDescription, &plan); err != nil {
+	if err := saveFinalAutonomyCheckpoint(g.ID, cp.GoalDescription, plan); err != nil {
 		return err
 	}
 	successf("目标 %s 恢复执行完成", g.ID)

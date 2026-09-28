@@ -1,0 +1,129 @@
+{
+  "started_at": "2026-09-03T22:34:01.124005+08:00",
+  "ended_at": "2026-09-04T18:23:06.669529+08:00",
+  "elapsed_sec": 43224.558768209,
+  "target_sec": 259200,
+  "metabolism": "echo-synthetic（无 LLM：长活门测运行时工程，不测模型质量）",
+  "injections": 15,
+  "healed": 15,
+  "failures": 0,
+  "heal_rate_point": 1,
+  "heal_wilson_lb95": 0.7961166964035129,
+  "reboots": 1,
+  "segments": [
+    {
+      "start": "2026-09-03T22:34:01.124005+08:00",
+      "end": "2026-09-04T08:34:26.683087+08:00"
+    },
+    {
+      "start": "2026-09-04T16:23:07.6003+08:00",
+      "end": "2026-09-04T17:53:07.666665+08:00"
+    }
+  ],
+  "samples": [
+    {
+      "at": "2026-09-03T23:34:02.127987+08:00",
+      "heap_alloc_bytes": 255760,
+      "heap_sys_bytes": 8093696,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3554871
+    },
+    {
+      "at": "2026-09-04T00:34:01.00448+08:00",
+      "heap_alloc_bytes": 287232,
+      "heap_sys_bytes": 8093696,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3555290
+    },
+    {
+      "at": "2026-09-04T01:34:00.9279+08:00",
+      "heap_alloc_bytes": 326192,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3555710
+    },
+    {
+      "at": "2026-09-04T02:34:00.916136+08:00",
+      "heap_alloc_bytes": 360472,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3556128
+    },
+    {
+      "at": "2026-09-04T03:34:01.04529+08:00",
+      "heap_alloc_bytes": 395120,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3556550
+    },
+    {
+      "at": "2026-09-04T04:34:01.13974+08:00",
+      "heap_alloc_bytes": 442688,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3556970
+    },
+    {
+      "at": "2026-09-04T05:34:01.212075+08:00",
+      "heap_alloc_bytes": 487984,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3557389
+    },
+    {
+      "at": "2026-09-04T06:34:01.183506+08:00",
+      "heap_alloc_bytes": 538448,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3557818
+    },
+    {
+      "at": "2026-09-04T07:34:01.285367+08:00",
+      "heap_alloc_bytes": 591640,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3558242
+    },
+    {
+      "at": "2026-09-04T08:34:02.348219+08:00",
+      "heap_alloc_bytes": 649200,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3558667
+    },
+    {
+      "at": "2026-09-04T17:23:07.663655+08:00",
+      "heap_alloc_bytes": 275528,
+      "heap_sys_bytes": 8060928,
+      "goroutines": 2,
+      "open_fds": 8,
+      "state_dir_bytes": 3563308
+    }
+  ],
+  "verdict": {
+    "duration_ok": false,
+    "injections_ok": false,
+    "heal_point_ok": true,
+    "heal_wilson_ok": false,
+    "audit_chain_ok": true,
+    "pass": false,
+    "notes": [
+      "累计在线时长未达目标",
+      "崩溃注入次数未达下限（≥75）",
+      "自愈成功率或 Wilson 下界未达标（点估计 ≥99% 且下界 ≥95%）",
+      "累计在线口径：跨重启续计 1 次，各在线段区间全量披露于 segments",
+      "残余风险披露：≥14 天日历长尾（慢泄漏/长尾环境事件）不在压缩口径内，由小时级遥测斜率与伪时钟 14 天确定性模拟覆盖",
+      "代谢形态：echo-synthetic（无 LLM：长活门测运行时工程，不测模型质量）"
+    ]
+  }
+}

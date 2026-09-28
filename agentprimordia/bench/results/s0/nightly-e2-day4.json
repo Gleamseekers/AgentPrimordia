@@ -1,0 +1,292 @@
+{
+  "set": "external-general-v1.json",
+  "set_sha256": "5af8f5d2f631261c2d4b683109df81a0489340213463f24c287cf5fb42ac927a",
+  "freeze_commit": "027b5c56542783dab601558eb99ced10b0458277",
+  "track": "real",
+  "mode": "external",
+  "provider": "openai",
+  "model": "sensenova-6.8-flash-lite",
+  "holdout_only": true,
+  "generated_at": "2026-09-07T01:46:00Z",
+  "records": [
+    {
+      "id": "xg-001",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "2262",
+      "response": "\n\n**29 × 78 = 2,262**\n\nHere's the step-by-step breakdown:\n\n1. **29 × 80 = 2,320**\n2. **29 × 2 = 58**\n3. **2,320 − 58 = 2,262**",
+      "passed": true
+    },
+    {
+      "id": "xg-002",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "2128",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-010",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "5796",
+      "response": "\n\n**63 × 92 = 5,796**\n\nHere's the breakdown:\n\n- 63 × 90 = 5,670\n- 63 × 2 = 126\n- 5,670 + 126 = **5,796**",
+      "passed": true
+    },
+    {
+      "id": "xg-013",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "5632",
+      "response": "\n\n**88 × 64 = 5,632**\n\nHere's a breakdown:\n- 88 × 60 = 5,280\n- 88 × 4 = 352\n- 5,280 + 352 = **5,632**",
+      "passed": true
+    },
+    {
+      "id": "xg-017",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "1944",
+      "response": "\n\n81 × 24 = **1,944**",
+      "passed": true
+    },
+    {
+      "id": "xg-021",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "5320",
+      "response": "\n\n## 70 × 76 = **5,320**\n\nHere's a quick way to break it down:\n\n- 70 × 76 = 70 × (70 + 6)\n- = (70 × 70) + (70 × 6)\n- = 4,900 + 420\n- = **5,320**",
+      "passed": true
+    },
+    {
+      "id": "xg-026",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-030",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-031",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-032",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-033",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-034",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-039",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-041",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-045",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-052",
+      "kind": "logic",
+      "holdout": true,
+      "expected": "是",
+      "response": "\n\n# 逻辑推理\n\n**推理过程：**\n\n- 前提1：所有 Bloops 都是 Razzles\n- 前提2：所有 Razzles 都是 Lazzles\n\n根据三段论推理：\n- 既然 Bloops → Razzles → Lazzles，则 Bloops 必然也是 Lazzles。\n\n**答案：是 ✅**\n\n所有 Bloops 都是 Lazzles。",
+      "passed": true
+    },
+    {
+      "id": "xg-053",
+      "kind": "logic",
+      "holdout": true,
+      "expected": "是",
+      "response": "\n\n是\n\n根据逻辑推理：\n\n1. 所有 Bloops 都是 Razzles\n2. 所有 Razzles 都是 Lazzles\n\n因此，所有 Bloops 都是 Lazzles。这是一个有效的三段论推理，通过传递性可以得出结论。",
+      "passed": true
+    },
+    {
+      "id": "xg-063",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-05-27",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-065",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-07-31",
+      "response": "\n\n## 计算：2026-08-31 之后第 334 天\n\n从 2026-08-31 开始逐月累加天数：\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 2026年9月 | 30 | 30 |\n| 2026年10月 | 31 | 61 |\n| 2026年11月 | 30 | 91 |\n| 2026年12月 | 31 | 122 |\n| 2027年1月 | 31 | 153 |\n| 2027年2月 | 28 | 181 |\n| 2027年3月 | 31 | 212 |\n| 2027年4月 | 30 | 242 |\n| 2027年5月 | 31 | 273 |\n| 2027年6月 | 30 | 303 |\n| 2027年7月 | 31 | **334** |\n\n## 结果\n\n$$\\boxed{2027\\text{-}07\\text{-}31}$$",
+      "passed": false
+    },
+    {
+      "id": "xg-066",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-07-04",
+      "response": "\n\n# 2026-08-31 之后第 307 天\n\n## 逐月累加计算\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 2026年9月 | 30 | 30 |\n| 2026年10月 | 31 | 61 |\n| 2026年11月 | 30 | 91 |\n| 2026年12月 | 31 | 122 |\n| 2027年1月 | 31 | 153 |\n| 2027年2月 | 28 | 181 |\n| 2027年3月 | 31 | 212 |\n| 2027年4月 | 30 | 242 |\n| 2027年5月 | 31 | 273 |\n| 2027年6月 | 30 | 303 |\n| 2027年7月 | 4 | **307** |\n\n## 结果\n\n$$\\boxed{2027-07-04}$$",
+      "passed": true
+    },
+    {
+      "id": "xg-068",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-05-12",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 之后第 254 天，逐月累加：\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 2026年9月 | 30 | 30 |\n| 2026年10月 | 31 | 61 |\n| 2026年11月 | 30 | 91 |\n| 2026年12月 | 31 | 122 |\n| 2027年1月 | 31 | 153 |\n| 2027年2月 | 28 | 181 |\n| 2027年3月 | 31 | 212 |\n| 2027年4月 | 30 | 242 |\n| 2027年5月 | 12 | **254** |\n\n## 答案\n\n$$\\boxed{2027-05-12}$$",
+      "passed": true
+    },
+    {
+      "id": "xg-069",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-06-22",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 开始逐月累加：\n\n| 月份 | 天数 | 累计天数 |\n|------|------|----------|\n| 2026年9月 | 30 | 30 |\n| 2026年10月 | 31 | 61 |\n| 2026年11月 | 30 | 91 |\n| 2026年12月 | 31 | 122 |\n| 2027年1月 | 31 | 153 |\n| 2027年2月 | 28 | 181 |\n| 2027年3月 | 31 | 212 |\n| 2027年4月 | 30 | 242 |\n| 2027年5月 | 31 | 273 |\n| 2027年6月（剩余 295−273=22 天） | 22 | **295** |\n\n## 结果\n\n$$\\boxed{2027\\text{-}06\\text{-}22}$$",
+      "passed": false
+    },
+    {
+      "id": "xg-070",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-09-10",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-072",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-07-25",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 开始往后数 328 天：\n\n| 区间 | 天数 | 累计 |\n|------|------|------|\n| 9月（9/1–9/30） | 30 | 30 |\n| 10月（10/1–10/31） | 31 | 61 |\n| 11月（11/1–11/30） | 30 | 91 |\n| 12月（12/1–12/31） | 31 | 122 |\n| 2027年1月（1/1–1/31） | 31 | 153 |\n| 2月（2/1–2/28） | 28 | 181 |\n| 3月（3/1–3/31） | 31 | 212 |\n| 4月（4/1–4/30） | 30 | 242 |\n| 5月（5/1–5/31） | 31 | 273 |\n| 6月（6/1–6/30） | 30 | 303 |\n| 7月1日–7月25日 | 25 | **328** |\n\n## 答案\n\n\u003e **2027-07-25**",
+      "passed": true
+    },
+    {
+      "id": "xg-074",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-03-26",
+      "passed": false,
+      "error": "openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"
+    },
+    {
+      "id": "xg-076",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "4096",
+      "response": "\n\n## Explanation\n\nThis Python code prints **4096**.\n\nHere's the breakdown:\n\n1. `x = 8` — Assigns the value 8 to the variable `x`\n2. `x**4` — The `**` operator is Python's **exponentiation** (power) operator. It raises `x` to the 4th power:\n   ```\n   8⁴ = 8 × 8 × 8 × 8 = 4096\n   ```\n3. `print(x**4)` — Outputs the result: **4096**",
+      "passed": true
+    },
+    {
+      "id": "xg-085",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "256",
+      "response": "\n\nThis code prints:\n\n**256**\n\nHere's the breakdown:\n\n- `x = 4` assigns the integer value `4` to the variable `x`.\n- `x**4` raises `x` to the power of 4 (i.e., `4⁴`).\n- `4 × 4 × 4 × 4 = 256`\n- `print()` outputs that result to the console.\n\nSo the final output is:\n```\n256\n```",
+      "passed": true
+    },
+    {
+      "id": "xg-087",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "25",
+      "response": "\n\n## Output:\n\n```\n25\n```\n\n### Explanation:\n\n- **Line 1:** `x=5` assigns the integer value `5` to the variable `x`.\n- **Line 2:** `x**2` uses the **exponentiation operator** (`**`) to calculate `5` raised to the power of `2`, which equals `25`.\n\nThe `print()` function then outputs `25` to the screen.",
+      "passed": true
+    },
+    {
+      "id": "xg-091",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "64",
+      "response": "\n\n**64**\n\n### Explanation:\n\n- `x = 8` assigns the integer value 8 to the variable `x`.\n- `x**2` means \"x to the power of 2\" — in other words, 8 × 8.\n- `print(x**2)` outputs the result: **64**.\n\nThe `**` operator in Python is the exponentiation operator.",
+      "passed": true
+    },
+    {
+      "id": "xg-094",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "27",
+      "response": "\n\nThis code prints **27**.\n\nHere is the breakdown:\n1.  `x = 3` assigns the number 3 to the variable `x`.\n2.  `**` is the exponentiation operator in Python.\n3.  So, `x**3` calculates 3 to the power of 3 ($3 \\times 3 \\times 3$), which equals 27.",
+      "passed": true
+    },
+    {
+      "id": "xg-095",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "16",
+      "response": "\n\nThis code prints:\n\n**16**\n\nIn Python, the `**` operator is the exponentiation (power) operator. So `x**4` calculates 2⁴, which is:\n\n2 × 2 × 2 × 2 = **16**",
+      "passed": true
+    },
+    {
+      "id": "xg-096",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "256",
+      "response": "\n\nThis code prints:\n\n**256**\n\nHere is the breakdown:\n1.  `x` is assigned the value **4**.\n2.  `**` is the exponentiation operator in Python.\n3.  So, it calculates 4 raised to the power of 4 ($4 \\times 4 \\times 4 \\times 4$), which equals **256**.",
+      "passed": true
+    },
+    {
+      "id": "xg-097",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "81",
+      "response": "\n\n这段代码会打印 **81**。\n\n解释：\n- `x = 3` 将变量 x 赋值为 3\n- `x**4` 表示 x 的 4 次方（幂运算），即 3 × 3 × 3 × 3 = 81",
+      "passed": true
+    },
+    {
+      "id": "xg-098",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "8",
+      "response": "\n\nThis prints **8**.\n\nHere's why:\n*   `x = 2` assigns the number 2 to the variable `x`.\n*   `**` is the exponentiation operator in Python (meaning \"to the power of\").\n*   So, `x**3` calculates $2^3$ (2 multiplied by itself 3 times), which equals 8.",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "successes": 24,
+    "trials": 34,
+    "point": 0.7058823529411765,
+    "wilson_lower95": 0.5383109020528557,
+    "wilson_upper95": 0.8316536932957758
+  }
+}

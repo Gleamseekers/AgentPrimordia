@@ -1,0 +1,118 @@
+{"item":"gap-001","arm":"A","success":true,"turns":3,"tools":0,"duration_sec":9}
+{"item":"gap-001","arm":"B","success":true,"turns":9,"tools":0,"duration_sec":23}
+{"item":"gap-002","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-002","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":8,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-003","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":16,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-003","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":27,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-004","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":12,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-004","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-005","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":20,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-005","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-006","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":18,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-006","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":10,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-007","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":12,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-007","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-008","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":6,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-008","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":43,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"gap-009","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":9,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-009","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-010","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-010","arm":"B","success":true,"turns":3,"tools":0,"duration_sec":8}
+{"item":"gap-011","arm":"A","success":true,"turns":10,"tools":0,"duration_sec":78}
+{"item":"gap-011","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":36,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-012","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":36,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-012","arm":"B","success":true,"turns":4,"tools":0,"duration_sec":12}
+{"item":"gap-013","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-013","arm":"B","success":true,"turns":5,"tools":0,"duration_sec":24}
+{"item":"gap-014","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":10,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-014","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":26,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-015","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":7,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-015","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":25,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-016","arm":"A","success":true,"turns":4,"tools":0,"duration_sec":13}
+{"item":"gap-016","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":32,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-017","arm":"A","success":true,"turns":3,"tools":0,"duration_sec":28}
+{"item":"gap-017","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":24,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-018","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-018","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":11,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-019","arm":"A","success":true,"turns":9,"tools":0,"duration_sec":110}
+{"item":"gap-019","arm":"B","success":true,"turns":12,"tools":0,"duration_sec":62}
+{"item":"gap-020","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":26}
+{"item":"gap-020","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":20,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-021","arm":"A","success":true,"turns":9,"tools":0,"duration_sec":71}
+{"item":"gap-021","arm":"B","success":true,"turns":10,"tools":0,"duration_sec":96}
+{"item":"gap-022","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":12,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-022","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":29,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-023","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":65,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-023","arm":"B","success":true,"turns":8,"tools":0,"duration_sec":48}
+{"item":"gap-024","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":18,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-024","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-025","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":22}
+{"item":"gap-025","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-026","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":20,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-026","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":30,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-027","arm":"A","success":true,"turns":6,"tools":0,"duration_sec":17}
+{"item":"gap-027","arm":"B","success":true,"turns":9,"tools":0,"duration_sec":45}
+{"item":"gap-028","arm":"A","success":true,"turns":3,"tools":0,"duration_sec":25}
+{"item":"gap-028","arm":"B","success":true,"turns":9,"tools":0,"duration_sec":63}
+{"item":"gap-029","arm":"A","success":true,"turns":3,"tools":0,"duration_sec":6}
+{"item":"gap-029","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":25,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-030","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":12,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-030","arm":"B","success":true,"turns":5,"tools":0,"duration_sec":13}
+{"item":"gap-031","arm":"A","success":false,"turns":7,"tools":0,"duration_sec":50}
+{"item":"gap-031","arm":"B","success":false,"turns":4,"tools":0,"duration_sec":12}
+{"item":"gap-032","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":55,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-032","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-033","arm":"A","success":true,"turns":11,"tools":0,"duration_sec":39}
+{"item":"gap-033","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":148,"error":"max turns exceeded"}
+{"item":"gap-034","arm":"A","success":true,"turns":4,"tools":0,"duration_sec":14}
+{"item":"gap-034","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":34,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"gap-035","arm":"A","success":true,"turns":11,"tools":0,"duration_sec":97}
+{"item":"gap-035","arm":"B","success":true,"turns":10,"tools":0,"duration_sec":100}
+{"item":"gap-036","arm":"A","success":true,"turns":3,"tools":0,"duration_sec":235}
+{"item":"gap-036","arm":"B","success":true,"turns":4,"tools":0,"duration_sec":10}
+{"item":"gap-037","arm":"A","success":true,"turns":8,"tools":0,"duration_sec":191}
+{"item":"gap-037","arm":"B","success":true,"turns":11,"tools":0,"duration_sec":255}
+{"item":"gap-038","arm":"A","success":true,"turns":8,"tools":0,"duration_sec":33}
+{"item":"gap-038","arm":"B","success":true,"turns":6,"tools":0,"duration_sec":67}
+{"item":"gap-039","arm":"A","success":true,"turns":11,"tools":0,"duration_sec":89}
+{"item":"gap-039","arm":"B","success":true,"turns":9,"tools":0,"duration_sec":88}
+{"item":"gap-040","arm":"A","success":true,"turns":4,"tools":0,"duration_sec":31}
+{"item":"gap-040","arm":"B","success":true,"turns":3,"tools":0,"duration_sec":20}
+{"item":"gap-041","arm":"A","success":true,"turns":4,"tools":0,"duration_sec":132}
+{"item":"gap-041","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":78,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"gap-042","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":160}
+{"item":"gap-042","arm":"B","success":true,"turns":5,"tools":0,"duration_sec":104}
+{"item":"gap-043","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":16}
+{"item":"gap-043","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":73,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"gap-044","arm":"A","success":true,"turns":17,"tools":0,"duration_sec":114}
+{"item":"gap-044","arm":"B","success":true,"turns":9,"tools":0,"duration_sec":105}
+{"item":"gap-045","arm":"A","success":true,"turns":6,"tools":0,"duration_sec":177}
+{"item":"gap-045","arm":"B","success":true,"turns":10,"tools":0,"duration_sec":42}
+{"item":"gap-046","arm":"A","success":true,"turns":9,"tools":0,"duration_sec":66}
+{"item":"gap-046","arm":"B","success":true,"turns":10,"tools":0,"duration_sec":92}
+{"item":"gap-047","arm":"A","success":true,"turns":4,"tools":0,"duration_sec":65}
+{"item":"gap-047","arm":"B","success":true,"turns":9,"tools":0,"duration_sec":59}
+{"item":"gap-048","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":20}
+{"item":"gap-048","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":145,"error":"max turns exceeded"}
+{"item":"gap-049","arm":"A","success":true,"turns":8,"tools":0,"duration_sec":44}
+{"item":"gap-049","arm":"B","success":true,"turns":15,"tools":0,"duration_sec":120}
+{"item":"gap-050","arm":"A","success":true,"turns":12,"tools":0,"duration_sec":67}
+{"item":"gap-050","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":195,"error":"max turns exceeded"}
+{"item":"gap-051","arm":"A","success":true,"turns":12,"tools":0,"duration_sec":181}
+{"item":"gap-051","arm":"B","success":true,"turns":5,"tools":0,"duration_sec":10}
+{"item":"gap-052","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":19}
+{"item":"gap-052","arm":"B","success":true,"turns":10,"tools":0,"duration_sec":63}
+{"item":"gap-053","arm":"A","success":true,"turns":4,"tools":0,"duration_sec":60}
+{"item":"gap-053","arm":"B","success":true,"turns":8,"tools":0,"duration_sec":82}
+{"item":"gap-054","arm":"A","success":true,"turns":3,"tools":0,"duration_sec":31}
+{"item":"gap-054","arm":"B","success":true,"turns":5,"tools":0,"duration_sec":16}
+{"item":"gap-055","arm":"A","success":true,"turns":8,"tools":0,"duration_sec":57}
+{"item":"gap-055","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":101,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"gap-056","arm":"A","success":true,"turns":11,"tools":0,"duration_sec":70}
+{"item":"gap-056","arm":"B","success":true,"turns":13,"tools":0,"duration_sec":53}
+{"item":"gap-057","arm":"A","success":false,"turns":5,"tools":0,"duration_sec":47}
+{"item":"gap-057","arm":"B","success":false,"turns":8,"tools":0,"duration_sec":87}
+{"item":"gap-058","arm":"A","success":true,"turns":5,"tools":0,"duration_sec":39}
+{"item":"gap-058","arm":"B","success":true,"turns":4,"tools":0,"duration_sec":15}
+{"item":"gap-059","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":110,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"gap-059","arm":"B","success":true,"turns":5,"tools":0,"duration_sec":88}

@@ -1,0 +1,292 @@
+{
+  "set": "external-general-v1.json",
+  "set_sha256": "5af8f5d2f631261c2d4b683109df81a0489340213463f24c287cf5fb42ac927a",
+  "freeze_commit": "027b5c56542783dab601558eb99ced10b0458277",
+  "track": "real",
+  "mode": "external",
+  "provider": "openai",
+  "model": "sensenova-6.8-flash-lite",
+  "holdout_only": true,
+  "generated_at": "2026-09-09T01:38:35Z",
+  "records": [
+    {
+      "id": "xg-001",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "2262",
+      "response": "\n\n**29 × 78 = 2,262**\n\nHere's a quick way to break it down:\n\n\u003e 29 × 78\n\u003e = (30 − 1) × 78\n\u003e = (30 × 78) − 78\n\u003e = 2,340 − 78\n\u003e = **2,262**",
+      "passed": true
+    },
+    {
+      "id": "xg-002",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "2128",
+      "response": "\n\n## Calculating 28 × 76\n\nI can break this down step by step:\n\n**28 × 76**\n= 28 × (70 + 6)\n= 28 × 70 + 28 × 6\n= 1,960 + 168\n\n### **= 2,128**",
+      "passed": true
+    },
+    {
+      "id": "xg-010",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "5796",
+      "response": "\n\n**63 × 92 = 5,796**\n\nHere's the breakdown:\n\n1. 63 × 90 = 5,670\n2. 63 × 2 = 126\n3. 5,670 + 126 = **5,796**",
+      "passed": true
+    },
+    {
+      "id": "xg-013",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "5632",
+      "response": "\n\n**88 × 64 = 5,632**\n\nHere's the breakdown:\n\n1. 88 × 60 = 5,280\n2. 88 × 4 = 352\n3. 5,280 + 352 = **5,632**",
+      "passed": true
+    },
+    {
+      "id": "xg-017",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "1944",
+      "response": "\n\n## 81 × 24 = **1,944**\n\nHere's how to break it down:\n\n| Step | Calculation | Result |\n|------|------------|--------|\n| 81 × 20 | 81 × 20 | 1,620 |\n| 81 × 4 | 81 × 4 | 324 |\n| **Total** | 1,620 + 324 | **1,944** |",
+      "passed": true
+    },
+    {
+      "id": "xg-021",
+      "kind": "arithmetic",
+      "holdout": true,
+      "expected": "5320",
+      "response": "\n\n## 70 × 76 = 5,320\n\nHere's a quick way to break it down:\n\n**70 × 76**\n= 70 × (70 + 6)\n= (70 × 70) + (70 × 6)\n= 4,900 + 420\n= **5,320**",
+      "passed": true
+    },
+    {
+      "id": "xg-026",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-030",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-031",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-032",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-033",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n## Answer\n\n**1**\n\nHere's the reasoning:\n\n1. **Reverse** `'ab85c'` → `'c58ba'`\n2. **Count vowels** in `'c58ba'`:\n   - c → not a vowel\n   - 5 → not a vowel\n   - 8 → not a vowel\n   - b → not a vowel\n   - a → vowel ✓\n\n**Count = 1**",
+      "passed": true
+    },
+    {
+      "id": "xg-034",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-039",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-041",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-045",
+      "kind": "string",
+      "holdout": true,
+      "expected": "1",
+      "response": "\n\n1",
+      "passed": true
+    },
+    {
+      "id": "xg-052",
+      "kind": "logic",
+      "holdout": true,
+      "expected": "是",
+      "response": "\n\n是",
+      "passed": true
+    },
+    {
+      "id": "xg-053",
+      "kind": "logic",
+      "holdout": true,
+      "expected": "是",
+      "response": "\n\n是",
+      "passed": true
+    },
+    {
+      "id": "xg-063",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-05-27",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 起加 **269 天**，逐月累加：\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 9 月 | 30 | 30 |\n| 10 月 | 31 | 61 |\n| 11 月 | 30 | 91 |\n| 12 月 | 31 | 122 |\n| 1 月 | 31 | 153 |\n| 2 月 | 28 | 181 |\n| 3 月 | 31 | 212 |\n| 4 月 | 30 | 242 |\n| 5 月 | 27 | **269** |\n\n## 答案\n\n$$\\boxed{2027\\text{-}05\\text{-}27}$$\n\n即 **2027 年 5 月 27 日**。",
+      "passed": false
+    },
+    {
+      "id": "xg-065",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-07-31",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 起算，加上 334 天：\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 2026年9月 | 30 | 30 |\n| 2026年10月 | 31 | 61 |\n| 2026年11月 | 30 | 91 |\n| 2026年12月 | 31 | 122 |\n| 2027年1月 | 31 | 153 |\n| 2027年2月 | 28 | 181 |\n| 2027年3月 | 31 | 212 |\n| 2027年4月 | 30 | 242 |\n| 2027年5月 | 31 | 273 |\n| 2027年6月 | 30 | 303 |\n| 2027年7月 | 31 | 334 |\n\n## 答案\n\n$$\\boxed{2027-07-31}$$",
+      "passed": true
+    },
+    {
+      "id": "xg-066",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-07-04",
+      "response": "\n\n# 计算 2026-08-31 之后第 307 天\n\n**起始日期：2026-08-31**\n\n从起始日期逐月累加天数：\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 2026-09 | 30 | 30 |\n| 2026-10 | 31 | 61 |\n| 2026-11 | 30 | 91 |\n| 2026-12 | 31 | 122 |\n| 2027-01 | 31 | 153 |\n| 2027-02 | 28 | 181 |\n| 2027-03 | 31 | 212 |\n| 2027-04 | 30 | 242 |\n| 2027-05 | 31 | 273 |\n| 2027-06 | 30 | 303 |\n| 2027-07 | 4 | **307** |\n\n## ✅ 结果：**2027-07-04**",
+      "passed": true
+    },
+    {
+      "id": "xg-068",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-05-12",
+      "response": "\n\n2026-08-31 之后第 254 天的 ISO 日期是 **2027-05-12**。\n\n**计算过程：**\n1.  2026 年剩余天数（从 8 月 31 日起）：9 月 (30) + 10 月 (31) + 11 月 (30) + 12 月 (31) = 122 天。\n2.  剩余需计算的天数：254 - 122 = 132 天（进入 2027 年）。\n3.  2027 年（非闰年）：\n    *   1 月：31 天（累计 31）\n    *   2 月：28 天（累计 59）\n    *   3 月：31 天（累计 90）\n    *   4 月：30 天（累计 120）\n    *   5 月：12 天（120 + 12 = 132）\n\n因此日期为 2027 年 5 月 12 日。",
+      "passed": true
+    },
+    {
+      "id": "xg-069",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-06-22",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 往后数 **295** 天：\n\n### 第一步：2026 年剩余天数\n\n| 月份 | 天数 |\n|------|------|\n| 9月 | 30 |\n| 10月 | 31 |\n| 11月 | 30 |\n| 12月 | 31 |\n| **合计** | **122** |\n\n消耗 122 天后到达 2026-12-31，剩余 295 − 122 = **173** 天进入 2027 年。\n\n### 第二步：2027 年中第 173 天\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 1月 | 31 | 31 |\n| 2月 | 28 | 59 |\n| 3月 | 31 | 90 |\n| 4月 | 30 | 120 |\n| 5月 | 31 | 151 |\n| 6月 | 22 | **173** |\n\n173 − 151 = 22 → 落在 **6月22日**。\n\n### 验证\n122 + 173 = **295** ✓\n\n---\n\n## 结果\n\n$$\\boxed{2027\\text{-}06\\text{-}22}$$",
+      "passed": false
+    },
+    {
+      "id": "xg-070",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-09-10",
+      "response": "\n\n# 2026-08-31 之后第 375 天\n\n## 逐月推算\n\n| 月份 | 天数 | 累计 |\n|------|------|------|\n| 2026-09 | 30 | 30 |\n| 2026-10 | 31 | 61 |\n| 2026-11 | 30 | 91 |\n| 2026-12 | 31 | 122 |\n| 2027-01 | 31 | 153 |\n| 2027-02 | 28 | 181 |\n| 2027-03 | 31 | 212 |\n| 2027-04 | 30 | 242 |\n| 2027-05 | 31 | 273 |\n| 2027-06 | 30 | 303 |\n| 2027-07 | 31 | 334 |\n| 2027-08 | 31 | 365 |\n| 2027-09 (前10天) | 10 | 375 |\n\n## 结果\n\n$$2026\\text{-}08\\text{-}31 + 375 \\text{ 天} = \\boxed{2027\\text{-}09\\text{-}10}$$\n\n即 **2027年9月10日**（星期五）。",
+      "passed": false
+    },
+    {
+      "id": "xg-072",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-07-25",
+      "response": "\n\n## 计算过程\n\n从 **2026-08-31** 开始往后数 328 天：\n\n| 月份 | 天数 | 累计天数 |\n|------|------|----------|\n| 2026年9月 | 30 | 30 |\n| 2026年10月 | 31 | 61 |\n| 2026年11月 | 30 | 91 |\n| 2026年12月 | 31 | 122 |\n| 2027年1月 | 31 | 153 |\n| 2027年2月 | 28 | 181 |\n| 2027年3月 | 31 | 212 |\n| 2027年4月 | 30 | 242 |\n| 2027年5月 | 31 | 273 |\n| 2027年6月 | 30 | 303 |\n| 2027年7月 | 需要 328 − 303 = **25** 天 | 328 |\n\n## 答案\n\n$$\\boxed{2027\\text{-}07\\text{-}25}$$\n\n即 **2027 年 7 月 25 日**。",
+      "passed": false
+    },
+    {
+      "id": "xg-074",
+      "kind": "date",
+      "holdout": true,
+      "expected": "2027-03-26",
+      "response": "\n\n从 2026 年 8 月 31 日往后推算 207 天的计算过程如下：\n\n1.  **2026 年剩余天数：**\n    *   9 月：30 天\n    *   10 月：31 天\n    *   11 月：30 天\n    *   12 月：31 天\n    *   合计：122 天\n2.  **剩余需推算天数：** 207 - 122 = 85 天（进入 2027 年）\n3.  **2027 年天数推算：**\n    *   1 月：31 天（剩余 85 - 31 = 54 天）\n    *   2 月：28 天（2027 年非闰年，剩余 54 - 28 = 26 天）\n    *   3 月：第 26 天\n\n因此，2026-08-31 之后第 207 天的 ISO 日期是：**2027-03-26**",
+      "passed": true
+    },
+    {
+      "id": "xg-076",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "4096",
+      "response": "\n\nThis code prints:\n\n```\n4096\n```\n\nHere's the breakdown:\n- `x = 8` assigns the value 8 to the variable `x`\n- `x**4` raises `x` to the power of 4 (8⁴)\n- 8 × 8 × 8 × 8 = **4096**",
+      "passed": true
+    },
+    {
+      "id": "xg-085",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "256",
+      "response": "\n\n## Output: **256**\n\nHere's the breakdown:\n\n1. **`x = 4`** assigns the value `4` to the variable `x`.\n2. **`x**4`** uses Python's exponentiation operator (`**`) to raise `x` to the 4th power.\n3. **`4⁴`** = `4 × 4 × 4 × 4` = **256**\n\n### Key Concept\nThe `**` operator in Python represents **exponentiation** (power):\n\n| Expression | Meaning | Result |\n|---|---|---|\n| `2 ** 3` | 2 to the power of 3 | 8 |\n| `4 ** 4` | 4 to the power of 4 | 256 |\n| `9 ** 0.5` | 9 to the power of 0.5 (square root) | 3.0 |",
+      "passed": true
+    },
+    {
+      "id": "xg-087",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "25",
+      "response": "\n\nThis prints:\n\n**25**\n\n**Explanation:**\n1.  `x=5` assigns the value 5 to the variable `x`.\n2.  `**` is the exponentiation operator in Python (power).\n3.  `x**2` calculates 5 squared ($5 \\times 5$), which equals 25.",
+      "passed": true
+    },
+    {
+      "id": "xg-091",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "64",
+      "response": "\n\nThis prints:\n\n**64**\n\nThe `**` operator in Python represents exponentiation (power). So `x**2` means 8 squared (8² = 64).",
+      "passed": true
+    },
+    {
+      "id": "xg-094",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "27",
+      "response": "\n\nThis code prints:\n\n```\n27\n```\n\n**Explanation:**\n\n- `x = 3` assigns the value 3 to the variable `x`.\n- `x**3` is Python's syntax for exponentiation (x to the power of 3), so it calculates 3³ = 3 × 3 × 3 = 27.",
+      "passed": true
+    },
+    {
+      "id": "xg-095",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "16",
+      "response": "\n\nThis code prints **16**.\n\n**Explanation:**\n\n1. `x = 2` assigns the value 2 to the variable `x`.\n2. `x ** 4` computes 2 raised to the power of 4 (i.e., 2⁴).\n3. 2⁴ = 2 × 2 × 2 × 2 = **16**",
+      "passed": true
+    },
+    {
+      "id": "xg-096",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "256",
+      "response": "\n\n## Answer: **256**\n\nLet's break it down step by step:\n\n1. `x = 4` — Assigns the integer `4` to the variable `x`.\n2. `x ** 4` — The `**` operator is Python's **exponentiation** (power) operator. It computes:\n\n   $$4^4 = 4 \\times 4 \\times 4 \\times 4 = 256$$\n\n3. `print(x ** 4)` — Outputs the result to the console.\n\n### Output:\n```\n256\n```\n\n### Related Operators in Python:\n| Operator | Description      | Example        |\n|----------|------------------|----------------|\n| `**`     | Exponentiation   | `4 ** 4` → 256 |\n| `//`     | Floor division   | `7 // 2` → 3   |\n| `%`      | Modulo           | `7 % 2` → 1    |\n| `*`      | Multiplication   | `4 * 4` → 16   |",
+      "passed": true
+    },
+    {
+      "id": "xg-097",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "81",
+      "response": "\n\nThe program prints:\n\n**81**\n\nHere's why:\n\n- `x` is assigned the value `3`.\n- `x**4` uses the `**` operator, which means exponentiation (raise to the power).\n- So `3**4` = 3 × 3 × 3 × 3 = **81**.",
+      "passed": true
+    },
+    {
+      "id": "xg-098",
+      "kind": "code-output",
+      "holdout": true,
+      "expected": "8",
+      "response": "\n\nThis prints:\n\n```\n8\n```\n\nThe `**` operator in Python is used for exponentiation. So, the code calculates $2^3$ (2 cubed), which equals 8.",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "successes": 30,
+    "trials": 34,
+    "point": 0.8823529411764706,
+    "wilson_lower95": 0.7337915722962817,
+    "wilson_upper95": 0.9532855333511766
+  }
+}

@@ -160,3 +160,38 @@ default.pgo
 deadcode-report.txt
 deadcode-final.txt
 lint-report.txt
+
+# ---------- 评测/压测本地产物（可再生，不入库）----------
+# 备份与中断残留；结果报告本身按既有约定入库（bench/results/ 已有 41 个跟踪文件）
+*.pre-fix-backup
+*.pre-fix
+*.pre-fix-*
+*.broken-sim
+*.broken-sim-*
+*.interrupted-*.json
+# 压测用编译产物（3.4M Mach-O，二进制禁入）
+agentprimordia/bench/results/**/soak-bin
+
+# ---------- 文档站 / 促销媒体与本地工具产物（2026-09-27 清理）----------
+# 与既有 *.mp4 / *.pptx / node_modules 的排除意图一致：媒体与促销构建产物不入库
+docs/video/
+docs/ppt-images/
+docs/images/ppt/
+vibe_images/
+# 架构图生成/视觉校验产物（agentprimordia/docs/ap-architecture* 为正式交付物，不在此列）
+docs/agentprimordia-architecture.html
+docs/agentprimordia.architecture.json
+docs/*.visual-check.*
+# 促销迭代 HTML 与导出包
+docs/AgentPrimordia-Intro-*.html
+docs/Safari浏览器导出_*.zip
+# 促销文档工具链（本地 npm 工程 + 一次性脚本）
+docs/package.json
+docs/package-lock.json
+docs/generate-ppt.js
+docs/add-animations.py
+docs/fix-content-types.py
+
+# 框架开发目录内的散落项目配置（ap init/start 误运行产物，非框架文件）
+agentprimordia/.ap.yaml
+

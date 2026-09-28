@@ -1,0 +1,11 @@
+{
+  "arm_a_success": 89,
+  "arm_b_success": 95,
+  "discordant_a_only": 4,
+  "discordant_b_only": 10,
+  "holdout_total": 0,
+  "mcnemar_p": 0.1795654296875,
+  "note": "留出子集对账以逐单元 holdout 标记单列（R4 全披露）",
+  "pairs_completed": 112,
+  "rounds": 5
+}

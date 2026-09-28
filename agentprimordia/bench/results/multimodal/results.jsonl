@@ -1,0 +1,40 @@
+{"item":"mm-001","kind":"visual_qa","arm":"A","success":false,"turns":0,"duration_sec":63,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"mm-001","kind":"visual_qa","arm":"B","success":true,"turns":6,"duration_sec":52}
+{"item":"mm-002","kind":"visual_qa","arm":"A","success":true,"turns":5,"duration_sec":40}
+{"item":"mm-002","kind":"visual_qa","arm":"B","success":true,"turns":1,"duration_sec":11}
+{"item":"mm-003","kind":"visual_qa","arm":"A","success":true,"turns":2,"duration_sec":11}
+{"item":"mm-003","kind":"visual_qa","arm":"B","success":false,"turns":0,"duration_sec":43,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"mm-004","kind":"visual_qa","arm":"A","success":false,"turns":0,"duration_sec":26,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-004","kind":"visual_qa","arm":"B","success":true,"turns":5,"duration_sec":30}
+{"item":"mm-005","kind":"visual_qa","arm":"A","success":true,"turns":2,"duration_sec":11}
+{"item":"mm-005","kind":"visual_qa","arm":"B","success":false,"turns":0,"duration_sec":20,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-006","kind":"visual_qa","arm":"A","success":false,"turns":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-006","kind":"visual_qa","arm":"B","success":false,"turns":0,"duration_sec":69,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-007","kind":"visual_qa","arm":"A","success":true,"turns":3,"duration_sec":131}
+{"item":"mm-007","kind":"visual_qa","arm":"B","success":true,"turns":4,"duration_sec":8}
+{"item":"mm-008","kind":"visual_qa","arm":"A","success":false,"turns":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-008","kind":"visual_qa","arm":"B","success":false,"turns":0,"duration_sec":23,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-009","kind":"visual_qa","arm":"A","success":false,"turns":0,"duration_sec":6,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-009","kind":"visual_qa","arm":"B","success":true,"turns":12,"duration_sec":236}
+{"item":"mm-010","kind":"visual_qa","arm":"A","success":true,"turns":4,"duration_sec":22}
+{"item":"mm-010","kind":"visual_qa","arm":"B","success":false,"turns":0,"duration_sec":15,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-011","kind":"audio_transcribe","arm":"A","success":true,"turns":3,"duration_sec":22}
+{"item":"mm-011","kind":"audio_transcribe","arm":"B","success":false,"turns":0,"duration_sec":91,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-012","kind":"audio_transcribe","arm":"A","success":false,"turns":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-012","kind":"audio_transcribe","arm":"B","success":true,"turns":7,"duration_sec":70}
+{"item":"mm-013","kind":"audio_transcribe","arm":"A","success":true,"turns":4,"duration_sec":39}
+{"item":"mm-013","kind":"audio_transcribe","arm":"B","success":false,"turns":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-014","kind":"audio_transcribe","arm":"A","success":true,"turns":6,"duration_sec":39}
+{"item":"mm-014","kind":"audio_transcribe","arm":"B","success":false,"turns":0,"duration_sec":59,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-015","kind":"audio_transcribe","arm":"A","success":false,"turns":0,"duration_sec":49,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"mm-015","kind":"audio_transcribe","arm":"B","success":true,"turns":5,"duration_sec":42}
+{"item":"mm-016","kind":"mixed_reasoning","arm":"A","success":false,"turns":0,"duration_sec":7,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-016","kind":"mixed_reasoning","arm":"B","success":true,"turns":2,"duration_sec":40}
+{"item":"mm-017","kind":"mixed_reasoning","arm":"A","success":true,"turns":6,"duration_sec":18}
+{"item":"mm-017","kind":"mixed_reasoning","arm":"B","success":false,"turns":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-018","kind":"mixed_reasoning","arm":"A","success":true,"turns":2,"duration_sec":12}
+{"item":"mm-018","kind":"mixed_reasoning","arm":"B","success":true,"turns":2,"duration_sec":19}
+{"item":"mm-019","kind":"mixed_reasoning","arm":"A","success":false,"turns":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-019","kind":"mixed_reasoning","arm":"B","success":false,"turns":0,"duration_sec":6,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-020","kind":"mixed_reasoning","arm":"A","success":false,"turns":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"mm-020","kind":"mixed_reasoning","arm":"B","success":false,"turns":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}

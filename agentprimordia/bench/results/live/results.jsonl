@@ -1,0 +1,118 @@
+{"item":"live-001","arm":"A","success":true,"turns":14,"tools":13,"duration_sec":44}
+{"item":"live-001","arm":"B","success":true,"turns":5,"tools":5,"duration_sec":29}
+{"item":"live-002","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":22,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-002","arm":"B","success":true,"turns":6,"tools":5,"duration_sec":24}
+{"item":"live-003","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":14,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-003","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":4,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-004","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":18}
+{"item":"live-004","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-005","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":17}
+{"item":"live-005","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":10}
+{"item":"live-006","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":16}
+{"item":"live-006","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":11}
+{"item":"live-007","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-007","arm":"B","success":false,"turns":6,"tools":5,"duration_sec":15}
+{"item":"live-008","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":4}
+{"item":"live-008","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":13,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-009","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":8,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-009","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-010","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":10}
+{"item":"live-010","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":6,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-011","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-011","arm":"B","success":true,"turns":5,"tools":4,"duration_sec":19}
+{"item":"live-012","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":11,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-012","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":7,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-013","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":12,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-013","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":13,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-014","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":4,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-014","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":7,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-015","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":8}
+{"item":"live-015","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-016","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":6,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-016","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":8,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-017","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":9,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-017","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-018","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":15,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-018","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":36,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-019","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-019","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":4,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-020","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-020","arm":"B","success":true,"turns":6,"tools":5,"duration_sec":27}
+{"item":"live-021","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":11,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-021","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-022","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":22}
+{"item":"live-022","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":9,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-023","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":17,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-023","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-024","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-024","arm":"B","success":true,"turns":9,"tools":12,"duration_sec":33}
+{"item":"live-025","arm":"A","success":true,"turns":5,"tools":5,"duration_sec":21}
+{"item":"live-025","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":13}
+{"item":"live-026","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":79,"error":"max turns exceeded"}
+{"item":"live-026","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-027","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":7}
+{"item":"live-027","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":32}
+{"item":"live-028","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-028","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":30}
+{"item":"live-029","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":56,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-029","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":16}
+{"item":"live-030","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-030","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":11}
+{"item":"live-031","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":35}
+{"item":"live-031","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":10}
+{"item":"live-032","arm":"A","success":true,"turns":4,"tools":4,"duration_sec":8}
+{"item":"live-032","arm":"B","success":true,"turns":5,"tools":4,"duration_sec":41}
+{"item":"live-033","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":6}
+{"item":"live-033","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-034","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":8}
+{"item":"live-034","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":4,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-035","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":8,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-035","arm":"B","success":true,"turns":5,"tools":4,"duration_sec":18}
+{"item":"live-036","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":14}
+{"item":"live-036","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-037","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":22}
+{"item":"live-037","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":30,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-038","arm":"A","success":true,"turns":11,"tools":10,"duration_sec":55}
+{"item":"live-038","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":10}
+{"item":"live-039","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":13}
+{"item":"live-039","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":43,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"live-040","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-040","arm":"B","success":true,"turns":6,"tools":5,"duration_sec":59}
+{"item":"live-041","arm":"A","success":true,"turns":6,"tools":5,"duration_sec":77}
+{"item":"live-041","arm":"B","success":true,"turns":7,"tools":8,"duration_sec":23}
+{"item":"live-042","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":40,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-042","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":3,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-043","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":5,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-043","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":5}
+{"item":"live-044","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":6,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-044","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":17,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-045","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":19}
+{"item":"live-045","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":24}
+{"item":"live-046","arm":"A","success":true,"turns":5,"tools":4,"duration_sec":16}
+{"item":"live-046","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":12}
+{"item":"live-047","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":35,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-047","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":11,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: rpm exhausted (quota_exceeded_error)"}
+{"item":"live-048","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":7}
+{"item":"live-048","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":11}
+{"item":"live-049","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":79}
+{"item":"live-049","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":44}
+{"item":"live-050","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":45}
+{"item":"live-050","arm":"B","success":true,"turns":7,"tools":6,"duration_sec":142}
+{"item":"live-051","arm":"A","success":false,"turns":0,"tools":0,"duration_sec":127,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"live-051","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":12}
+{"item":"live-052","arm":"A","success":true,"turns":15,"tools":16,"duration_sec":304}
+{"item":"live-052","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":43,"error":"max turns exceeded"}
+{"item":"live-053","arm":"A","success":true,"turns":5,"tools":5,"duration_sec":11}
+{"item":"live-053","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":103}
+{"item":"live-054","arm":"A","success":true,"turns":7,"tools":6,"duration_sec":38}
+{"item":"live-054","arm":"B","success":true,"turns":4,"tools":3,"duration_sec":21}
+{"item":"live-055","arm":"A","success":true,"turns":4,"tools":3,"duration_sec":38}
+{"item":"live-055","arm":"B","success":true,"turns":3,"tools":2,"duration_sec":31}
+{"item":"live-056","arm":"A","success":true,"turns":8,"tools":7,"duration_sec":126}
+{"item":"live-056","arm":"B","success":true,"turns":5,"tools":4,"duration_sec":106}
+{"item":"live-057","arm":"A","success":true,"turns":6,"tools":5,"duration_sec":131}
+{"item":"live-057","arm":"B","success":true,"turns":5,"tools":4,"duration_sec":52}
+{"item":"live-058","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":43}
+{"item":"live-058","arm":"B","success":false,"turns":0,"tools":0,"duration_sec":228,"error":"callTools failed after 2 retries: openai: HTTP 429: rate_limited: API error: Server is busy, please try again later (rate_limit_error)"}
+{"item":"live-059","arm":"A","success":true,"turns":3,"tools":2,"duration_sec":144}
+{"item":"live-059","arm":"B","success":true,"turns":13,"tools":12,"duration_sec":77}

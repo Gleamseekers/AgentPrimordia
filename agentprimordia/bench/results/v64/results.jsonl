@@ -1,0 +1,10 @@
+{"item":"live-001","arm":"A","success":false,"turns":15,"tools":14,"duration_sec":36}
+{"item":"live-001","arm":"B","success":true,"turns":6,"tools":8,"duration_sec":24}
+{"item":"live-002","arm":"A","success":true,"turns":10,"tools":10,"duration_sec":27}
+{"item":"live-002","arm":"B","success":true,"turns":17,"tools":19,"duration_sec":60}
+{"item":"live-003","arm":"A","success":true,"turns":10,"tools":14,"duration_sec":32}
+{"item":"live-003","arm":"B","success":true,"turns":11,"tools":16,"duration_sec":25}
+{"item":"live-004","arm":"A","success":true,"turns":5,"tools":5,"duration_sec":11}
+{"item":"live-004","arm":"B","success":true,"turns":11,"tools":12,"duration_sec":20}
+{"item":"live-005","arm":"A","success":true,"turns":8,"tools":7,"duration_sec":10}
+{"item":"live-005","arm":"B","success":true,"turns":14,"tools":16,"duration_sec":152}

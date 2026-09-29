@@ -179,17 +179,20 @@ func TestReputationPoisoning(t *testing.T) {
 	if err := tl.ReceiveAsset(envelope("asset-good", bad, 1, "key-1"), fixedTime()); err == nil {
 		t.Fatal("隔离区节点投递应拒收")
 	}
-	// good 节点贡献 3 次 → 声誉正向；误拦 0（good 无任何被拒记录）
+	// good 节点贡献 3 次 → 声誉正向（good 全程通过，无误拦记录）
 	for i := 0; i < 3; i++ {
 		if err := tl.ReceiveAsset(envelope(fmt.Sprintf("g-%d", i), good, 1, "key-1"), fixedTime()); err != nil {
 			t.Fatalf("good 节点合法贡献应通过: %v", err)
 		}
 	}
 	stats := tl.InterceptStats()
-	if stats.FalsePositives != 0 {
-		t.Fatalf("误拦口径应 0（good 全部通过）: %+v", stats)
+	// 误拦口径（2026-09-28 接线）：隔离区节点投递的合格资产计误拦 1——
+	// bad 被隔离（节点级），但其投递的 asset-good 本身通过全部资产级
+	// 检查且非他人重签形态（资产级合格）：隔离的是节点不是资产。
+	if stats.FalsePositives != 1 {
+		t.Fatalf("误拦口径应 1（隔离区节点投递合格资产）: %+v", stats)
 	}
-	if stats.Intercepted != 7 { // 6 重签 + 1 隔离区投递
+	if stats.Intercepted != 7 { // 6 重签 + 1 隔离区投递（计误拦，attempts 同口径）
 		t.Fatalf("拦截数不符: %+v", stats)
 	}
 	// 声誉排序：good 正分在前，bad 负分在后

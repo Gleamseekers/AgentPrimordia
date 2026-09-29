@@ -101,7 +101,17 @@ func (t *TrustLayer) ReceiveAsset(a *AssetEnvelope, now time.Time) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if t.quarantine[a.OriginNode] {
-		t.events = append(t.events, TrustEvent{Node: a.OriginNode, Kind: "poison_attempt", Detail: "隔离区节点投递", Weight: -1, At: now})
+		// 误拦口径（2026-09-28 接线）：节点级隔离 vs 资产级合格。资产到达
+		// 此处即已过门 1–3（完整性/钉扎钥/验签/溯源无回环）；若载荷非
+		// 「他人重签」形态（首发为空或首发即本节点），该资产本身合格——
+		// 隔离的是节点不是资产，此次拒绝计入 FalsePositives（事件 kind
+		// =false_positive，仍计入 attempts/intercepted：误拦是真实发生
+		// 的拦截的子集）。他人重签形态保持 poison_attempt（资产级不合格）。
+		if first, ok := t.seenPayload[a.PayloadSHA]; !ok || first == a.OriginNode {
+			t.events = append(t.events, TrustEvent{Node: a.OriginNode, Kind: "false_positive", Detail: "隔离区节点投递合格资产（节点级隔离，资产级合格）", Weight: -1, At: now})
+		} else {
+			t.events = append(t.events, TrustEvent{Node: a.OriginNode, Kind: "poison_attempt", Detail: "隔离区节点投递（他人资产重签形态）", Weight: -1, At: now})
+		}
 		return fmt.Errorf("federation: 节点 %s 在隔离区，拒收", a.OriginNode)
 	}
 	if first, ok := t.seenPayload[a.PayloadSHA]; ok && first != a.OriginNode {
@@ -200,12 +210,13 @@ func (t *TrustLayer) Report() ReputationReport {
 type InterceptReport struct {
 	Attempts       int       `json:"attempts"`        // 投毒/伪造尝试总数
 	Intercepted    int       `json:"intercepted"`     // 拦截数
-	FalsePositives int       `json:"false_positives"` // 误拦数（合法贡献被拒）——预留口径：当前无生产写入点，恒为 0；待隔离区判定可区分"合法首发被拒"后启用
+	FalsePositives int       `json:"false_positives"` // 误拦数（隔离区节点投递的合格资产被拒——节点级隔离 vs 资产级合格；intercepted 的子集）
 	Generated      time.Time `json:"generated"`
 }
 
 // InterceptStats 从事件流汇总拦截统计（合法贡献=contribute，其余计入尝试；
-// attempts 中被拒的即 intercepted）。
+// attempts 中被拒的即 intercepted；false_positive 为 intercepted 的子集——
+// 节点级隔离拒收的资产级合格贡献，即误拦，见 ReceiveAsset 隔离区分支口径）。
 func (t *TrustLayer) InterceptStats() InterceptReport {
 	t.mu.Lock()
 	defer t.mu.Unlock()
@@ -214,6 +225,10 @@ func (t *TrustLayer) InterceptStats() InterceptReport {
 		switch e.Kind {
 		case "contribute":
 			// 合法
+		case "false_positive":
+			rep.Attempts++
+			rep.Intercepted++
+			rep.FalsePositives++
 		default:
 			rep.Attempts++
 			rep.Intercepted++

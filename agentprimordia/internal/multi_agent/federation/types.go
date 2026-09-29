@@ -51,7 +51,7 @@ type Claim struct {
 // TrustEvent 信任层事件（贡献/违规）。
 type TrustEvent struct {
 	Node   NodeID    `json:"node"`
-	Kind   string    `json:"kind"` // contribute / asset_rejected / poison_attempt / forgery_attempt
+	Kind   string    `json:"kind"` // contribute / asset_rejected / poison_attempt / forgery_attempt / false_positive（隔离区节点投递的合格资产——误拦）
 	Detail string    `json:"detail"`
 	Weight float64   `json:"weight"` // 事件权重（正负皆可）
 	At     time.Time `json:"at"`

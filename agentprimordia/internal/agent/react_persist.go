@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
 )
 
 // saveMemoryChBuffer 是异步 saveMemory 队列容量。

@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // HTMLDocument 表示解析后的 HTML 文档结构

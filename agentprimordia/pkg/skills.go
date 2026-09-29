@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
 )
 
 // --- 核心类型导出 ---

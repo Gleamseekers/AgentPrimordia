@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
 )
 
 const (

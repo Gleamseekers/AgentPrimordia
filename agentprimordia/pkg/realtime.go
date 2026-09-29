@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/realtime"
 )
 
 // --- 核心类型导出 ---

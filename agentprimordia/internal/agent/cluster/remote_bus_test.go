@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
 )
 
 func TestRemoteNodePing(t *testing.T) {

@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/lifecycle"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/lifecycle"
 )
 
 func TestDAGWorkflow_SimpleLinear(t *testing.T) {

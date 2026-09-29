@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/realtime"
 )
 
 type integMultimodal struct{ calls int }

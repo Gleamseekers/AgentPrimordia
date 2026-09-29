@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
 )
 
 // ===== mock 辅助 =====

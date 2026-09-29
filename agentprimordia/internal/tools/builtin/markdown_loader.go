@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // MarkdownDocument 表示解析后的 Markdown 文档结构

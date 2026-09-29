@@ -1,7 +1,7 @@
 package cost
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 	"math"
 	"sync"
 	"testing"

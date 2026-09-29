@@ -1,7 +1,7 @@
 package jsonplugin
 
 import (
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // Plugin 是 JSON/CSV 数据处理插件，封装 ap.JSONTool 和 ap.CSVTool

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
 )
 
 // TestTraceGapDetector_Detect 测试检测失败模式

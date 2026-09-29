@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // Chunk 表示文本切分后的一个块

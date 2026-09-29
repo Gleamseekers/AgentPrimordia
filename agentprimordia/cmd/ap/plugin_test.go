@@ -63,8 +63,8 @@ func TestPluginCreate_Success(t *testing.T) {
 	if !contains(string(modContent), "go 1.26") {
 		t.Error("plugin go.mod 应包含 go 1.26")
 	}
-	if !contains(string(modContent), "github.com/Gleamseekers/AgentPrimordia v0.0.0") {
-		t.Error("plugin go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia（占位版本）")
+	if !contains(string(modContent), "github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0") {
+		t.Error("plugin go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia/agentprimordia（占位版本）")
 	}
 
 	// 验证 plugin.go 内容

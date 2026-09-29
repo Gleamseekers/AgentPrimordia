@@ -34,7 +34,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
 )
 
 // PodMetricsCollector 负责从每个 Pod 的 /metrics 端口采集关键指标

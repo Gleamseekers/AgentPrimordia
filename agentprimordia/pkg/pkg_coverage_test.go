@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
 )
 
 func TestAdaptMemoryStore(t *testing.T) {

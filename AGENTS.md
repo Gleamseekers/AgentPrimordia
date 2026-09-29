@@ -24,7 +24,7 @@ AgentPrimordia 是从 CodeCast 生产验证的 Agent 架构中提炼出的 **通
 - `google.golang.org/grpc` + `google.golang.org/protobuf` + 间接依赖 `google.golang.org/genproto/googleapis/rpc` — **仅限 `internal/agent/a2a/` 及其子包，以及 `internal/agent/cluster/`（`grpc_bus.go`，跨节点消息复用 A2A gRPC 基础设施，见 V3.1 计划 3.2）与 `internal/agent/transport/`（`grpc.go`）** 使用；另允许 `pkg/a2a.go` 作为公共 API re-export 层引用 grpc 选项类型（§4.2 规定的 pkg 导出职责，v4.0-3 评审已确认）。用于实现 Agent2Agent 协议与跨节点传输（gRPC + protobuf 是该协议的事实标准）。
 - `go.etcd.io/etcd/client/v3` — etcd 客户端（G2-3 分布式检查点后端）。**仅限 `internal/persist/` 与 `internal/agent/cluster/` 下带 `etcd` build tag 的文件** 使用（persist 为检查点后端，cluster 为分布式 KV/服务发现）。etcd 是分布式强一致协调的行业标准协议，其客户端无 Go 标准库等价实现，符合 §2.2 硬性需求豁免。
 - `github.com/redis/go-redis/v9` — Redis 客户端（G2-3 分布式检查点后端）。**仅限 `internal/persist/` 下带 `redis` build tag 的文件** 使用。Redis 线协议客户端属行业标准实现，无法用标准库合理复现，符合 §2.2 硬性需求豁免。
-- `github.com/tetratelabs/wazero` — 纯 Go（CGO-free）WebAssembly 运行时（G3-3 WASM 执行）。**仅限工作区根 `wasm/` 模块与主模块内 `wasm/` 包**（`github.com/Gleamseekers/AgentPrimordia/wasm/`）使用。WASM 运行时无标准库等价实现，wazero 为 CGO-free 纯 Go 实现，符合 §2.2 硬性需求豁免。该依赖同时是 code 层「沙箱受控释放」（§2.3）的隔离底座：除上述两处外任何包不得 import wazero（CI 断言 A1 强制）。
+- `github.com/tetratelabs/wazero` — 纯 Go（CGO-free）WebAssembly 运行时（G3-3 WASM 执行）。**仅限工作区根 `wasm/` 模块与主模块内 `wasm/` 包**（`github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm/`）使用。WASM 运行时无标准库等价实现，wazero 为 CGO-free 纯 Go 实现，符合 §2.2 硬性需求豁免。该依赖同时是 code 层「沙箱受控释放」（§2.3）的隔离底座：除上述两处外任何包不得 import wazero（CI 断言 A1 强制）。
 - `github.com/jackc/pgx/v5` + `pgvector/` 模块（`github.com/Gleamseekers/AgentPrimordia/pgvector`，go.mod `replace => ../pgvector`）— PostgreSQL/pgvector 向量存储（`internal/memory/pgvector_store.go`）。pgx 为 PostgreSQL 事实标准驱动，无标准库等价实现，符合 §2.2 硬性需求豁免。**边界：pgx 仅由 pgvector 模块直接 require，内部代码不得直接 import pgx**。
 
 ### 2.2 依赖扩展的审批流程
@@ -42,7 +42,7 @@ AgentPrimordia 是从 CodeCast 生产验证的 Agent 架构中提炼出的 **通
 ### 2.3 code 层安全边界（宿主永久拒绝 + 沙箱受控释放）
 
 - INV-0：宿主进程运行期零写入、零编译、零加载任何 agent 生成的代码；
-  agent 生成代码唯一合法执行位置是 wazero WASM 沙箱（github.com/Gleamseekers/AgentPrimordia/wasm/、
+  agent 生成代码唯一合法执行位置是 wazero WASM 沙箱（github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm/、
   工作区根 wasm/ 模块），且必须经签名验证与对抗测试后方可注册为工具。
 - 宿主边界由确定性断言 A1–A8 保证（定义见 docs/提案-code层沙箱受控释放.md §二），
   断言测试全部进 CI、失败即红；本边界属于确定性安全不变式，允许 100%/0 容忍
@@ -131,7 +131,7 @@ pgvector/           — pgvector 向量存储扩展
   - **当前状态**：部分示例与插件仍直接依赖 `internal/*`，属于已知的技术债务，需逐步迁移至公共 API。
 - **`operator/`、`pgvector/`**：独立模块，与 `internal/` 通过 `pkg/` 或 CRD 解耦。
 - **code 层生成工具通道（v6.3 起）**：agent 生成工具的生成/彩排/注册链路位于
-  internal/tools/lifecycle/（生命周期框架）与 github.com/Gleamseekers/AgentPrimordia/wasm/（沙箱执行），
+  internal/tools/lifecycle/（生命周期框架）与 github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm/（沙箱执行），
   依赖方向同上层规则；生成工件（WASM 字节码+清单）是数据不是代码——宿主编译
   与加载边界由 §2.3 INV-0 与断言 A1–A8 强制。TS 侧仅协议对等（签名/工具包格式/
   注册客户端），沙箱执行 Go-only（docs/双线豁免矩阵.md B4/#3 豁免）。

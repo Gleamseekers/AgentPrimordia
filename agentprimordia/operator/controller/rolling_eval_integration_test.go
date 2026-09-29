@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
 )
 
 // integrationMockEvalRunner 可控的 Eval 执行器（用于测试）。

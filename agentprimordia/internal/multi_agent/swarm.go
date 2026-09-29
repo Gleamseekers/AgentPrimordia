@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
 )
 
 // Specialist 一个专业分工的 Agent。

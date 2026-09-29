@@ -464,8 +464,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/optimize"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/optimize"
 )
 
 func TestIntelligenceHook_BridgeToHookManager(t *testing.T) {
@@ -591,7 +591,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
 )
 
 // mockLLMForCreator 返回预设的 LLM 响应
@@ -662,7 +662,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
 )
 
 // LLMCompleter 是 LLM 调用的最小接口（避免 import cycle）
@@ -769,8 +769,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/create"
 )
 
 func TestRegisteringCreator_RegistersTool(t *testing.T) {
@@ -822,7 +822,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // RegisteringCreator 包装 ToolCreator，创建的工具自动注册到 Registry
@@ -891,9 +891,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/optimize"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/optimize"
 )
 
 func TestToolIntelligence_EndToEnd(t *testing.T) {

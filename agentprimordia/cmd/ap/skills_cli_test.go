@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
 )
 
 // TestSkillCLIAddListVerifyRemove 生产路径回归：ap skill 必须真实读写持久化技能库，

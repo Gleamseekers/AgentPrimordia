@@ -8,16 +8,16 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/learning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // perf-v6 round 4 Task 2：config 静态错误

@@ -4,7 +4,7 @@ package agent
 import (
 	"context"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/dag"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/dag"
 )
 
 // ===== 类型别名 =====

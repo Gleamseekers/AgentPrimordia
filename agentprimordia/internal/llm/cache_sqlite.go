@@ -15,7 +15,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/jsonutil" // perf-v6 round 8 Task 1：统一 JSON 序列化
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/jsonutil" // perf-v6 round 8 Task 1：统一 JSON 序列化
 )
 
 const (

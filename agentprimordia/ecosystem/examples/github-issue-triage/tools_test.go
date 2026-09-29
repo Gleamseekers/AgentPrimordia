@@ -16,7 +16,7 @@ import (
 	"sync"
 	"testing"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // capture 记录测试 server 收到的请求

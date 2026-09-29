@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
 )
 
 // 事件类型常量（委托到 core 子包）

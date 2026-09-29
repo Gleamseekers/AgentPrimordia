@@ -3,7 +3,7 @@ package context
 import (
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
 )
 
 func TestDefaultTrim_UnderLimit(t *testing.T) {

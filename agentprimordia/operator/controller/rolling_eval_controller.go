@@ -28,7 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
 )
 
 // CanaryPhase 灰度发布状态机的阶段。

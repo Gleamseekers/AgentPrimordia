@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/trace"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/trace"
 )
 
 // mockSpan 用于在测试中记录 span 调用

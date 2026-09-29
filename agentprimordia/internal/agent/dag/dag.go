@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/hooks"
 )
 
 // perf-v6 round 4 Task 2：dag 静态错误用 errors.New（避免 fmt.Errorf 反射分配）

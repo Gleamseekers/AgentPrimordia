@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // TestApStartFlow 测试 ap start 完整流程

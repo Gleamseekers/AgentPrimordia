@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 )
 
 // fakeEngine 测试用引擎原语：按脚本顺序返回 LLM 响应，记录工具调用

@@ -12,10 +12,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/learning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // p2t4：审计动作常量（字符串字面量，与 internal/audit 标准动作保持一致）

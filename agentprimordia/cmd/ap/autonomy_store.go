@@ -13,7 +13,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/autonomy"
 )
 
 // jsonCheckpointStore 基于 JSON 文件的目标检查点存储。

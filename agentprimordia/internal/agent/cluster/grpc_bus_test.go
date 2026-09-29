@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
 )
 
 // TestGRPCRemoteNode_InvalidConfig 测试无效配置

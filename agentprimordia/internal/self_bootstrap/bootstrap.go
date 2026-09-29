@@ -14,10 +14,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
 )
 
 // ImprovingProvider 模拟一个随经验积累而能力提升的 LLM Provider。

@@ -7,9 +7,9 @@ import (
 	"log/slog"
 	"time"
 
-	a2av1 "github.com/Gleamseekers/AgentPrimordia/internal/agent/a2a/proto/a2a/v1"
+	a2av1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/a2a/proto/a2a/v1"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/resilience"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"

@@ -8,8 +8,8 @@ package pool
 import (
 	"context"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 )
 
 // SubmitBackground 把任务投递到内部 GoroutinePool（Phase 3 Task 4）。

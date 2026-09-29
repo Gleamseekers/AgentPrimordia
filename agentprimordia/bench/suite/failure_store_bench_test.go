@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
 )
 
 // BenchmarkP95FailureSQLite_Record 关键路径四：SQLiteFailureStore Record 延迟分布。

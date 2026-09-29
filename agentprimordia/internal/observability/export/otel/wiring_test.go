@@ -3,7 +3,7 @@ package otel
 import (
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/metrics"
 )
 
 // TestTelemetryProvider_Metrics 验证 Metrics() 返回构造时传入的指标收集器。

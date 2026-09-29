@@ -16,14 +16,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/lifecycle"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/pkg/logger"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/lifecycle"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg/logger"
 )
 
 // stubPlanner 是 planning.Planner 的最小实现，仅用于验证 WithPlanner 注入语义。

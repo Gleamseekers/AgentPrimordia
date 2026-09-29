@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 // BuiltinPlugin 是内置tool插件，实现 tools.ToolPlugin 接口。

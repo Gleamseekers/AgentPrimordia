@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/marketplace"
 )
 
 // pluginRegistryEntry 表示 registry.json 中的单个插件条目。
@@ -35,7 +35,7 @@ type pluginRegistryFile struct {
 // 查找顺序：
 //  1. 当前项目目录下的 ecosystem/plugins/registry.json
 //  2. AP_HOME 环境变量指向的 registry.json
-//  3. $HOME/.github.com/Gleamseekers/AgentPrimordia/plugins/registry.json（未来远程注册中心镜像）
+//  3. $HOME/.agentprimordia/plugins/registry.json（未来远程注册中心镜像）
 //
 // 全部未命中时返回 nil + nil（表示本地无注册表，search 命令会给出明确提示）。
 func loadPluginRegistry() (*pluginRegistryFile, error) {
@@ -257,7 +257,7 @@ func pluginCreate(args []string) error {
 		return fmt.Errorf("write go.mod failed: %w", err)
 	}
 	if standalone {
-		infof("提示：未检测到本地框架源码。请手动在 go.mod 添加 replace github.com/Gleamseekers/AgentPrimordia => <框架源码目录>（详见 docs/版本规范.md）；框架经 GOPROXY 发布后亦可直接 require")
+		infof("提示：未检测到本地框架源码。请手动在 go.mod 添加 replace github.com/Gleamseekers/AgentPrimordia/agentprimordia => <框架源码目录>（详见 docs/版本规范.md）；框架经 GOPROXY 发布后亦可直接 require")
 	} else if findGoWorkUp(".") {
 		infof("提示：检测到上级 go.work。若在仓库内构建本项目，请将其加入 go.work 的 use 列表，或以 GOWORK=off 构建（replace 已指向本地框架与 pgvector）")
 	}
@@ -266,7 +266,7 @@ func pluginCreate(args []string) error {
 	pluginCode := fmt.Sprintf(`package %s
 
 import (
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // Plugin implements ap.ToolPlugin interface.
@@ -418,7 +418,7 @@ func pluginSearch(args []string) error {
 		fmt.Println("searched paths:")
 		fmt.Println("  ./ecosystem/plugins/registry.json")
 		fmt.Println("  $AP_HOME/ecosystem/plugins/registry.json")
-		fmt.Println("  $HOME/.github.com/Gleamseekers/AgentPrimordia/plugins/registry.json")
+		fmt.Println("  $HOME/.agentprimordia/plugins/registry.json")
 		fmt.Println()
 		fmt.Println("to publish plugins, add them to one of the above registry.json files")
 		return nil

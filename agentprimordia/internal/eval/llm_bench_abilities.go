@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 )
 
 // AutonomyGoalCase 自治目标跑分用例：目标描述 + 计划必须覆盖的必达阶段关键词。

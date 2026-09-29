@@ -51,7 +51,7 @@
 
 ```go
 // 注册默认注册表（默认已注入）
-import "github.com/Gleamseekers/AgentPrimordia/internal/metrics"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/metrics"
 
 // 读取指标（/metrics 端点由 admin HTTP 服务暴露）
 handler := metrics.PrometheusHandler()

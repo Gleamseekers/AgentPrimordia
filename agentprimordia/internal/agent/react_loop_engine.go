@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
 )
 
 // reactLoopEngine ReAct 循环核心引擎

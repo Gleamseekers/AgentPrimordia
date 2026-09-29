@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
 )
 
 // executeToolCalls 执行一组tool调用，处理 HITL 确认、追踪、Hook 等。

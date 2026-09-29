@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // TestCapacity_SingleNode_100ConcurrentAgents 容量：单节点 100+ Agent 并发
@@ -95,7 +95,7 @@ func TestCapacity_SingleNode_100ConcurrentAgents(t *testing.T) {
 // 目标：简单计算的 WASM 工具执行延迟 < 5ms
 //
 // 注：此测试通过 pkg 公共 API 验证。由于 WASM 模块在独立 module
-// （github.com/Gleamseekers/AgentPrimordia-wasm-sandbox），精确的 WASM 延迟基准见 wasm/bench_test.go
+// （github.com/Gleamseekers/AgentPrimordia/wasm 模块），精确的 WASM 延迟基准见 wasm/bench_test.go
 // 中的 BenchmarkToolExecutor_Execute（实测约 30-50µs，远低于 5ms 目标）。
 // 此处验证框架层工具调用的整体延迟预算。
 func TestCapacity_WASM_LatencyTarget(t *testing.T) {

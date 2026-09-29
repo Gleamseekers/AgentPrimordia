@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
 )
 
 // getPlannerOrNil 通过 capCache 获取 planner（nil-safe）

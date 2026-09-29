@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/chaos"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/chaos"
 )
 
 // TestE2E_Cluster_24hSoak 24 小时集群浸泡测试

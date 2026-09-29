@@ -20,12 +20,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/multimodal"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/multimodal"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/builtin"
 )
 
 // mmTask 多模态题面

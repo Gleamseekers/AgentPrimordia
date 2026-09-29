@@ -2,8 +2,8 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
 )
 
 // Pipeline 是顺序编排器，前一个 Agent 的输出作为后一个的输入

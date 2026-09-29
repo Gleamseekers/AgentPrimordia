@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
 	"bytes"
 	"context"
 	"crypto/tls"

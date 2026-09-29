@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 func TestVersion(t *testing.T) {

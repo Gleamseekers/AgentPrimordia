@@ -8,7 +8,7 @@
 //   - 生成器产出的是 **WASM 字节码工件（数据）**，不是宿主代码——宿主
 //     零写入零编译零加载由边界断言保证；
 //   - 工件唯一执行位置是注入的沙箱执行器（CodeExecutor，组装根绑定
-//     github.com/Gleamseekers/AgentPrimordia/wasm Sandbox）；
+//     github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm Sandbox）；
 //   - 注册必须同时通过 TrustChain 验签与注入的 Register 门（A6 签名前置）。
 package lifecycle
 
@@ -215,7 +215,7 @@ type Ed25519Signer struct {
 }
 
 // Sign 实现 ArtifactSigner（cosign 同款口径：签名对象为 SHA-256(工件)，
-// 与 github.com/Gleamseekers/AgentPrimordia/wasm SignWASM/VerifySignature 逐字节一致）。
+// 与 github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm SignWASM/VerifySignature 逐字节一致）。
 func (s *Ed25519Signer) Sign(artifact []byte) ([]byte, []byte, error) {
 	h := sha256.Sum256(artifact)
 	sig := ed25519.Sign(s.Priv, h[:])

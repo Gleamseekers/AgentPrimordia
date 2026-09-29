@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/optimize"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/optimize"
 )
 
 // mockLLM 模拟 LLM 补全（确定性返回 shell 脚本）

@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 )
 
 // Engine 引擎原语接口（v5.2 冻结点）：策略驱动底层能力的最小依赖面。

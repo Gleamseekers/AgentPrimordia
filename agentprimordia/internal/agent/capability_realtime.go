@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/realtime"
 )
 
 // RealtimeCapable 标识 Agent 具备多模态实时交互能力。

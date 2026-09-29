@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/discovery"
 )
 
 // TestE2E_Cluster_10NodeScale 验证 10 节点集群的基础功能

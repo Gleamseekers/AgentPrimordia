@@ -5,7 +5,7 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
 )
 
 // ZeroCopyMessage 零拷贝消息，直接引用原始字符串内存

@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/a2a"
-	"github.com/Gleamseekers/AgentPrimordia/internal/events"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/a2a"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/events"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
 	"log/slog"
 )
 

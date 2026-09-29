@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // MockLLM 是示例用的模拟 LLM

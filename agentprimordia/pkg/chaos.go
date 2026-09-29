@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/chaos"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/chaos"
 )
 
 // ===== 实验引擎 =====

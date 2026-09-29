@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // TestMain 抑制基准期间的 Agent INFO 日志，避免干扰输出解析。

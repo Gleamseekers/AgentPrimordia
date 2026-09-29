@@ -64,7 +64,7 @@ ReActLoop 是 Agent 的核心引擎，实现了 **Reason → Act → Observe** �
 #### 创建 Agent
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 
 // 推荐入口（v0.7.0 起）
 agent, err := ap.NewAgent("MyAgent", "你是一个专业的AI助手", llmProvider,
@@ -164,7 +164,7 @@ Pool 管理多个 Agent 的并发执行，提供任务分发、状态查询和�
 ### 创建与配置
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 
 p := ap.NewPool(ap.PoolConfig{
     MaxConcurrency: 10,  // 最大并发 Agent 数
@@ -218,7 +218,7 @@ result, ok := p.GetTask("task-1")
 支持 GPT-4o、GPT-4o-mini 及所有 OpenAI 兼容 API。
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/llm"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 
 // 标准配置
 provider, err := llm.NewOpenAIProvider(llm.Config{
@@ -468,7 +468,7 @@ MCP (Model Context Protocol) Server 提供标准化的工具、资源和提示�
 #### 创建 MCP Server
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/tools"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 
 server := tools.NewMCPServer(tools.MCPServerConfig{
     Name:    "my-mcp-server",
@@ -561,7 +561,7 @@ mux.HandleFunc("/mcp", server.ServeHTTP)
 MCP Client 用于连接外部 MCP Server 并调用其工具。
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/tools"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 
 // 连接已运行的 MCP Server
 client := tools.NewMCPClient("http://localhost:3000/mcp")
@@ -596,7 +596,7 @@ client.Close()
 MCP Registry 管理多个 MCP Server 的注册、启动和工具发现，支持从配置文件自动加载。
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/tools"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 
 registry := tools.NewMCPRegistry()
 
@@ -799,7 +799,7 @@ type Episode struct {
 #### 语义搜索（RAG）
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/memory"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
 
 ragStore := memory.NewRAGStore(store)
 
@@ -849,7 +849,7 @@ Discovery Server 提供 Agent 注册、发现和心跳管理。
 ### 创建 Discovery Server
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/agent"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
 
 localDiscovery := agent.NewLocalDiscovery()
 server := agent.NewDiscoveryServer(localDiscovery)
@@ -1118,7 +1118,7 @@ A2A (Agent-to-Agent) 协议实现 Google A2A 规范，支持跨 Agent 任务协�
 推荐使用公共包 `agentprimordia/pkg/ap`：
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 
 tm := ap.NewA2ATaskManager()
 defer tm.Cleanup()
@@ -1250,7 +1250,7 @@ A2A 同时提供基于 protobuf/gRPC 的二进制传输，消息定义位于 `in
 #### 启动 gRPC Server
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 
 service := ap.NewA2AService(card, tm)
 grpcServer := ap.NewA2AGRPCServerWithService(service)
@@ -1394,7 +1394,7 @@ Admin Handler 提供 Agent Pool 的 HTTP 管理接口。
 ### 创建
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/admin"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/admin"
 
 handler := admin.NewAdminHandler(pool)
 // handler 实现了 http.Handler 接口
@@ -1502,7 +1502,7 @@ Prometheus 格式的指标导出服务。
 ### 创建
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/metrics"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/metrics"
 
 m := metrics.NewMetrics()
 handler := metrics.NewPrometheusHandler(m, ":9090")
@@ -1581,7 +1581,7 @@ multiExporter := metrics.NewMultiExporter(logExporter, jsonExporter)
 ### HTTP 调试服务器
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/internal/debugger"
+import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/debugger"
 
 debugServer := debugger.NewDebugServer(":8080")
 go debugServer.Start()
@@ -1988,7 +1988,7 @@ ap plugin create ap-plugin-weather
 ```go
 package ap_plugin_weather
 
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 
 type Plugin struct{}
 
@@ -2080,7 +2080,7 @@ go tool pprof cpu.prof
 
 ```go
 import (
-    "github.com/Gleamseekers/AgentPrimordia/pkg/errors"
+    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg/errors"
 )
 
 _, err := agent.Run(ctx, msg)

@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
 )
 
 // mockLLM 模拟 LLM 补全器

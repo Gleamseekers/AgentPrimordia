@@ -7,7 +7,7 @@ import (
 	"errors"
 	"iter"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 )
 
 // StreamSeq 返回流式输出迭代器（Go 1.23+ 风格）。

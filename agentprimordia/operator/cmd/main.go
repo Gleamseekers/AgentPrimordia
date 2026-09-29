@@ -14,8 +14,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/operator/api/v1"
-	"github.com/Gleamseekers/AgentPrimordia/operator/controller"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/controller"
 )
 
 var (

@@ -25,8 +25,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/guardrail"
-	"github.com/Gleamseekers/AgentPrimordia/internal/multi_agent/federation"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/guardrail"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/multi_agent/federation"
 )
 
 type redteamItem struct {

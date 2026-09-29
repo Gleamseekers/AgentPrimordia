@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/resilience"
 )
 
 // InteropRouterConfig 跨节点路由配置。

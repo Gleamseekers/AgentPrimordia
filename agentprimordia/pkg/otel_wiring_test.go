@@ -3,9 +3,9 @@ package ap
 import (
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
-	obsotel "github.com/Gleamseekers/AgentPrimordia/internal/observability/export/otel"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/metrics"
+	obsotel "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability/export/otel"
 )
 
 // TestWithTelemetry 验证 WithTelemetry 把 TelemetryProvider 的 Tracer 与

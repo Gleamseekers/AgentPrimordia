@@ -1728,7 +1728,7 @@ import (
     "log"
     "os"
     
-    ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+    ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 func main() {
@@ -2283,7 +2283,7 @@ await audit.log({ actor: 'user-1', action: 'agent.run', resource: 'my-agent' });
 
 3. **`testutil` 测试包**
    ```go
-   import "github.com/Gleamseekers/AgentPrimordia/testutil"
+   import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/testutil"
    
    provider := testutil.NewMockProvider()
    agent := testutil.NewTestAgent(provider)

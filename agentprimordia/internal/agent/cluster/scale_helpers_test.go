@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/discovery"
 )
 
 // testCluster 测试集群，包含多个 ClusterManager 和共享的 MemKVStore

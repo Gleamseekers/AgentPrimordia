@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 type CalculatorTool struct{}

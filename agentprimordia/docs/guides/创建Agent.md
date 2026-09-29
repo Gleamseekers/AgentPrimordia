@@ -9,7 +9,7 @@
     ```go
     import (
         "os"
-        ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+        ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
     )
 
     provider, err := ap.NewOpenAIProvider(ap.Config{
@@ -364,7 +364,7 @@
         "fmt"
         "os"
 
-        ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+        ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
     )
 
     func main() {

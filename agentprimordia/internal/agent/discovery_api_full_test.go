@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/discovery"
 )
 
 // newAuthServer 创建带 API Key 的测试服务器，返回服务器和基础 URL

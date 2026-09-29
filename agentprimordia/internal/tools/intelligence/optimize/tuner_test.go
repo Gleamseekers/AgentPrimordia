@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
 )
 
 // TestDataDrivenTuner_LowSuccessRate 测试低成功率建议重试

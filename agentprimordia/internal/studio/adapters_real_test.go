@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/cluster"
-	agentmarket "github.com/Gleamseekers/AgentPrimordia/internal/agent/marketplace"
-	"github.com/Gleamseekers/AgentPrimordia/internal/chaos"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/cluster"
+	agentmarket "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/chaos"
 )
 
 // TestClusterAdapterStatus 真实集群管理器 → Cluster 面板状态映射。

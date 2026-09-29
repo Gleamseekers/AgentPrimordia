@@ -141,7 +141,7 @@ import (
 	"fmt"
 	"log"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 func main() {
@@ -187,7 +187,7 @@ import (
 	"log"
 	"os"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 func main() {
@@ -264,8 +264,8 @@ import (
 	"fmt"
 	"log"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
-	"github.com/Gleamseekers/AgentPrimordia/testutil"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/testutil"
 )
 
 func main() {
@@ -715,7 +715,7 @@ import (
 	"context"
 	"testing"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // EvalTestSuite 定义 Agent 评估测试套件
@@ -1144,7 +1144,7 @@ ap-plugin-weather/
 package ap_plugin_weather
 
 import (
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // Plugin 实现 ap.ToolPlugin 接口
@@ -1242,7 +1242,7 @@ NewPlugin() → Init(config) → Tools() 注册到 Registry → Agent 使用 →
 ### 9.1 导入方式
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 ```
 
 ### 9.2 Agent 核心

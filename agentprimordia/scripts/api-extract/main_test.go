@@ -23,7 +23,7 @@ func TestAPIContractNoDrift(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Getwd 失败: %v", err)
 	}
-	// cwd = <repo>/github.com/Gleamseekers/AgentPrimordia/scripts/api-extract
+	// cwd = <repo>/agentprimordia/scripts/api-extract
 	repoRoot := filepath.Join(cwd, "..", "..", "..")
 	apDir := filepath.Join(repoRoot, "agentprimordia")
 	baselineFile := filepath.Join(repoRoot, "sdk", "typescript", "api-contract.json")

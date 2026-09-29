@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/health"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/health"
 )
 
 // ===== SLOSteadyState 测试 =====

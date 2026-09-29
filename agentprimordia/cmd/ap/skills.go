@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
 )
 
 const skillsUsage = `Usage: ap skill <subcommand> [arguments]

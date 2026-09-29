@@ -46,7 +46,7 @@ agentprimordia → github.com/Gleamseekers/AgentPrimordia
 3. 全量验证：5 模块 build + go vet + go test ./... 全绿 + go mod tidy 零漂移；
 4. README 安装说明更新为 go install 优先；版本规范.md 模块消费章节重写；
 5. GOPROXY 实解析待下一个 tag 发布后验证（`GOPROXY=https://proxy.golang.org
-   go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest`）。
+   go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest`）。
 
 **若短期不做公开分发 → 方案 B/C**，本提案关闭。
 

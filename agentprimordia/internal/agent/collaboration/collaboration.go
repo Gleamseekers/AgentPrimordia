@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
 )
 
 // perf-v6 round 4 Task 2：协作模式静态错误

@@ -25,11 +25,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm/soak"
-	"github.com/Gleamseekers/AgentPrimordia/internal/studio"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm/soak"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/studio"
 )
 
 // soakStudioFixture 注入真实引擎的 Studio 服务器（Soak 用）。

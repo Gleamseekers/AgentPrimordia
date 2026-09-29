@@ -2,7 +2,7 @@
 package multimodal
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 	"time"
 )
 

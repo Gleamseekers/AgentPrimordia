@@ -16,7 +16,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm"
 )
 
 // ===== 确定性 WASM 工件构造（echo 工具：tool_execute 原样回显输入）=====
@@ -62,7 +62,7 @@ func echoToolWasm(t *testing.T) []byte {
 	return out
 }
 
-// ===== 沙箱执行器适配（github.com/Gleamseekers/AgentPrimordia/wasm Sandbox → lifecycle.CodeExecutor）=====
+// ===== 沙箱执行器适配（github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm Sandbox → lifecycle.CodeExecutor）=====
 
 type sandboxExecutor struct {
 	sandbox *wasm.Sandbox

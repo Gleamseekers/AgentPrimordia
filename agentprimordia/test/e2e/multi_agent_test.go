@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/orchestration"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/orchestration"
 )
 
 // TestE2E_Pipeline_TwoStages 验证两阶段 Pipeline 编排：

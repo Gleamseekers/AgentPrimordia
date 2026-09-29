@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/example/demo"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // TestSimpleExample 验证最简示例的核心逻辑不会腐烂

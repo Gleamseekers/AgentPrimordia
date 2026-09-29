@@ -3,7 +3,7 @@ package agent
 import (
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/multimodal"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/multimodal"
 )
 
 func TestConvertMultimodalMessage(t *testing.T) {

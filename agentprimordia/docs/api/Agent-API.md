@@ -18,7 +18,7 @@ type Agent interface {
 ## 构造 Agent
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 
 agent, err := ap.NewAgent("my-agent", "You are a helpful assistant.", provider,
     ap.WithMaxTurns(20),

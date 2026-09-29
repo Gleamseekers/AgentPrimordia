@@ -23,8 +23,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/a2a"
-	"github.com/Gleamseekers/AgentPrimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/a2a"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/resilience"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

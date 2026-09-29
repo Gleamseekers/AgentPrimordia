@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/debugger"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/debugger"
 	"context"
 	"fmt"
 	"log"

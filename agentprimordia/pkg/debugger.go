@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/debugger"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/debugger"
 )
 
 // DebugServer 是调试 HTTP 服务器，提供实时事件记录和查询

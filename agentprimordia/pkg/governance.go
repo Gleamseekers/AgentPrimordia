@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/internal/governance"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/governance"
 )
 
 // ===== 租户管理 =====

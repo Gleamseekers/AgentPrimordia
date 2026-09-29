@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 
 	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动
 )

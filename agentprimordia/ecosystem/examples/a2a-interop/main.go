@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 func main() {

@@ -11,9 +11,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/admin"
-	"github.com/Gleamseekers/AgentPrimordia/internal/pool"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/admin"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
 )
 
 func main() {

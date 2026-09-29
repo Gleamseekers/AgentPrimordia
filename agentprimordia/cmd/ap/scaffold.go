@@ -129,10 +129,14 @@ data/
 //
 // 为什么不是 v6.0.0：框架模块路径为无 /vN 后缀的 `github.com/Gleamseekers/AgentPrimordia`，按 Go 语义化导入
 // 版本（SIV）规则，require 行不允许出现 v2+ 版本（tidy 直接报 invalid version）。
-// 在框架采用 github.com/Gleamseekers/AgentPrimordia/vN 路径或回落 v1.x 标签之前，replace 场景一律使用
+// 在框架采用 github.com/Gleamseekers/AgentPrimordia/agentprimordia/vN 路径或回落 v1.x 标签之前，replace 场景一律使用
 // v0.0.0 占位（replace 后版本号不参与解析）；standalone 场景由调用方提示补 replace。
-// 详见 github.com/Gleamseekers/AgentPrimordia/docs/版本规范.md「模块消费与语义化导入版本限制」。
+// 详见 github.com/Gleamseekers/AgentPrimordia/agentprimordia/docs/版本规范.md「模块消费与语义化导入版本限制」。
 const apRequirePlaceholder = "v0.0.0"
+
+// frameworkModulePath 框架主模块路径（v7.5 模块路径迁移：主模块 go.mod 位于
+// 仓库 agentprimordia/ 子目录，故模块路径含 /agentprimordia 前缀）。
+const frameworkModulePath = "github.com/Gleamseekers/AgentPrimordia/agentprimordia"
 
 // buildGoMod 生成脚手架项目的 go.mod 内容。
 //
@@ -173,8 +177,8 @@ func buildGoMod(projectName, projectDir string) (content string, standalone bool
 
 go 1.26
 
-require github.com/Gleamseekers/AgentPrimordia %s
-`, projectName, apRequirePlaceholder), true
+require %s %s
+`, projectName, frameworkModulePath, apRequirePlaceholder), true
 	}
 	if real, err := filepath.EvalSymlinks(frameworkDir); err == nil {
 		frameworkDir = real
@@ -200,15 +204,15 @@ require github.com/Gleamseekers/AgentPrimordia %s
 			pgvRel = filepath.Join(frameRel, "..", "pgvector")
 		}
 		sb.WriteString(fmt.Sprintf(`require (
-	github.com/Gleamseekers/AgentPrimordia %s
+	%s %s
 	github.com/Gleamseekers/AgentPrimordia/pgvector v0.0.0
 )
 
-replace github.com/Gleamseekers/AgentPrimordia => %s
+replace %s => %s
 replace github.com/Gleamseekers/AgentPrimordia/pgvector => %s
-`, apRequirePlaceholder, frameRel, pgvRel))
+`, frameworkModulePath, apRequirePlaceholder, frameworkModulePath, frameRel, pgvRel))
 	} else {
-		sb.WriteString(fmt.Sprintf("require github.com/Gleamseekers/AgentPrimordia %s\n\nreplace github.com/Gleamseekers/AgentPrimordia => %s\n", apRequirePlaceholder, frameRel))
+		sb.WriteString(fmt.Sprintf("require %s %s\n\nreplace %s => %s\n", frameworkModulePath, apRequirePlaceholder, frameworkModulePath, frameRel))
 	}
 	return sb.String(), false
 }
@@ -278,7 +282,7 @@ func hasLocalFrameworkReplace(dir string) bool {
 	}
 	for _, line := range strings.Split(string(data), "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia ") ||
+		if strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia/agentprimordia ") ||
 			strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia/") {
 			return true
 		}

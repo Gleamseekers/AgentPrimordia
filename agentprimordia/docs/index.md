@@ -70,7 +70,7 @@ ap run
         "context"
         "fmt"
         "os"
-        ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+        ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
     )
 
     func main() {

@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
 )
 
 // Plugin 是 Git 版本控制操作插件

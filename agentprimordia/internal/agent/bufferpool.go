@@ -4,7 +4,7 @@ package agent
 import (
 	"bytes"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bufferpool"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bufferpool"
 )
 
 // AcquireBuffer 从池中获取一个空 bytes.Buffer。

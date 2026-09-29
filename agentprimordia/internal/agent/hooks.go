@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/hooks"
 )
 
 // ===== 类型别名 =====

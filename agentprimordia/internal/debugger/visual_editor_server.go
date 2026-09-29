@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/orchestration"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/orchestration"
 )
 
 type VisualEditorServer struct {

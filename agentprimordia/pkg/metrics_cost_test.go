@@ -4,8 +4,8 @@ import (
 	"math"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
 )
 
 // TestWrapCostTracker_Summary 验证 CostTrackerSource.Summary 把

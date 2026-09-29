@@ -4,21 +4,45 @@
 
 ## [Unreleased]
 
+## [7.5.0] - 2026-09-28
+
+> 版本构成：v7.4 接线批次（trunk 未发）+ 2026-09-28 深度评估修复战役（4 P0 / 12 P1 / 全 P2）+ 模块路径迁移 + 诚实遗留项清零。修复明细与实证记录见 docs/项目深度评估报告-2026-09-28.md §八。
+
+### Added — v7.4 接线批次（7 项实验性能力转正）
+
+- **OTel 端到端接线**：`ap.TelemetryFromEnv()` 生产构造点（读 OTEL_EXPORTER_OTLP_ENDPOINT 等环境变量），quickstart 生成项目启动时注入 Agent；端到端测试真实导出到 /v1/traces 与 /v1/metrics；死兼容层 internal/otel 删除
+- **Studio 接真实引擎**：默认装配 chaos/cluster/learning/marketplace/autonomy/skills/realtime 七个真实服务（-demo 可回退）；chaos 注入有安全边界（NoopFault 稳态跑通，不做宿主机级故障注入）
+- **模板注册表持久化 + 远程协议**：TemplateStore/JSONFileStore + FetchCatalog（cosign 验签）；生产构造点 ap marketplace catalog add/list/remove
+- **工具学习器自动装配**：WithToolLearner + 记忆存储具备 List(SessionID) 时自动构造 MemoryToolLearner；端到端测试证明工具执行后经验真实落库
+- **全链路关联存储**：WithCorrelationStore + 有界 retention（默认 1000）；可观测能力开启时自动构造
+- **技能库持久化 + 入循环**：PersistStore/JSONFileStore；injectSkillGuidance system 上下文注入（幂等）；ap skill list/add/remove/verify 真实实现
+- **自治 CLI 真实化**：AutonomyRuntime + 工具驱动 StepExecutor + JSON CheckpointStore；run/list/status/resume 真实执行并持久化（安全边界：默认仅注册无副作用 echo 工具）
+
+### Fixed — 深度评估修复战役（2026-09-28，全部实证复现后修复）
+
+- **P0-1 Shell 工具安全加固**：默认白名单收敛（移除 env/printenv/python*/node/go/find/git 等可派生进程/解释代码条目）；args 逐元素元字符校验；绝对路径 token 过 allowedWorkdirs/Sandbox；DefaultToolkit shell 默认禁锢 RootDir；黑名单 token 化匹配；extractPathFromArgs 完整递归 + fail-closed；敏感模式大小写不敏感（263badfc）
+- **P0-2 jsonutil.Marshal 并发覆写**：返回前拷贝（实测 2000 并发 99.5% 请求体被替换 → 0）（ea3ea06b）
+- **P0-3 Anthropic 结构化输出 nil panic**：json_object 无 schema 走通用兜底 tool（78512559）
+- **P0-4 恢复 167 个被 //go:build ignore 禁用的测试**并修复腐烂；顺带修复 DiscoveryServer.Addr() 与 AuthenticatedDiscovery 角色合并两个被测出缺陷（fe0e451e）
+- **P1 llm 批次 ×7**：Stats 原子读（三处 -race 实证）；ctx 取消熔断豁免；transport 包级单例；流式专用 transport（ResponseHeaderTimeout，长流不再被掐断）；缓存键切 RequestFingerprint（消除假命中）；TTL goroutine Close；LSH 索引清理（77d8f4c7）
+- **P1 tools 批次 ×4**：RegisteringCreator INV-0 门控（删 sh 宿主执行、验签 fail-closed、0755→0644）；插件安装器穿越净化 + 先验后写 + 256MB 上限；MCP 常量时间认证 + WithAPIKey；四工具超时 clamp（f6d6d332）
+- **P1 agent 批次 ×5**：span defer End（8 路径回归）；startTime 锁纪律；锁顺序注释修正；HITL 每请求专属通道；summaryWriter 有界池（dcad7229）
+- **P2 覆盖率补课 + 其暴露的 5 个生产缺陷**：federation 33%→98% / config 64%→98% / a2a 66%→86%；a2a interop_server 数据竞争（-race 实测）、federation 重放刷声誉、SimulatePartitionRecovery 单次口径、MinReputation 负门槛、FileRegistry Endpoints（3e6d5386）
+- **P2 tools 健壮性**：MCP stdio 64KB 挂起（1MB/16MB 上限 + 写 deadline）；子进程 env 白名单（宿主密钥不泄露）；SSRF 残留段补全（CGNAT/6to4/NAT64 等）；web/http_client 共享 Transport + 10MB 请求体上限；data_tools rootDir jail + SQLite 行数上限；WithBlacklist 废弃标注（64a7ccf5）
+- **P2 agent**：runLoop 134 行/cc23 → 71 行/cc11（纯代码移动）；流式 tool_calls 单请求化（费用/延迟减半）+ Usage 三档填充（d521618e）
+- **诚实遗留项清零**：FalsePositives 误拦口径接线（b491a4ad）；config FlagSet 注入（38f50a89）；intelligence pkg 导出 + ecosystem internal 依赖清零（0cd94443）
+- **演示输出非确定性**：extractGapKey/缺口聚合/示例汇总三处 map 迭代有序化（go run 10 连跑一致）（fe4b8ade）
+
+### Changed — 模块路径迁移（首次可发布模块路径）
+
+- **五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia` 命名空间**：主模块 + pgvector/operator/gateway/wasm-sandbox（1390 个 Go 文件 import + 5 go.mod + 49 文档 import 块）。旧路径首段无点号导致模块从未可被 GOPROXY 解析（go install 一直不可用），故无下游兼容影响；迁移后 `go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest` 随 tag 发布自动可用（d6455bba）
+- 脚手架探测/发射逻辑、README 安装说明、版本规范.md、AGENTS.md 依赖边界表述同步切换；A1 边界断言模块清单更新
+
 ### Fixed — 诚实遗留项清零（评估报告 §8.5）
 
 - **federation InterceptStats.FalsePositives 接线**：口径=节点级隔离 vs 资产级合格——隔离区节点投递的资产若已过门 1–3（完整性/钉扎钥/验签/溯源）且非他人重签形态，计误拦；资产级拒绝不计；FalsePositives ⊆ Intercepted ⊆ Attempts；零信任拒收与声誉口径不变（b491a4ad）
 - **config FlagSet 注入**：Option 模式 WithFlagSet + LoadFlagsFrom(args)，嵌入方/测试不再被 flag.CommandLine 硬绑与 os.Args 裸解析挟持；顺带修复预注册未设置 flag 的重复注册 panic（Visit→VisitAll）；覆盖率 97.7%→98.3%（38f50a89）
 - **intelligence 子系统 pkg 导出 + ecosystem 清零**：pkg/intelligence.go（Experimental，26 别名+11 构造器）；tool-intelligence 示例迁 pkg API——AGENTS.md §4.2"ecosystem 仅经 pkg 交互"的已知技术债务关闭；示例新增 TestExampleNoInternalImports 边界断言防回归（0cd94443）
-
-### Changed — 模块路径迁移（go install / GOPROXY 分发就绪）
-
-- **破坏性变更：五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia` 命名空间**（2026-09-28，评估报告 P2 项，维护者批准）：
-  - 主模块 `agentprimordia` → `github.com/Gleamseekers/AgentPrimordia`（1390 个 Go 文件 import 路径 + 5 个 go.mod + 49 个文档 import 代码块批量迁移，仓库内目录名不变）
-  - `agentprimordia/pgvector` → `github.com/Gleamseekers/AgentPrimordia/pgvector`；`agentprimordia/operator` → `.../operator`；`agentprimordia/gateway` → `.../gateway`；`agentprimordia-wasm-sandbox` → `github.com/Gleamseekers/AgentPrimordia-wasm-sandbox`
-  - **收益**：`go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest` 随 tag 发布自动可用（旧路径首段无点号，GOPROXY 无法解析且受 SIV 限制无法发 v2+ tag）；下游 import 路径需同步更新（本地 replace 消费方式见版本规范.md）
-  - 脚手架（`ap init`/`ap plugin create`）的框架探测与 go.mod 发射逻辑同步切换；README 安装说明改为 go install 优先；A1 边界断言的模块清单同步更新
-  - 修复迁移中实测暴露的三个问题：a2a.pb.go rawDesc 的 go_package 长度前缀未随字符串增长更新（protobuf filedesc panic）、host_boundary_test 目录名字段误迁、k8s 标签值/demo 字符串误迁（均已还原并复验）
-  - 验证：5 模块 build + go vet + 101 包 test exit 0 + go mod tidy 零漂移
 
 ### Added — v6.1 具模（World Model）
 

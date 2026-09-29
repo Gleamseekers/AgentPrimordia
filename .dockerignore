@@ -3,8 +3,6 @@
 # 曾因 node_modules/.gocache 只写根级致 context 达 3GB+）
 .git
 .gitignore
-go.work
-go.work.sum
 
 # 构建/缓存产物（任意深度）
 **/node_modules

@@ -247,10 +247,11 @@ jobs:
         run: |
           IMAGE="ghcr.io/${{ github.repository }}"
           if cosign sign --yes "${IMAGE}@${{ steps.build.outputs.digest }}"; then
-            echo "✅ 已按 digest 签名: ${IMAGE}@${{ steps.build.outputs.digest }}"
+            echo "✅ 已按 digest 签名"
+          elif cosign sign --yes "${IMAGE}:${{ github.sha }}"; then
+            echo "✅ 已按 sha tag 签名"
           else
-            echo "::warning::按 digest 签名失败，回退按 sha tag 签名"
-            cosign sign --yes "${IMAGE}:${{ github.sha }}"
+            echo "::warning::镜像 keyless 签名失败（二进制校验和签名由 sign-binaries 作业完成，为核心供应链门）。请查看日志定位 cosign 问题后补签。"
           fi
 
   npm-publish:
@@ -270,7 +271,20 @@ jobs:
           npm ci
           npm run build
 
+      - name: Check NPM token
+        id: token
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NPM_TOKEN}" ]; then
+            echo "::warning::NPM_TOKEN secret 未配置（仓库 secrets 为空）——跳过 npm 发布。需维护者添加 npm automation token 后手动触发发布。"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish
+        if: steps.token.outputs.skip != 'true'
         working-directory: sdk/typescript
         run: npm publish --access public
         env:

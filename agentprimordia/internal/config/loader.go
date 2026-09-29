@@ -15,6 +15,13 @@
 //	    LoadEnv().
 //	    LoadFlags().
 //	    Validate()
+//
+// 嵌入方（库 / 测试二进制）注入自定义 FlagSet，避免与全局 flag.CommandLine 耦合：
+//
+//	fs := flag.NewFlagSet("app", flag.ExitOnError)
+//	ldr, err := config.New(cfg, "AP", config.WithFlagSet(fs))
+//	// ... LoadYAML / LoadEnv 之后：
+//	err = ldr.LoadFlagsFrom(os.Args[1:]) // 显式 args 解析，os.Args 由调用方掌控
 package config
 
 import (
@@ -36,15 +43,33 @@ type Loader struct {
 	envPrefix string
 	// validators 在 Validate 时按序执行
 	validators []func() error
-	// flagSet 用于自定义 flag 集（可选）
+	// flagSet 用于自定义 flag 集（可选，默认 flag.CommandLine）
 	flagSet *flag.FlagSet
 	// loaded 标记是否已调用过 LoadYAML
 	loaded bool
 }
 
+// Option 是 Loader 的可选配置项。
+type Option func(*Loader)
+
+// WithFlagSet 注入自定义 *flag.FlagSet 替代默认的 flag.CommandLine。
+// 传入 nil 时忽略（保持默认 flag.CommandLine）。
+// 嵌入方（库 / 测试二进制）借此携带自有 flag，与全局 flag 状态解耦；
+// 注入后应使用 LoadFlagsFrom(args) 做显式 args 解析，避免测试二进制的
+// 外来 flag（-test.* 等）被误当业务 flag 解析。
+func WithFlagSet(fs *flag.FlagSet) Option {
+	return func(l *Loader) {
+		if fs != nil {
+			l.flagSet = fs
+		}
+	}
+}
+
 // New 创建配置加载器。
 // cfg 必须是非 nil 指针，envPrefix 是环境变量前缀（如 "AP"）。
-func New(cfg any, envPrefix string) (*Loader, error) {
+// opts 为可选项：WithFlagSet 可注入自定义 FlagSet；
+// 不传任何选项时保持既有行为——绑定 flag.CommandLine（向后兼容）。
+func New(cfg any, envPrefix string, opts ...Option) (*Loader, error) {
 	if cfg == nil {
 		return nil, errors.New("config: cfg must not be nil")
 	}
@@ -52,11 +77,15 @@ func New(cfg any, envPrefix string) (*Loader, error) {
 	if v.Kind() != reflect.Ptr || v.IsNil() {
 		return nil, errors.New("config: cfg must be a non-nil pointer")
 	}
-	return &Loader{
+	l := &Loader{
 		cfg:       cfg,
 		envPrefix: envPrefix,
 		flagSet:   flag.CommandLine,
-	}, nil
+	}
+	for _, opt := range opts {
+		opt(l)
+	}
+	return l, nil
 }
 
 // LoadYAML 从 YAML 文件加载配置。
@@ -115,10 +144,62 @@ func (l *Loader) loadEnvReflect(v reflect.Value, prefix string) error {
 }
 
 // LoadFlags 从命令行 flags 加载配置，覆盖 YAML 和环境变量。
+//
+// 解析来源取决于 FlagSet 来源：
+//   - 默认（未经 WithFlagSet 注入，即 flag.CommandLine）：未解析时解析 os.Args[1:]，
+//     保持既有行为；
+//   - 注入的自定义 FlagSet：不再裸解析 os.Args（测试二进制/嵌入方的外来 flag 会被
+//     误当业务 flag）。若尚未解析则返回指引错误，调用方应先自行 FlagSet.Parse，
+//     或改用 LoadFlagsFrom(args) 显式传参。
 func (l *Loader) LoadFlags() error {
-	// 收集已定义的 flags（避免重复定义）
+	l.registerConfigFlags()
+	if l.flagSet.Parsed() {
+		// 已解析（默认 CommandLine 场景或调用方自行 Parse）：直接回写
+		l.writeBackFlags()
+		return nil
+	}
+	if l.flagSet != flag.CommandLine {
+		// 注入的 FlagSet 未解析：拒绝裸解析 os.Args，指引显式入口
+		return errors.New("config: injected FlagSet is not parsed; " +
+			"call LoadFlagsFrom(args) with explicit arguments, or parse the FlagSet before LoadFlags")
+	}
+	return l.loadFromOSArgs()
+}
+
+// loadFromOSArgs 默认（flag.CommandLine）场景的解析路径：解析 os.Args[1:] 并回写。
+// 从 LoadFlags 拆出以便直接单测——测试二进制中 testing 框架会预解析
+// flag.CommandLine，LoadFlags 内该分支在测试内不可达，但生产二进制中
+// MustLoad→LoadFlags 正是走这一条路（保持既有行为）。
+func (l *Loader) loadFromOSArgs() error {
+	return l.parseAndWriteBack(os.Args[1:])
+}
+
+// LoadFlagsFrom 使用显式 args 从当前 FlagSet 解析 flags 并回写配置。
+//
+// 适用于注入自定义 FlagSet 的嵌入方/测试：args 完全由调用方控制，不触碰 os.Args，
+// 外来 flag 与业务 flag 可在同一 FlagSet 内并存互不干扰。可重复调用（已注册的
+// 业务 flag 不会重复注册）；传入 nil/空 args 时为无操作。
+func (l *Loader) LoadFlagsFrom(args []string) error {
+	l.registerConfigFlags()
+	return l.parseAndWriteBack(args)
+}
+
+// parseAndWriteBack 解析 args 并将已设置的 flag 值回写配置。
+func (l *Loader) parseAndWriteBack(args []string) error {
+	if err := l.flagSet.Parse(args); err != nil {
+		return fmt.Errorf("config: parse flags: %w", err)
+	}
+	l.writeBackFlags()
+	return nil
+}
+
+// registerConfigFlags 将 cfg 中带 flag 标签的字段注册到 FlagSet（跳过已定义项）。
+func (l *Loader) registerConfigFlags() {
+	// 收集已定义的 flags（避免重复注册）。
+	// 必须用 VisitAll 而非 Visit：Visit 只遍历"已设置"的 flag，嵌入方预注册但
+	// 未设置的 flag 会漏检 → registerFlag 二次注册 panic（flag redefined）。
 	defined := make(map[string]bool)
-	l.flagSet.Visit(func(f *flag.Flag) {
+	l.flagSet.VisitAll(func(f *flag.Flag) {
 		defined[f.Name] = true
 	})
 
@@ -139,20 +220,13 @@ func (l *Loader) LoadFlags() error {
 		fv := reflect.ValueOf(l.cfg).Elem().Field(i)
 		registerFlag(l.flagSet, tag, fv, field.Tag.Get("usage"))
 	}
+}
 
-	// 解析 flags
-	if !l.flagSet.Parsed() {
-		if err := l.flagSet.Parse(os.Args[1:]); err != nil {
-			return fmt.Errorf("config: parse flags: %w", err)
-		}
-	}
-
-	// 将已设置的 flag 值写回结构体
+// writeBackFlags 将 FlagSet 中已设置的 flag 值写回结构体。
+func (l *Loader) writeBackFlags() {
 	l.flagSet.Visit(func(f *flag.Flag) {
 		setByFlag(reflect.ValueOf(l.cfg).Elem(), f.Name, f.Value.String())
 	})
-
-	return nil
 }
 
 // Validate 执行所有注册的校验函数。

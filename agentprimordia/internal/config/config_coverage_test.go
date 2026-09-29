@@ -245,7 +245,9 @@ func TestLoadFlags_DefinedSkip(t *testing.T) {
 	}
 }
 
-// TestLoadFlags_ParseError flag 解析失败路径（os.Args 注入未定义 flag）。
+// TestLoadFlags_ParseError 注入的 FlagSet 未解析时 LoadFlags 拒绝裸解析 os.Args
+// （测试二进制外来 flag 误解析锐边）→ 返回指引错误。
+// 注：flag 解析错误路径由 TestLoadFlagsFrom_ParseError 覆盖。
 func TestLoadFlags_ParseError(t *testing.T) {
 	cfg := &struct {
 		Name string `flag:"name"`

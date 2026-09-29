@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed — 诚实遗留项清零（评估报告 §8.5）
+
+- **federation InterceptStats.FalsePositives 接线**：口径=节点级隔离 vs 资产级合格——隔离区节点投递的资产若已过门 1–3（完整性/钉扎钥/验签/溯源）且非他人重签形态，计误拦；资产级拒绝不计；FalsePositives ⊆ Intercepted ⊆ Attempts；零信任拒收与声誉口径不变（b491a4ad）
+- **config FlagSet 注入**：Option 模式 WithFlagSet + LoadFlagsFrom(args)，嵌入方/测试不再被 flag.CommandLine 硬绑与 os.Args 裸解析挟持；顺带修复预注册未设置 flag 的重复注册 panic（Visit→VisitAll）；覆盖率 97.7%→98.3%（38f50a89）
+- **intelligence 子系统 pkg 导出 + ecosystem 清零**：pkg/intelligence.go（Experimental，26 别名+11 构造器）；tool-intelligence 示例迁 pkg API——AGENTS.md §4.2"ecosystem 仅经 pkg 交互"的已知技术债务关闭；示例新增 TestExampleNoInternalImports 边界断言防回归（0cd94443）
+
 ### Changed — 模块路径迁移（go install / GOPROXY 分发就绪）
 
 - **破坏性变更：五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia` 命名空间**（2026-09-28，评估报告 P2 项，维护者批准）：

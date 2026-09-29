@@ -3676,6 +3676,189 @@
       ]
     },
     {
+      "name": "intelligence",
+      "file": "pkg/intelligence.go",
+      "stability": "Experimental",
+      "types": [
+        {
+          "name": "ToolIntelligence",
+          "kind": "alias",
+          "doc": "ToolIntelligence 统一工具智能入口：组装缺口检测/工具生成/画像/调优/选择全部子组件"
+        },
+        {
+          "name": "GapDetector",
+          "kind": "alias",
+          "doc": "GapDetector 缺口检测器接口：从调用轨迹中发现缺失工具"
+        },
+        {
+          "name": "ToolCreator",
+          "kind": "alias",
+          "doc": "ToolCreator 工具生成器接口：按缺口候选生成工具工件"
+        },
+        {
+          "name": "ToolProfiler",
+          "kind": "alias",
+          "doc": "ToolProfiler 工具性能画像接口：记录调用并计算成功率/延迟/P95 统计"
+        },
+        {
+          "name": "ToolTuner",
+          "kind": "alias",
+          "doc": "ToolTuner 参数调优器接口：基于画像提出参数调整建议"
+        },
+        {
+          "name": "ToolSelector",
+          "kind": "alias",
+          "doc": "ToolSelector 工具选择优化接口：按历史成功率从候选中选优"
+        },
+        {
+          "name": "GapCandidate",
+          "kind": "alias",
+          "doc": "GapCandidate 缺口候选（错误模式聚类结果）"
+        },
+        {
+          "name": "ToolArtifact",
+          "kind": "alias",
+          "doc": "ToolArtifact 工具产物。Signature/PublicKey 为 ed25519 签名对，"
+        },
+        {
+          "name": "ToolCallRecord",
+          "kind": "alias",
+          "doc": "ToolCallRecord 工具调用记录（缺口检测的轨迹单元）"
+        },
+        {
+          "name": "IntelligenceToolUsageRecord",
+          "kind": "alias",
+          "doc": "IntelligenceToolUsageRecord 工具使用记录（画像录入）。"
+        },
+        {
+          "name": "ToolProfile",
+          "kind": "alias",
+          "doc": "ToolProfile 工具性能画像（成功率/平均延迟/P95/平均 token 等统计）"
+        },
+        {
+          "name": "TuningSuggestion",
+          "kind": "alias",
+          "doc": "TuningSuggestion 调优建议（参数名/建议值/置信度/原因）"
+        },
+        {
+          "name": "IntelligenceHook",
+          "kind": "alias",
+          "doc": "IntelligenceHook 工具智能 Hook：工具调用后记录画像，轮次结束后检测缺口并自动创建工具"
+        },
+        {
+          "name": "ArtifactVerifier",
+          "kind": "alias",
+          "doc": "ArtifactVerifier 工件验签门接口（INV-0/A6 门控）。"
+        },
+        {
+          "name": "ArtifactExecutor",
+          "kind": "alias",
+          "doc": "ArtifactExecutor 工件执行器注入点。"
+        },
+        {
+          "name": "RegisteringCreator",
+          "kind": "alias",
+          "doc": "RegisteringCreator INV-0 门控注册生成器：验签通过后才以 0644 数据文件"
+        },
+        {
+          "name": "TraceGapDetector",
+          "kind": "alias",
+          "doc": "TraceGapDetector 轨迹缺口检测器（并发安全）：按错误模式聚类发现缺失工具"
+        },
+        {
+          "name": "LifecycleCreator",
+          "kind": "alias",
+          "doc": "LifecycleCreator 生命周期工具生成器：基于硬编码 shell 脚本模板生成工具"
+        },
+        {
+          "name": "LLMCompleter",
+          "kind": "alias",
+          "doc": "LLMCompleter 最小化 LLM 补全接口（Complete(ctx, prompt) → 脚本文本）"
+        },
+        {
+          "name": "LLMCreator",
+          "kind": "alias",
+          "doc": "LLMCreator LLM 驱动工具生成器：LLM 失败时自动降级到 LifecycleCreator 模板"
+        },
+        {
+          "name": "InMemoryProfiler",
+          "kind": "alias",
+          "doc": "InMemoryProfiler 内存版工具性能画像器"
+        },
+        {
+          "name": "DataDrivenTuner",
+          "kind": "alias",
+          "doc": "DataDrivenTuner 数据驱动参数调优器：低成功率→建议重试，高延迟→建议增大超时"
+        },
+        {
+          "name": "HistorySelector",
+          "kind": "alias",
+          "doc": "HistorySelector 基于历史成功率的工具选择器"
+        },
+        {
+          "name": "ToolEntry",
+          "kind": "alias",
+          "doc": "ToolEntry 工具目录条目（ID/名称/描述/领域）"
+        },
+        {
+          "name": "ToolCatalog",
+          "kind": "alias",
+          "doc": "ToolCatalog 工具目录注册表（并发安全）"
+        },
+        {
+          "name": "TaskMatcher",
+          "kind": "alias",
+          "doc": "TaskMatcher 任务-工具匹配器：按关键词重叠度选择最匹配的工具"
+        }
+      ],
+      "variables": [
+        {
+          "name": "NewToolIntelligence",
+          "doc": "NewToolIntelligence 构造统一工具智能入口"
+        },
+        {
+          "name": "NewIntelligenceHook",
+          "doc": "NewIntelligenceHook 创建工具智能 Hook"
+        },
+        {
+          "name": "NewRegisteringCreator",
+          "doc": "NewRegisteringCreator 构造 RegisteringCreator。"
+        },
+        {
+          "name": "NewTraceGapDetector",
+          "doc": "NewTraceGapDetector 创建轨迹缺口检测器"
+        },
+        {
+          "name": "NewLifecycleCreator",
+          "doc": "NewLifecycleCreator 创建生命周期工具生成器"
+        },
+        {
+          "name": "NewLLMCreator",
+          "doc": "NewLLMCreator 构造 LLM 驱动工具生成器"
+        },
+        {
+          "name": "NewInMemoryProfiler",
+          "doc": "NewInMemoryProfiler 创建内存版工具性能画像器"
+        },
+        {
+          "name": "NewDataDrivenTuner",
+          "doc": "NewDataDrivenTuner 创建数据驱动参数调优器"
+        },
+        {
+          "name": "NewHistorySelector",
+          "doc": "NewHistorySelector 创建基于历史成功率的工具选择器"
+        },
+        {
+          "name": "NewToolCatalog",
+          "doc": "NewToolCatalog 创建工具目录"
+        },
+        {
+          "name": "NewTaskMatcher",
+          "doc": "NewTaskMatcher 创建任务-工具匹配器"
+        }
+      ]
+    },
+    {
       "name": "learning",
       "file": "pkg/learning.go",
       "stability": "Experimental",

@@ -7,7 +7,7 @@
 //   - HistorySelector 基于成功率的工具选择
 //   - TraceGapDetector 失败轨迹缺口检测
 //   - LifecycleCreator 自动工具生成
-//   - reuse.ToolCatalog + reuse.TaskMatcher 工具目录与任务匹配
+//   - ap.ToolCatalog + ap.TaskMatcher 工具目录与任务匹配
 //   - IntelligenceHook 桥接 ReAct 循环
 //   - INV-0 合规注册：RegisteringCreator 验签门 + wasm 沙箱执行通道
 //     （生产装配范例见 cmd/ap/tool_forge.go）
@@ -23,13 +23,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
-	toolspkg "github.com/Gleamseekers/AgentPrimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/optimize"
-	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/reuse"
-	"github.com/Gleamseekers/AgentPrimordia/wasm"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 func main() {
@@ -43,33 +37,35 @@ func main() {
 	// ============================================================
 
 	// 1. 性能画像器：记录每次工具调用的成功率、延迟、token 统计
-	profiler := optimize.NewInMemoryProfiler()
+	profiler := ap.NewInMemoryProfiler()
 
 	// 2. 数据驱动调优器：基于画像提出参数调整建议（低成功率→重试，高延迟→增大超时）
-	tuner := optimize.NewDataDrivenTuner()
+	tuner := ap.NewDataDrivenTuner()
 
 	// 3. 历史选择器：根据历史成功率从候选工具中选最优
-	selector := optimize.NewHistorySelector()
+	selector := ap.NewHistorySelector()
 
 	// 4. 缺口检测器：分析失败轨迹，按错误模式聚类发现缺失工具
-	detector := create.NewTraceGapDetector()
+	detector := ap.NewTraceGapDetector()
 
 	// 5. 工具生成器：根据缺口候选自动生成 shell 脚本工具
-	creator := create.NewLifecycleCreator()
+	creator := ap.NewLifecycleCreator()
 
 	// 6. 统一入口：组装所有子组件
-	ti := intelligence.NewToolIntelligence(detector, creator, profiler, tuner, selector)
+	ti := ap.NewToolIntelligence(detector, creator, profiler, tuner, selector)
 	_ = ti // 统一入口已就绪，后续各组件单独演示以便输出清晰
 
 	// 7. 复用层：工具目录 + 任务匹配器
-	catalog := reuse.NewToolCatalog()
-	matcher := reuse.NewTaskMatcher()
+	catalog := ap.NewToolCatalog()
+	matcher := ap.NewTaskMatcher()
 
 	// 8. 智能 Hook：桥接 ReAct 循环，工具调用后画像记录，轮次结束后缺口检测
-	hook := intelligence.NewIntelligenceHook(profiler, detector, creator)
+	hook := ap.NewIntelligenceHook(profiler, detector, creator)
 
-	// 9. MockLLM：本示例不发起真实 API 调用，仅用于展示 LLM 上下文可用
-	mockLLM := llm.NewMockLLM(nil).WithResponse("模拟响应")
+	// 9. DemoProvider：本示例不发起真实 API 调用，仅用于展示 LLM 上下文可用
+	// （MockLLM 构造器签名依赖 *testing.T，不适合公共 API 导出，故用无需
+	// API key 的 DemoProvider 等价演示）
+	mockLLM := ap.NewDemoProvider()
 	_ = mockLLM
 
 	fmt.Println("✓ 所有组件构造完成")
@@ -88,15 +84,15 @@ func main() {
 	// ============================================================
 
 	fmt.Println("--- 工具目录与任务匹配 ---")
-	catalog.Register(reuse.ToolEntry{
+	catalog.Register(ap.ToolEntry{
 		ID: "file_search", Name: "file_search",
 		Description: "在文件系统中搜索匹配模式的文件", Domain: "filesystem",
 	})
-	catalog.Register(reuse.ToolEntry{
+	catalog.Register(ap.ToolEntry{
 		ID: "http_get", Name: "http_get",
 		Description: "发送 HTTP GET 请求并返回响应内容", Domain: "network",
 	})
-	catalog.Register(reuse.ToolEntry{
+	catalog.Register(ap.ToolEntry{
 		ID: "csv_parse", Name: "csv_parse",
 		Description: "解析 CSV 格式数据并提取字段", Domain: "data",
 	})
@@ -199,7 +195,7 @@ func main() {
 	fmt.Println("--- 缺口检测与工具生成 ---")
 
 	// 模拟包含多种失败模式的调用轨迹
-	trace := []intelligence.ToolCallRecord{
+	trace := []ap.ToolCallRecord{
 		{ToolName: "file_read", Args: "/data/report.csv", Error: "parse error: invalid CSV format",
 			Duration: 10 * time.Millisecond, Success: false, Timestamp: time.Now()},
 		{ToolName: "file_read", Args: "/data/log.txt", Error: "parse error: unsupported log format",
@@ -263,7 +259,7 @@ func main() {
 
 	fmt.Println("--- INV-0 合规注册（RegisteringCreator）---")
 
-	reg := toolspkg.NewRegistry()
+	reg := ap.NewToolRegistry()
 	// 工件落盘用临时目录，避免污染当前工作目录（AGENTS.md §5 纪律）。
 	forgeDir, dirErr := os.MkdirTemp("", "ap-tool-forge-*")
 	if dirErr != nil {
@@ -272,39 +268,39 @@ func main() {
 	} else {
 		defer os.RemoveAll(forgeDir)
 	}
-	priv, pub, keyErr := wasm.GenerateKeyPair()
+	priv, pub, keyErr := ap.WASMGenerateKeyPair()
 	if keyErr != nil {
 		fmt.Printf("  ✗ 生成密钥对失败: %v\n", keyErr)
 	} else {
 		// 受信生成方：工件 + ed25519 签名（生产上由签名服务/CI 完成）
 		scriptArtifact := []byte("#!/bin/sh\necho demo\n")
 		sum := sha256.Sum256(scriptArtifact)
-		sig, _, signErr := wasm.SignWASM(scriptArtifact, priv)
+		sig, _, signErr := ap.WASMSignWASM(scriptArtifact, priv)
 		if signErr != nil {
 			fmt.Printf("  ✗ 签名失败: %v\n", signErr)
 		}
 
 		// 场景 1：未签名工件 → 拒绝注册（fail-closed）
-		unsigned := &intelligence.ToolArtifact{
+		unsigned := &ap.ToolArtifact{
 			ID: "demo-unsigned", Name: "demo_unsigned", Description: "未签名演示",
 			ArtifactSHA: hex.EncodeToString(sum[:]), Artifact: scriptArtifact,
 		}
-		refuseCreator := intelligence.NewRegisteringCreator(&demoArtifactCreator{art: unsigned}, reg, forgeDir)
-		if _, err := refuseCreator.Create(ctx, intelligence.GapCandidate{Key: "demo_unsigned"}); err != nil {
+		refuseCreator := ap.NewRegisteringCreator(&demoArtifactCreator{art: unsigned}, reg, forgeDir)
+		if _, err := refuseCreator.Create(ctx, ap.GapCandidate{Key: "demo_unsigned"}); err != nil {
 			fmt.Println("  ✓ 未签名工件被拒绝注册（fail-closed，符合 INV-0）")
 		} else {
 			fmt.Println("  ✗ 未签名工件竟然注册成功（安全回归！）")
 		}
 
 		// 场景 2：已签名工件 → 注册放行；执行通道仅 wasm 沙箱
-		signed := &intelligence.ToolArtifact{
+		signed := &ap.ToolArtifact{
 			ID: "demo-signed", Name: "demo_signed", Description: "已签名演示",
 			ArtifactSHA: hex.EncodeToString(sum[:]), Artifact: scriptArtifact,
 			Signature:   sig, PublicKey: pub,
 		}
-		acceptCreator := intelligence.NewRegisteringCreator(&demoArtifactCreator{art: signed}, reg, forgeDir).
+		acceptCreator := ap.NewRegisteringCreator(&demoArtifactCreator{art: signed}, reg, forgeDir).
 			WithVerifier(&demoPinnedVerifier{pub: pub})
-		if _, err := acceptCreator.Create(ctx, intelligence.GapCandidate{Key: "demo_signed"}); err != nil {
+		if _, err := acceptCreator.Create(ctx, ap.GapCandidate{Key: "demo_signed"}); err != nil {
 			fmt.Printf("  ✗ 已签名工件注册失败: %v\n", err)
 		} else if _, ok := reg.Get("demo_signed"); ok {
 			fmt.Println("  ✓ 已签名工件注册成功（验签门放行）")
@@ -338,9 +334,9 @@ type toolCall struct {
 }
 
 // simulateToolUsage 模拟工具调用并记录到 profiler
-func simulateToolUsage(ctx context.Context, profiler intelligence.ToolProfiler, name string, calls []toolCall) {
+func simulateToolUsage(ctx context.Context, profiler ap.ToolProfiler, name string, calls []toolCall) {
 	for _, c := range calls {
-		_ = profiler.Record(ctx, intelligence.ToolUsageRecord{
+		_ = profiler.Record(ctx, ap.IntelligenceToolUsageRecord{
 			ToolName: name,
 			Success:  c.success,
 			Duration: c.duration,
@@ -350,9 +346,9 @@ func simulateToolUsage(ctx context.Context, profiler intelligence.ToolProfiler, 
 }
 
 // demoArtifactCreator 返回预设工件的演示生成器。
-type demoArtifactCreator struct{ art *intelligence.ToolArtifact }
+type demoArtifactCreator struct{ art *ap.ToolArtifact }
 
-func (c *demoArtifactCreator) Create(_ context.Context, _ intelligence.GapCandidate) (*intelligence.ToolArtifact, error) {
+func (c *demoArtifactCreator) Create(_ context.Context, _ ap.GapCandidate) (*ap.ToolArtifact, error) {
 	return c.art, nil
 }
 
@@ -360,12 +356,12 @@ func (c *demoArtifactCreator) Create(_ context.Context, _ intelligence.GapCandid
 // pinnedArtifactVerifier：多钥钉扎 + 指纹披露）。
 type demoPinnedVerifier struct{ pub []byte }
 
-func (v *demoPinnedVerifier) VerifyArtifact(art *intelligence.ToolArtifact) error {
+func (v *demoPinnedVerifier) VerifyArtifact(art *ap.ToolArtifact) error {
 	if len(art.Signature) == 0 || len(art.PublicKey) == 0 {
 		return fmt.Errorf("工件缺少签名/公钥")
 	}
 	if string(art.PublicKey) != string(v.pub) {
 		return fmt.Errorf("签名公钥未钉扎")
 	}
-	return wasm.VerifySignature(art.Artifact, art.Signature, art.PublicKey)
+	return ap.WASMVerifySignature(art.Artifact, art.Signature, art.PublicKey)
 }

@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
 )
 
 // PlanCheckpoint 计划级检查点

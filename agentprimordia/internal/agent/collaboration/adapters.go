@@ -3,7 +3,7 @@ package collaboration
 import (
 	"context"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 // CoreAgentAdapter 将 core.Agent 适配为 collaboration.Agent 接口。

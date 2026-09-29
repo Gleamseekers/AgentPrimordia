@@ -18,8 +18,8 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent/autonomy"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 const autonomyUsage = `Usage: ap autonomy <subcommand> [arguments]

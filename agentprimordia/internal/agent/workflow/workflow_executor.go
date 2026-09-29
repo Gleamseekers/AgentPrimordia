@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 // executeNode 执行单个节点（任务/条件/回退），并按 ErrorHandling 策略处理错误

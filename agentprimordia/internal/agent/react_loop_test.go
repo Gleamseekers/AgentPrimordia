@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func TestReActAgent_SimpleCompletion(t *testing.T) {

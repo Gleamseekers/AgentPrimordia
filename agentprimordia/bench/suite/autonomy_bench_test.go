@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"testing"
 
-	"agentprimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
 )
 
 // benchStepExecutor 基准测试用步骤执行器（无开销）

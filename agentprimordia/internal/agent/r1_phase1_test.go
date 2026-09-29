@@ -9,8 +9,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
 )
 
 // discardLogger 返回丢弃所有输出的 slog.Logger，避免测试时日志噪音

@@ -8,7 +8,7 @@
 // 使能力可经 pkg 使用并接受生态验证；转正需等真实消费方与外部基准。
 package ap
 
-import "agentprimordia/internal/multi_agent"
+import "github.com/Gleamseekers/AgentPrimordia/internal/multi_agent"
 
 // Specialist 专业分工的 Agent。
 // Stability: Experimental

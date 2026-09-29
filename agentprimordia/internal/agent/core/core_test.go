@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/multimodal"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/multimodal"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ===== Message 测试 =====

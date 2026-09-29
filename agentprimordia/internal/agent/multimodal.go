@@ -1,8 +1,8 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/multimodal"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/multimodal"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ContentPart 表示消息内容的一部分（文本、图片、音频等）

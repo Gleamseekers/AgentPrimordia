@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/cluster"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/cluster"
 )
 
 // BenchmarkConsistentHash_GetNode 基准：不同节点数下的分片查找

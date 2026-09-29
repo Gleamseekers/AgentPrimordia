@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/metrics"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
 )
 
 // TelemetryConfig 遥测配置

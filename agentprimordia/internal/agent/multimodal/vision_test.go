@@ -13,7 +13,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // TestMultimodalMessage_ToLLMFormat 验证 multimodal.Message 经 Adapter 转换后

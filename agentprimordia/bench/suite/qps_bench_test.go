@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"testing"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // BenchmarkQPS_AgentRun 单 Agent 完整运行 QPS

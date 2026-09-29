@@ -22,10 +22,10 @@ import (
 	"regexp"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // quarterPattern 合法季度标签：YYYY-Q[1-4]

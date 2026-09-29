@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 const (

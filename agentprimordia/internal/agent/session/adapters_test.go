@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 // mockCoreAgent 模拟 core.Agent 实现

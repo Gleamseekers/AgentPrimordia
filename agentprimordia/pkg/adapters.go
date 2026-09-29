@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"strings"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/events"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/events"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 // ===== EventPublisher 适配器 =====

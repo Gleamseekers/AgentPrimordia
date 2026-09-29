@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func TestShell_Execute_ScopeDenied(t *testing.T) {

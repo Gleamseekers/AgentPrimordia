@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // BenchmarkLatency 基准：Agent 延迟

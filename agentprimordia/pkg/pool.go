@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/internal/pool"
 )
 
 // Pool 是多 Agent 并发调度器，支持任务分发、重试、取消和会话管理

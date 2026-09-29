@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // CSVData 表示加载后的 CSV 数据

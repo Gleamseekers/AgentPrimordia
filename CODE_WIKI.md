@@ -1728,7 +1728,7 @@ import (
     "log"
     "os"
     
-    ap "agentprimordia/pkg"
+    ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 func main() {
@@ -2283,7 +2283,7 @@ await audit.log({ actor: 'user-1', action: 'agent.run', resource: 'my-agent' });
 
 3. **`testutil` 测试包**
    ```go
-   import "agentprimordia/testutil"
+   import "github.com/Gleamseekers/AgentPrimordia/testutil"
    
    provider := testutil.NewMockProvider()
    agent := testutil.NewTestAgent(provider)
@@ -2394,7 +2394,7 @@ ap version
 PostgreSQL pgvector 扩展适配器，用于生产级向量存储：
 
 ```go
-import "agentprimordia/pgvector"
+import "github.com/Gleamseekers/AgentPrimordia/pgvector"
 
 // 创建 pgvector 存储
 store, err := pgvector.New(pgvector.Config{

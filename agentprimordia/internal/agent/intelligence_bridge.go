@@ -6,7 +6,7 @@ package agent
 import (
 	"context"
 
-	"agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
 )
 
 // ToolIntelligenceConfig 工具智能配置

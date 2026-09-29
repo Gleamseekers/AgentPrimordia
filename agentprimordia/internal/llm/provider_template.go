@@ -23,7 +23,7 @@
 // 防止任何生态代码或示例误把模板当真 Provider 用 —— 运行时才
 // 暴露 "TODO: 未实现" 太晚，启动期拒绝能更早发现问题。
 //
-// 误用防护设计参考 agentprimordia/docs/版本规范.md 的兼容性承诺与
+// 误用防护设计参考 github.com/Gleamseekers/AgentPrimordia/docs/版本规范.md 的兼容性承诺与
 // Experimental API 定义。
 package llm
 
@@ -41,7 +41,7 @@ package llm
 //  8. 运行测试：go test -run TestTemplate ./internal/llm/
 
 import (
-	"agentprimordia/internal/jsonutil" // perf-v6 round 6 Task 1
+	"github.com/Gleamseekers/AgentPrimordia/internal/jsonutil" // perf-v6 round 6 Task 1
 	"bytes"
 	"context"
 	"fmt"

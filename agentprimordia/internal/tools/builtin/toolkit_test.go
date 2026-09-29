@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/concurrency"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func TestDefaultToolkit_AllTools(t *testing.T) {

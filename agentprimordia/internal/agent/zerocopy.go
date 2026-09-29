@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/zerocopy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/zerocopy"
 )
 
 // ZeroCopyMessage 零拷贝消息

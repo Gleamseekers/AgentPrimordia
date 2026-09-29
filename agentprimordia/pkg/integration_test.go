@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // ===== Phase 17-D: pkg/ 公共 API 端到端集成测试 =====

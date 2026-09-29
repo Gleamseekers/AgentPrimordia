@@ -14,8 +14,8 @@ package agent
 import (
 	"context"
 
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // memoryEpisodeStore 是适配所需的记忆存储最小能力集。

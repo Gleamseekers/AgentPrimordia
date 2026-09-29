@@ -14,10 +14,10 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // replayedFacts 消息序列回放推导的世界事实（独立于接线实现，逐条可对账）。

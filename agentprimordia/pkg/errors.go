@@ -4,15 +4,15 @@ package ap
 import (
 	"errors"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/concurrency"
-	"agentprimordia/internal/events"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/pool"
-	"agentprimordia/internal/security"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/events"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/internal/security"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // CodeError 是带错误码的错误类型，用于结构化错误返回

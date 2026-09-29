@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 	"os"
 	"strings"
 )

@@ -47,7 +47,7 @@ client, _ := memory.NewMilvusClient(memory.MilvusConfig{
 
 ### 已有 PostgreSQL → pgvector
 ```go
-import pgv "agentprimordia/pgvector"
+import pgv "github.com/Gleamseekers/AgentPrimordia/pgvector"
 
 client, _ := pgv.NewClient(pgv.Config{
     Host:       "localhost",

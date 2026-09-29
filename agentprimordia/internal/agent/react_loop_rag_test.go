@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // mockMemoryStore 简单的内存 MemoryStore 实现

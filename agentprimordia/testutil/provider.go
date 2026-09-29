@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // MockProvider 是用于测试的 LLM 提供者。

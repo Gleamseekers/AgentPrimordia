@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/orchestration"
+	"github.com/Gleamseekers/AgentPrimordia/internal/orchestration"
 )
 
 // Debater 辩论参与者接口

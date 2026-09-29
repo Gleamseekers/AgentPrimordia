@@ -5,9 +5,9 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/agent/session"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/session"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 func TestNewSession_AutoID(t *testing.T) {

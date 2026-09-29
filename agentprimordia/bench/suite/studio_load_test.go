@@ -21,10 +21,10 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/autonomy"
-	"agentprimordia/internal/agent/realtime"
-	"agentprimordia/internal/agent/skills"
-	"agentprimordia/internal/studio"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/internal/studio"
 )
 
 // studioLoadFixture 注入真实引擎的 StudioHandler 测试夹具。

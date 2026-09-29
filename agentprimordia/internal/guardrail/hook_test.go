@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 func TestGuardrailHook_InputReject(t *testing.T) {

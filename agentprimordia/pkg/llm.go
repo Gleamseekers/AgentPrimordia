@@ -8,8 +8,8 @@
 package ap
 
 import (
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/resilience"
 )
 
 // Provider 是 LLM 提供者的核心接口，定义补全、流式、tool调用和嵌入等方法

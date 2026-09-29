@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"agentprimordia/internal/agent/core"
-	"agentprimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
 )
 
 // NodeHandler 节点处理函数类型

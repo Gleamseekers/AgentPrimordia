@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"testing"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // silentToolLogs 把 tools 包全局 slog 重定向到 io.Discard，benchmark 结束后恢复。

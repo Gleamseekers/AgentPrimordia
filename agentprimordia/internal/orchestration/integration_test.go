@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // TestMultiAgentSystem_Integration 测试完整的Multi-Agent系统集成

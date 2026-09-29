@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 //go:embed static/editor.html

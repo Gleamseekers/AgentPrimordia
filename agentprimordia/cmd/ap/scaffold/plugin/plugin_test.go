@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func TestPlugin_Name(t *testing.T) {

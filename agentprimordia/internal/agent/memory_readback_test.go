@@ -6,8 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // mockMemoryQuerier 同时实现 agent.MemoryStore 与 MemoryQuerier（回读）

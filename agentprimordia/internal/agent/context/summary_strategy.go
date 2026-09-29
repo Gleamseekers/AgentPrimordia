@@ -11,7 +11,7 @@ package context
 import (
 	"fmt"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 // SummarizingStrategy 摘要压缩策略

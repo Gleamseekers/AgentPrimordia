@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"time"
 
-	remotemarket "agentprimordia/internal/marketplace"
+	remotemarket "github.com/Gleamseekers/AgentPrimordia/internal/marketplace"
 )
 
 // maxCatalogBytes 目录响应体上限，防止超大响应耗尽内存。

@@ -27,8 +27,8 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 func main() {

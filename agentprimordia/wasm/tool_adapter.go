@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ToolMetadata WASM 工具元数据

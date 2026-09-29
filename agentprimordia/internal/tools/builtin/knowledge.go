@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 const defaultKnowledgeTopK = 5

@@ -8,10 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // newEchoRegistry 创建注册了 echo 工具（见 metrics_labels_test.go）的注册表，

@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/orchestration"
+	"github.com/Gleamseekers/AgentPrimordia/internal/orchestration"
 )
 
 // ===== Orchestration Tracing 编排追踪 =====

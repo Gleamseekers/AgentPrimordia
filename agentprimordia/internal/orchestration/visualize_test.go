@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // buildLinearWorkflow 构建线性工作流用于测试

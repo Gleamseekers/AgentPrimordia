@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
 )
 
 // Reflector 定义自我反思和纠错接口

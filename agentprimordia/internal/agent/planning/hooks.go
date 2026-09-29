@@ -4,7 +4,7 @@ package planning
 import (
 	"context"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // EnhancedPlanner 组合所有规划增强能力的统一规划器

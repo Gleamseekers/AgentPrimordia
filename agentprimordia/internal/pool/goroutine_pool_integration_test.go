@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
 )
 
 // TestPool_GoroutinePool_NotConfigured 验证未配置 GoroutinePool 时的行为。

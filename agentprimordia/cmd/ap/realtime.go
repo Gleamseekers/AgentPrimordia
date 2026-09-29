@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"agentprimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
 )
 
 const realtimeUsage = `Usage: ap realtime <subcommand> [arguments]

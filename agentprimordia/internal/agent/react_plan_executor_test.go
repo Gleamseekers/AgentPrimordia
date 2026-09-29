@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 )
 
 // ===== runSubtaskWithRetry 纯函数测试 =====

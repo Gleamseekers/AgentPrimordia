@@ -303,7 +303,7 @@ func NewMilvusClient(config MilvusConfig) (*MilvusClient, error)   // internal/m
         "log"
         "os"
 
-        ap "agentprimordia/pkg"
+        ap "github.com/Gleamseekers/AgentPrimordia/pkg"
     )
 
     func main() {

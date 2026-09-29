@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+### Changed — 模块路径迁移（go install / GOPROXY 分发就绪）
+
+- **破坏性变更：五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia` 命名空间**（2026-09-28，评估报告 P2 项，维护者批准）：
+  - 主模块 `agentprimordia` → `github.com/Gleamseekers/AgentPrimordia`（1390 个 Go 文件 import 路径 + 5 个 go.mod + 49 个文档 import 代码块批量迁移，仓库内目录名不变）
+  - `agentprimordia/pgvector` → `github.com/Gleamseekers/AgentPrimordia/pgvector`；`agentprimordia/operator` → `.../operator`；`agentprimordia/gateway` → `.../gateway`；`agentprimordia-wasm-sandbox` → `github.com/Gleamseekers/AgentPrimordia-wasm-sandbox`
+  - **收益**：`go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest` 随 tag 发布自动可用（旧路径首段无点号，GOPROXY 无法解析且受 SIV 限制无法发 v2+ tag）；下游 import 路径需同步更新（本地 replace 消费方式见版本规范.md）
+  - 脚手架（`ap init`/`ap plugin create`）的框架探测与 go.mod 发射逻辑同步切换；README 安装说明改为 go install 优先；A1 边界断言的模块清单同步更新
+  - 修复迁移中实测暴露的三个问题：a2a.pb.go rawDesc 的 go_package 长度前缀未随字符串增长更新（protobuf filedesc panic）、host_boundary_test 目录名字段误迁、k8s 标签值/demo 字符串误迁（均已还原并复验）
+  - 验证：5 模块 build + go vet + 101 包 test exit 0 + go mod tidy 零漂移
+
 ### Added — v6.1 具模（World Model）
 
 - **v6.1 世界模型内核切片一——状态图（opt-in，默认行为零变化）**：`internal/agent/worldmodel/`（graph/tracker/backdiff/rehearsal/options，纯标准库）——StateGraph 有向图内核（五类节点/四类边，确定性 ID 去重，预演态/观测态靠边分型）、WorldModelTracker 最小事件流增量维护、TrimNotification 把上下文裁剪消息转为事实节点、ComparePaths 回溯差异（乱序安全纯函数）、Rehearse 无 LLM 预演门；测试 21 函数 74 用例 -race 绿，覆盖率 96.8%（067134ef）

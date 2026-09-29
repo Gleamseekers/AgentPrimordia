@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/eval"
 	"context"
 )
 

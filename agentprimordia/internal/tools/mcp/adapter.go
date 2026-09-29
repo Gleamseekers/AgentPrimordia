@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // MCPToolAdapter 将 MCP tool适配为 AP 的 tools.Tool 接口

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"agentprimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
 )
 
 func TestExecutor_WithScopePolicy_Allowed(t *testing.T) {

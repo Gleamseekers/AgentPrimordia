@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // chaosMockProvider 确定性 mock Provider：按内容关键词返回完整代码或关键词。

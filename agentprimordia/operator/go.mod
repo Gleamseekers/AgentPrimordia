@@ -1,4 +1,4 @@
-module agentprimordia/operator
+module github.com/Gleamseekers/AgentPrimordia/operator
 
 go 1.26.6
 

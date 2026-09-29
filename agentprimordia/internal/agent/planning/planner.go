@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // Planner 定义任务规划和分解接口

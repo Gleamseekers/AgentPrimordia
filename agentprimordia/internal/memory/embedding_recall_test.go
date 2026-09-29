@@ -22,7 +22,7 @@ import (
 	"runtime"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // s03RecallSeeds 三档固定种子（v5.1 口径 7+N）。种子只影响 HNSW 构建
@@ -55,7 +55,7 @@ func loadS03Corpus(t *testing.T) *s03RecallCorpus {
 	if !ok {
 		t.Fatal("无法获取当前文件路径")
 	}
-	// internal/memory/ -> internal/ -> agentprimordia/ -> 仓库根
+	// internal/memory/ -> internal/ -> github.com/Gleamseekers/AgentPrimordia/ -> 仓库根
 	repoRoot := filepath.Dir(filepath.Dir(filepath.Dir(filepath.Dir(filename))))
 	data, err := os.ReadFile(filepath.Join(repoRoot, "docs", "evals", "embedding-corpus-v1.json"))
 	if err != nil {

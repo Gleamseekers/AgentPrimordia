@@ -748,7 +748,7 @@ type AgentDeploymentStatus struct {
 所有公开类型通过 `pkg/agent.go` 重导出，用户只需导入一个包：
 
 ```go
-import ap "agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 ```
 
 导出映射：
@@ -778,7 +778,7 @@ package myprovider
 
 import (
     "context"
-    "agentprimordia/internal/llm"
+    "github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 type MyProvider struct {
@@ -850,7 +850,7 @@ package mytools
 import (
     "context"
     "encoding/json"
-    "agentprimordia/internal/tools"
+    "github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 type WeatherTool struct{}

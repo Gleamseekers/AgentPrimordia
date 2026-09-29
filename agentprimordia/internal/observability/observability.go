@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/audit"
+	"github.com/Gleamseekers/AgentPrimordia/internal/audit"
 )
 
 // ===== Context 关联键 =====

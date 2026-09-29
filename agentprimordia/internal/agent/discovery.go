@@ -3,7 +3,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
 )
 
 // AgentInfo 表示 Agent 的注册信息

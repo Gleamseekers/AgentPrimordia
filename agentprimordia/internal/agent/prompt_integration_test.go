@@ -3,7 +3,7 @@ package agent
 import (
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // TestReActAgent_WithPromptTemplate 验证 PromptTemplate 与 ReActAgent 集成

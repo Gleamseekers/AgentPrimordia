@@ -127,23 +127,23 @@ data/
 
 // apRequirePlaceholder 生成项目 go.mod 的框架 require 占位版本。
 //
-// 为什么不是 v6.0.0：框架模块路径为无 /vN 后缀的 `agentprimordia`，按 Go 语义化导入
+// 为什么不是 v6.0.0：框架模块路径为无 /vN 后缀的 `github.com/Gleamseekers/AgentPrimordia`，按 Go 语义化导入
 // 版本（SIV）规则，require 行不允许出现 v2+ 版本（tidy 直接报 invalid version）。
-// 在框架采用 agentprimordia/vN 路径或回落 v1.x 标签之前，replace 场景一律使用
+// 在框架采用 github.com/Gleamseekers/AgentPrimordia/vN 路径或回落 v1.x 标签之前，replace 场景一律使用
 // v0.0.0 占位（replace 后版本号不参与解析）；standalone 场景由调用方提示补 replace。
-// 详见 agentprimordia/docs/版本规范.md「模块消费与语义化导入版本限制」。
+// 详见 github.com/Gleamseekers/AgentPrimordia/docs/版本规范.md「模块消费与语义化导入版本限制」。
 const apRequirePlaceholder = "v0.0.0"
 
 // buildGoMod 生成脚手架项目的 go.mod 内容。
 //
 // 背景（v6.0 复测发现的断链问题）：框架根模块的
-// `replace agentprimordia/pgvector => ../pgvector` 不具传递性——生成的独立子项目
-// 经 pkg → internal/memory → agentprimordia/pgvector 引用链解析该模块时，
+// `replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../pgvector` 不具传递性——生成的独立子项目
+// 经 pkg → internal/memory → github.com/Gleamseekers/AgentPrimordia/pgvector 引用链解析该模块时，
 // 必须在自己的 go.mod 里自行 require+replace，否则 go mod tidy 直接失败
 // （仓库内 workspace 模式会掩盖此问题，独立构建必现）。
 //
 // 策略：
-//   - 从 projectDir 向上探测框架模块（go.mod 声明 module agentprimordia）：
+//   - 从 projectDir 向上探测框架模块（go.mod 声明 module github.com/Gleamseekers/AgentPrimordia）：
 //     找到 → 以相对路径 emit replace，并连带 pgvector 的 require+replace；
 //   - 未找到（standalone）→ 不 emit replace，依赖 GOPROXY 发布版，
 //     返回 standalone=true 供调用方打印提示。
@@ -173,7 +173,7 @@ func buildGoMod(projectName, projectDir string) (content string, standalone bool
 
 go 1.26
 
-require agentprimordia %s
+require github.com/Gleamseekers/AgentPrimordia %s
 `, projectName, apRequirePlaceholder), true
 	}
 	if real, err := filepath.EvalSymlinks(frameworkDir); err == nil {
@@ -188,7 +188,7 @@ require agentprimordia %s
 	}
 	pgvGoMod := filepath.Join(filepath.Dir(frameworkDir), "pgvector", "go.mod")
 	hasPgvector := false
-	if data, err := os.ReadFile(pgvGoMod); err == nil && strings.Contains(string(data), "module agentprimordia/pgvector") {
+	if data, err := os.ReadFile(pgvGoMod); err == nil && strings.Contains(string(data), "module github.com/Gleamseekers/AgentPrimordia/pgvector") {
 		hasPgvector = true
 	}
 
@@ -200,20 +200,20 @@ require agentprimordia %s
 			pgvRel = filepath.Join(frameRel, "..", "pgvector")
 		}
 		sb.WriteString(fmt.Sprintf(`require (
-	agentprimordia %s
-	agentprimordia/pgvector v0.0.0
+	github.com/Gleamseekers/AgentPrimordia %s
+	github.com/Gleamseekers/AgentPrimordia/pgvector v0.0.0
 )
 
-replace agentprimordia => %s
-replace agentprimordia/pgvector => %s
+replace github.com/Gleamseekers/AgentPrimordia => %s
+replace github.com/Gleamseekers/AgentPrimordia/pgvector => %s
 `, apRequirePlaceholder, frameRel, pgvRel))
 	} else {
-		sb.WriteString(fmt.Sprintf("require agentprimordia %s\n\nreplace agentprimordia => %s\n", apRequirePlaceholder, frameRel))
+		sb.WriteString(fmt.Sprintf("require github.com/Gleamseekers/AgentPrimordia %s\n\nreplace github.com/Gleamseekers/AgentPrimordia => %s\n", apRequirePlaceholder, frameRel))
 	}
 	return sb.String(), false
 }
 
-// findFrameworkRoot 从 start 向上探测框架模块根（go.mod 声明 module agentprimordia），
+// findFrameworkRoot 从 start 向上探测框架模块根（go.mod 声明 module github.com/Gleamseekers/AgentPrimordia），
 // 最多回溯 6 层；未找到返回空串。
 func findFrameworkRoot(start string) string {
 	dir := start
@@ -223,7 +223,7 @@ func findFrameworkRoot(start string) string {
 		if err == nil {
 			for _, line := range strings.Split(string(data), "\n") {
 				line = strings.TrimSpace(line)
-				if line == "module agentprimordia" {
+				if line == "module github.com/Gleamseekers/AgentPrimordia" {
 					return dir
 				}
 				if strings.HasPrefix(line, "module ") {
@@ -232,11 +232,11 @@ func findFrameworkRoot(start string) string {
 			}
 		}
 		// 检查是否有 agentprimordia 子目录（workspace 场景）
-		apSubdir := filepath.Join(dir, "agentprimordia")
+		apSubdir := filepath.Join(dir, "agentprimordia") // 主模块目录名（非模块路径）
 		if data, err := os.ReadFile(filepath.Join(apSubdir, "go.mod")); err == nil {
 			for _, line := range strings.Split(string(data), "\n") {
 				line = strings.TrimSpace(line)
-				if line == "module agentprimordia" {
+				if line == "module github.com/Gleamseekers/AgentPrimordia" {
 					return apSubdir
 				}
 			}
@@ -268,7 +268,7 @@ func findGoWorkUp(start string) bool {
 
 // hasLocalFrameworkReplace 判断项目 go.mod 是否以本地路径 replace 框架模块。
 //
-// 生成项目的 go.mod 已通过 replace 自洽（agentprimordia 与 pgvector 均指向本地源码），
+// 生成项目的 go.mod 已通过 replace 自洽（框架模块与 pgvector 均指向本地源码），
 // 因此构建/整理依赖时应以 GOWORK=off 隔离运行：既无需依赖用户的 go.work，
 // 也避免为了构建而改写（go work use）用户的 go.work。
 func hasLocalFrameworkReplace(dir string) bool {
@@ -278,8 +278,8 @@ func hasLocalFrameworkReplace(dir string) bool {
 	}
 	for _, line := range strings.Split(string(data), "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "replace agentprimordia ") ||
-			strings.HasPrefix(line, "replace agentprimordia/") {
+		if strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia ") ||
+			strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia/") {
 			return true
 		}
 	}

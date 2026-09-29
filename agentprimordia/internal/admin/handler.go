@@ -8,8 +8,8 @@ import (
 	"runtime"
 	"time"
 
-	"agentprimordia/internal/pool"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // AdminOption 用于配置 AdminHandler。

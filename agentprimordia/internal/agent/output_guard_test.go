@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // outputGuardMockProvider 简单的 mock Provider，固定返回指定内容

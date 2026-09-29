@@ -31,8 +31,8 @@ import (
 	"strings"
 	"time"
 
-	ap "agentprimordia/pkg"
-	"agentprimordia/testutil"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/testutil"
 )
 
 const systemPrompt = `你是 AgentPrimordia 项目的 GitHub Issue Triage 助手。

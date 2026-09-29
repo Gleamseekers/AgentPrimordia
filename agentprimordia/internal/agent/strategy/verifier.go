@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // VerificationReport 验证报告

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // TestPool_Stats_Fields 验证 PoolStats 字段完整性

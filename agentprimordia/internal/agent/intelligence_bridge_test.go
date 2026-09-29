@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/hooks"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
 )
 
 // ===== 桩实现 =====

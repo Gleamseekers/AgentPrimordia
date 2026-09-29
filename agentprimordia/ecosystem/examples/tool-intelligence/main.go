@@ -23,13 +23,13 @@ import (
 	"os"
 	"time"
 
-	"agentprimordia/internal/llm"
-	toolspkg "agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/intelligence"
-	"agentprimordia/internal/tools/intelligence/create"
-	"agentprimordia/internal/tools/intelligence/optimize"
-	"agentprimordia/internal/tools/intelligence/reuse"
-	"agentprimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	toolspkg "github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/optimize"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/reuse"
+	"github.com/Gleamseekers/AgentPrimordia/wasm"
 )
 
 func main() {

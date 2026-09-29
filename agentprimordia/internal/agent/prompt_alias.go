@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/prompt"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/prompt"
 )
 
 // PromptTemplate 支持 {{.Variable}} 格式的系统提示词模板（prompt 子包别名）。

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // TestDatabase_Name 测试工具名称

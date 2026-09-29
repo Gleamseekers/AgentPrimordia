@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // mockToolForLease 是测试用工具

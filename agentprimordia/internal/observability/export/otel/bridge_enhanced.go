@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // BridgeConfig 桥接器配置

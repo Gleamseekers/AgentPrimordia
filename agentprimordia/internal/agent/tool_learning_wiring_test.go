@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // wiringEchoTool 端到端测试用的最小工具。

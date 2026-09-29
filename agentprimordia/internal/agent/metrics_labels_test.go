@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/metrics"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // echoTool 用于测试工具调用标签的简单 echo 工具

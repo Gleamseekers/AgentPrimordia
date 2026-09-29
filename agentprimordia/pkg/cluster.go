@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/cluster"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/cluster"
 )
 
 // ===== 集群管理 =====

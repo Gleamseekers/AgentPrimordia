@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 )
 
 // Scope 改进作用域（沙箱白名单）

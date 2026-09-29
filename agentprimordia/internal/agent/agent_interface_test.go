@@ -3,7 +3,7 @@ package agent
 import (
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 func TestAgentInterface_ReActAgent_Implements(t *testing.T) {

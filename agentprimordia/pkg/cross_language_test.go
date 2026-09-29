@@ -49,7 +49,7 @@ func loadSpec(t *testing.T) *crossLanguageSpec {
 		t.Fatal("无法获取当前文件路径")
 	}
 
-	// pkg/ -> agentprimordia/ -> 仓库根 -> sdk/typescript/tests/shared/
+	// pkg/ -> github.com/Gleamseekers/AgentPrimordia/ -> 仓库根 -> sdk/typescript/tests/shared/
 	repoRoot := filepath.Dir(filepath.Dir(filepath.Dir(filename)))
 	specPath := filepath.Join(repoRoot, "sdk", "typescript", "tests", "shared", "cross-language-spec.json")
 

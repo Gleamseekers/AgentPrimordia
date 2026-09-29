@@ -1,6 +1,6 @@
 package guardrail
 
-import "agentprimordia/internal/agent"
+import "github.com/Gleamseekers/AgentPrimordia/internal/agent"
 
 // NewAgentOutputGuardAdapter 创建 agent.OutputGuard 适配器，
 // 将 Guardrail Engine 的 Output 检查包装为 agent 可注入的函数。

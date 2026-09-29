@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 // AgentDelegateNode 将 core.Agent 实例包装为 DAG 节点

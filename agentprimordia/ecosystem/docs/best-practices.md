@@ -21,7 +21,7 @@
 每个 Agent 应该专注于一个明确的任务：
 
 ```go
-import ap "agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 
 // 好的：职责清晰
 codeAgent := ap.NewAgent("CodeAssistant", "你是一个代码助手，只负责编写和调试代码",
@@ -64,7 +64,7 @@ defer memoryStore.Close()
 ### 3. LLM Provider 选择策略
 
 ```go
-import ap "agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 
 // 方案1: 主备切换（推荐生产环境）
 primary := ap.NewOpenAIProvider(ap.Config{Model: "gpt-4o"})
@@ -258,7 +258,7 @@ registry, _ := ap.DefaultToolkit(ap.ToolkitConfig{
 ### 1. 分层错误处理
 
 ```go
-import ap "agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 
 resp, err := agent.Run(ctx, ap.UserMessage("你好"))
 
@@ -325,8 +325,8 @@ resilient.AddFallback(fallback)
 ```go
 import (
     "testing"
-    ap "agentprimordia/pkg"
-    "agentprimordia/testutil"
+    ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+    "github.com/Gleamseekers/AgentPrimordia/testutil"
 )
 
 func TestAgentBasicFlow(t *testing.T) {

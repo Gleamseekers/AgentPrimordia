@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // AgentPrimordia 快速入门示例

@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	agentv1 "agentprimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/operator/api/v1"
 )
 
 func newScheme() *runtime.Scheme {

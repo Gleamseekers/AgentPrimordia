@@ -29,11 +29,11 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/bus"
-	"agentprimordia/internal/agent/discovery"
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/chaos"
-	apwasm "agentprimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/chaos"
+	apwasm "github.com/Gleamseekers/AgentPrimordia/wasm"
 )
 
 // ===== TestE2E_EtcdDiscovery =====

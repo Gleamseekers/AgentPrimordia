@@ -11,7 +11,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
 )
 
 // BenchmarkRealtimeSessionCreate 会话建立延迟

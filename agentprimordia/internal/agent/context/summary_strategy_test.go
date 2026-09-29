@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 func msgs(roles []core.Role) []core.Message {

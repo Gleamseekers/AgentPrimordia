@@ -191,7 +191,7 @@ func hashGoTree(t *testing.T, dirs []string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-// findModuleRoot 向上定位主模块目录（含 go.mod 的 agentprimordia/）。
+// findModuleRoot 向上定位主模块目录（含 go.mod 的 github.com/Gleamseekers/AgentPrimordia/）。
 func findModuleRoot(t *testing.T) string {
 	t.Helper()
 	dir, err := os.Getwd()

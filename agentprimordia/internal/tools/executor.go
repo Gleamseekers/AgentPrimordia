@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/concurrency"
-	"agentprimordia/internal/logger"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/logger"
 )
 
 const (

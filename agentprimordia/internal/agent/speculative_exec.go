@@ -24,7 +24,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ToolResult 复用一个简化的tool结果结构（投机层不直接依赖 tools 包）

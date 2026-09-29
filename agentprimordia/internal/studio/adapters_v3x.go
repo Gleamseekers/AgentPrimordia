@@ -9,9 +9,9 @@ import (
 	"context"
 	"time"
 
-	"agentprimordia/internal/agent/autonomy"
-	"agentprimordia/internal/agent/realtime"
-	"agentprimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
 )
 
 // ===== AutonomyService 适配器 =====

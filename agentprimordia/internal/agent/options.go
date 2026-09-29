@@ -4,15 +4,15 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/agent/reflection"
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/observability"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // Option 是 AgentConfig 的函数式选项类型。

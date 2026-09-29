@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ===== 测试用 Mock LLM Provider =====

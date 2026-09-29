@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ===== 测试替身（split 前缀避免与包内其它测试文件重名） =====

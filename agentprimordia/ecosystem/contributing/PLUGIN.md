@@ -46,7 +46,7 @@ type Tool interface {
   "version": "0.1.0",
   "description": "插件描述",
   "category": "分类",
-  "import_path": "agentprimordia/ecosystem/plugins/your-plugin",
+  "import_path": "github.com/Gleamseekers/AgentPrimordia/ecosystem/plugins/your-plugin",
   "tools": ["tool_name"],
   "tags": ["tag1", "tag2"]
 }

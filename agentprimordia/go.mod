@@ -1,4 +1,4 @@
-module agentprimordia
+module github.com/Gleamseekers/AgentPrimordia
 
 go 1.26.6
 
@@ -23,7 +23,7 @@ require (
 )
 
 require (
-	agentprimordia/pgvector v0.0.0
+	github.com/Gleamseekers/AgentPrimordia/pgvector v0.0.0
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/coreos/go-semver v0.3.1 // indirect
 	github.com/coreos/go-systemd/v22 v22.5.0 // indirect
@@ -49,4 +49,4 @@ require (
 	modernc.org/memory v1.11.0 // indirect
 )
 
-replace agentprimordia/pgvector => ../pgvector
+replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../pgvector

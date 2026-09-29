@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ===== mock 辅助 =====

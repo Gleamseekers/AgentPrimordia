@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/internal/resilience"
 )
 
 func TestServerTLSCredentials_MissingFiles(t *testing.T) {

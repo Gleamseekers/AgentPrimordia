@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // apiBase 是 GitHub API 基础 URL。

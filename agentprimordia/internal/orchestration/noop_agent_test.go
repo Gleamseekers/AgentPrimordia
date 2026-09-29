@@ -3,7 +3,7 @@ package orchestration
 import (
 	"context"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // noopAgent 是一个空实现 Agent，仅用于可视化测试

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // TestDeadlockDetector_BelowThreshold 测试低于阈值不触发

@@ -17,7 +17,7 @@ import (
 	"fmt"
 	"log"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 func main() {

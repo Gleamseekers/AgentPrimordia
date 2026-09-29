@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // contentProvider 按输入关键词返回内容的 mock Provider。

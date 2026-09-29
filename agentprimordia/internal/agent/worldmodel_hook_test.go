@@ -15,11 +15,11 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 	"log/slog"
 )
 

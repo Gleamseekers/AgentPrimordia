@@ -24,12 +24,12 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 // longHorizonItem 长跨度任务题面

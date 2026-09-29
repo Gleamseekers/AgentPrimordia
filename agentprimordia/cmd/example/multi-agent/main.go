@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/pool"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 func main() {

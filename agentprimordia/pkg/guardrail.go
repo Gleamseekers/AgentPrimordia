@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/guardrail"
+	"github.com/Gleamseekers/AgentPrimordia/internal/guardrail"
 )
 
 type GuardrailEngine = guardrail.Engine

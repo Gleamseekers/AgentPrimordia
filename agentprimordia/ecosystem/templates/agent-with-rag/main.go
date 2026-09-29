@@ -21,7 +21,7 @@ import (
 	"os"
 	"path/filepath"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 func main() {

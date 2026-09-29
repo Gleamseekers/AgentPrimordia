@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/context"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/context"
 )
 
 // CompressConfig 压缩配置

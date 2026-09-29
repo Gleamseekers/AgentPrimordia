@@ -1589,7 +1589,7 @@ const file_internal_agent_a2a_proto_a2a_v1_a2a_proto_rawDesc = "" +
 	"\aGetTask\x12\x16.a2a.v1.GetTaskRequest\x1a\f.a2a.v1.Task\x125\n" +
 	"\n" +
 	"CancelTask\x12\x19.a2a.v1.CancelTaskRequest\x1a\f.a2a.v1.Task\x12N\n" +
-	"\x13SubscribeTaskEvents\x12\".a2a.v1.SubscribeTaskEventsRequest\x1a\x11.a2a.v1.TaskEvent0\x01B6Z4agentprimordia/internal/agent/a2a/proto/a2a/v1;a2av1b\x06proto3"
+	"\x13SubscribeTaskEvents\x12\".a2a.v1.SubscribeTaskEventsRequest\x1a\x11.a2a.v1.TaskEvent0\x01BNZLgithub.com/Gleamseekers/AgentPrimordia/internal/agent/a2a/proto/a2a/v1;a2av1b\x06proto3"
 
 var (
 	file_internal_agent_a2a_proto_a2a_v1_a2a_proto_rawDescOnce sync.Once

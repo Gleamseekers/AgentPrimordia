@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/hitl"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hitl"
 )
 
 // ErrHumanChannelClosed human input channel closed错误

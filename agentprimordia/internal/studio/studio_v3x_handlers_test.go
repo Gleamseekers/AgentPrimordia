@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/autonomy"
-	"agentprimordia/internal/agent/realtime"
-	"agentprimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
 )
 
 // v3.3-v3.6 Studio 面板后端端点测试：路由注册 + demo 数据源标注 + 真实引擎注入。

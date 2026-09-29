@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ===== Mock RAGProvider =====

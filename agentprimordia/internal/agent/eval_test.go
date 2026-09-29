@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/eval"
 )
 
 func TestExactMatchEvaluator_Match(t *testing.T) {

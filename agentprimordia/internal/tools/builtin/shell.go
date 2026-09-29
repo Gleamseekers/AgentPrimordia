@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/logger"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/logger"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // maxTimeoutSec 单条命令超时上限（秒）。用户可控 timeout 参数 clamp 到此，

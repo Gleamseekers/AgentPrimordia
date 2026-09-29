@@ -54,7 +54,7 @@ type EvalRegistry struct {
 }
 
 // RepoRoot 返回仓库根目录（.../AgentPrimordia）。
-// 由本文件位置反推：internal/eval/registry.go -> internal/ -> agentprimordia/ -> 仓库根。
+// 由本文件位置反推：internal/eval/registry.go -> internal/ -> github.com/Gleamseekers/AgentPrimordia/ -> 仓库根。
 func RepoRoot() string {
 	_, filename, _, _ := runtime.Caller(0)
 	moduleDir := filepath.Dir(filepath.Dir(filepath.Dir(filename))) // .../agentprimordia

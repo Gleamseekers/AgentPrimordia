@@ -6,14 +6,14 @@ import (
 	"context"
 	"time"
 
-	"agentprimordia/internal/agent/learning"
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/agent/reflection"
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/observability"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // initSelf 初始化自引用，必须在构造后调用（因为需要返回值赋值后再设置）

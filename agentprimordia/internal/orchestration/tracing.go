@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/agent/trace"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/trace"
 )
 
 // TracingSpan 编排追踪 Span 接口

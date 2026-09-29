@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
 )
 
 // LLMCompleter 最小化 LLM 补全接口（避免与 llm 包的导入循环）

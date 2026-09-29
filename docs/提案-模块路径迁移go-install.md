@@ -1,6 +1,6 @@
 # 提案：模块路径迁移以支持 `go install` / GOPROXY 分发
 
-> **状态**：待维护者决策（涉及全仓 import 路径变更，属破坏性重构，需单独 PR 与版本窗口）
+> **状态**：✅ **已执行**（2026-09-28，维护者批准后当日完成；本文档保留为决策记录与迁移方法论文档）
 > **提出日期**：2026-09-28（项目深度评估收尾）
 > **关联**：评估报告 §4.3 P2 项"模块路径不可 GOPROXY 解析"
 
@@ -13,12 +13,12 @@
 3. 用户只能 `git clone` 源码构建（README 已诚实说明，但对采用率是真实摩擦）；
 4. `ap init` 脚手架生成的项目需 emit `replace` 指向本地框架源码（gomod_template 的复杂装配即为此存在）。
 
-## 二、方案
+## 二、方案（已采纳 A 并执行）
 
-### 方案 A：迁移到 GitHub 路径（推荐）
+### 方案 A：迁移到 GitHub 路径（已执行）
 
 ```
-agentprimordia → github.com/<org>/agentprimordia
+agentprimordia → github.com/Gleamseekers/AgentPrimordia
 ```
 
 - **收益**：`go install github.com/<org>/agentprimordia/cmd/ap@latest` 直接可用；GOPROXY 生态完整支持；脚手架无需 replace；与 K8s Operator / SDK 的发布链路一致。
@@ -35,15 +35,18 @@ agentprimordia → github.com/<org>/agentprimordia
 - 引导用户以 workspace 模式消费（`go work init` + replace），不变模块路径；
 - 适合内部/ vendored 消费，不适合公开分发。
 
-## 三、决策建议
+## 三、执行记录（方案 A）
 
-**若维护者计划公开发布/推广采用率 → 方案 A**，建议窗口：v8.0.0 major（与 AGENTS.md §4.2 的"v2.0 破坏性变更"承诺对齐，实际版本号按版本规范另定），前置动作：
+维护者于评估当日批准执行。实际动作与预演的差异：
 
-1. 确认 GitHub org/仓库名（决定最终模块路径）；
-2. 批量替换脚本（import 路径 + go.mod module 行 + 文档中的 import 示例 + CI 缓存 key）；
-3. 全量验证：5 模块 build + test + race + vet + 覆盖率 + 跨语言夹具（TS/Python/Rust SDK 的 Go 侧引用不受影响，但其文档中的 Go 示例需同步）；
-4. 发布 `docs/migration/` 迁移指南 + CHANGELOG 破坏性条目；
-5. tag-release 工作流验证 GOPROXY 可解析（`GOPROXY=https://proxy.golang.org` 实测 `go install`）。
+1. GitHub org/仓库名：Gleamseekers/AgentPrimordia（git remote 确认）；
+2. 批量替换：1390 个 Go 文件（import 路径）+ 5 个 go.mod（module 行与跨模块
+   require/replace）+ 49 个文档的 import 代码块；CI paths-filter 用目录路径
+   不受影响；脚手架模板（cmd/ap/scaffold.go）的模块探测与发射逻辑同步更新；
+3. 全量验证：5 模块 build + go vet + go test ./... 全绿 + go mod tidy 零漂移；
+4. README 安装说明更新为 go install 优先；版本规范.md 模块消费章节重写；
+5. GOPROXY 实解析待下一个 tag 发布后验证（`GOPROXY=https://proxy.golang.org
+   go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest`）。
 
 **若短期不做公开分发 → 方案 B/C**，本提案关闭。
 

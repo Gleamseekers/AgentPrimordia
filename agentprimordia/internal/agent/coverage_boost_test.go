@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/testutil"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/testutil"
 )
 
 func TestAcquireBuffer(t *testing.T) {

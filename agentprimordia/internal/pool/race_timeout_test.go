@@ -18,8 +18,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // fakeProvider 无 *testing.T 依赖的假 LLM Provider，供并发测试在 goroutine 中使用

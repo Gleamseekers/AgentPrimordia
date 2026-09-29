@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // HookPoint 标识钩子的挂载点，对应 Agent 生命周期的各个阶段

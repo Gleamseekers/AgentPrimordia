@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/jsonutil" // perf-v6 round 6 Task 1
+	"github.com/Gleamseekers/AgentPrimordia/internal/jsonutil" // perf-v6 round 6 Task 1
 )
 
 const (

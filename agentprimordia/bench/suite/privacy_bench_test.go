@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"testing"
 
-	"agentprimordia/internal/agent/cluster"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/cluster"
 )
 
 // benchPIIDetector 基准测试用 PII 检测器（模拟正则检测开销）

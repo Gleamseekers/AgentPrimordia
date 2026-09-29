@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 type DemoLLM struct {

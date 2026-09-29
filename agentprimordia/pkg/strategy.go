@@ -5,7 +5,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/strategy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/strategy"
 )
 
 // ===== 类型别名 =====

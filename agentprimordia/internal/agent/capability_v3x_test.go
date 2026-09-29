@@ -6,10 +6,10 @@ package agent
 import (
 	"testing"
 
-	"agentprimordia/internal/agent/autonomy"
-	"agentprimordia/internal/agent/realtime"
-	"agentprimordia/internal/agent/skills"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 func TestCapabilityAgent_ImplementsAutonomyCapable(t *testing.T) {

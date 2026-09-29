@@ -2,7 +2,7 @@
 package context
 
 import (
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 // Strategy 上下文窗口裁剪策略接口

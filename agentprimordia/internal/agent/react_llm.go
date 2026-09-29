@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ErrMaxTurnsExceeded is returned when the agent exceeds max turn limit

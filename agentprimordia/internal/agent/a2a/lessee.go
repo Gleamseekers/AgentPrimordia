@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // LesseeClient 是 Agent A 端的租赁客户端

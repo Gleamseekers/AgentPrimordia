@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 func TestCollaboration_DebateMode(t *testing.T) {

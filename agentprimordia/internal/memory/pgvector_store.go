@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	agentpgvector "agentprimordia/pgvector"
+	agentpgvector "github.com/Gleamseekers/AgentPrimordia/pgvector"
 )
 
 // PgVectorVectorStore 是基于 PostgreSQL + pgvector 的向量存储实现。

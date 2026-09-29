@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
 )
 
 // ===== 远程节点管理 =====

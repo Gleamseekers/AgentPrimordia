@@ -16,11 +16,11 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/autonomy"
-	"agentprimordia/internal/agent/realtime"
-	"agentprimordia/internal/agent/skills"
-	"agentprimordia/internal/studio"
-	ap "agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/internal/studio"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // allCapExecutor 全能力链路步骤执行器（确定性）。

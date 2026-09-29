@@ -5,7 +5,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
 )
 
 // TestLifecycleCreator_Create 测试工具生成

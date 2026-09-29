@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // llmBenchSystemPrompt 面向编码任务基准的系统提示词。

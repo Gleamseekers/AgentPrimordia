@@ -6,7 +6,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
 )
 
 // bootstrapCases 构造 3 个用例：冷启动阈值分别为 0/1/2 轮。

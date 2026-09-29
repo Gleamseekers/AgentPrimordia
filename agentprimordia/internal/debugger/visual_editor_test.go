@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/orchestration"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/orchestration"
 )
 
 func TestVisualEditor_NewVisualEditor(t *testing.T) {

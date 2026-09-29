@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // harnessDelayProvider 带延迟的 mock Provider：返回 requires 拼接内容（任务成功），

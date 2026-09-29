@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode/utf16"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // PDFDocument 表示解析后的 PDF 文档结构

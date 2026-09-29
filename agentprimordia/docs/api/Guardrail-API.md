@@ -33,7 +33,7 @@ const (
 ## 使用方式
 
 ```go
-import ap "agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 
 engine := ap.NewGuardrailEngine()
 engine.AddRule(ap.NewPromptInjectionRule(ap.PromptInjectionConfig{})) // Prompt 注入检测

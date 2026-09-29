@@ -2,7 +2,7 @@
 package cost
 
 import (
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 	"math"
 	"sync"
 	"sync/atomic"

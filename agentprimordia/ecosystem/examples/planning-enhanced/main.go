@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	ap "agentprimordia/pkg"
-	"agentprimordia/testutil"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/testutil"
 )
 
 func main() {

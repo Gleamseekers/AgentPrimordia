@@ -9,9 +9,9 @@
 // 移除计划：v7.x。
 package ebpf
 
-import "agentprimordia/internal/observability/export/otel/procfs"
+import "github.com/Gleamseekers/AgentPrimordia/internal/observability/export/otel/procfs"
 
-// Deprecated: 自 v6.x 起，请使用 agentprimordia/internal/observability/export/otel/procfs。
+// Deprecated: 自 v6.x 起，请使用 github.com/Gleamseekers/AgentPrimordia/internal/observability/export/otel/procfs。
 // Removed in v7.0. 当前符号作为 alias 保留至 v7.x。
 
 type (

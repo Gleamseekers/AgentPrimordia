@@ -3,8 +3,8 @@ package builtin
 import (
 	"fmt"
 
-	"agentprimordia/internal/concurrency"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 type ToolkitConfig struct {

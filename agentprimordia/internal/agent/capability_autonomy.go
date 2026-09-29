@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
 )
 
 // AutonomyCapable 标识 Agent 具备长期自治执行能力。

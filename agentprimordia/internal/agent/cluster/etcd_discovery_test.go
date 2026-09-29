@@ -105,7 +105,7 @@ func TestEtcdKVStore_Integration(t *testing.T) {
 
 	// 测试 Put + Get
 	t.Run("PutGet", func(t *testing.T) {
-		key := "agentprimordia/test/integration_" + t.Name()
+		key := "github.com/Gleamseekers/AgentPrimordia/test/integration_" + t.Name()
 		value := `{"id":"test-agent","name":"Test"}`
 
 		if err := store.Put(ctx, key, value, 30*time.Second); err != nil {
@@ -126,7 +126,7 @@ func TestEtcdKVStore_Integration(t *testing.T) {
 
 	// 测试 ListByPrefix
 	t.Run("ListByPrefix", func(t *testing.T) {
-		prefix := "agentprimordia/test/list_"
+		prefix := "github.com/Gleamseekers/AgentPrimordia/test/list_"
 		for i := 0; i < 3; i++ {
 			key := prefix + string(rune('a'+i))
 			store.Put(ctx, key, "value_"+string(rune('a'+i)), 30*time.Second)
@@ -148,7 +148,7 @@ func TestEtcdKVStore_Integration(t *testing.T) {
 
 	// 测试 Watch
 	t.Run("Watch", func(t *testing.T) {
-		prefix := "agentprimordia/test/watch_"
+		prefix := "github.com/Gleamseekers/AgentPrimordia/test/watch_"
 		watchCh := store.Watch(ctx, prefix)
 
 		// etcd Watch 注册是异步的：若 Put 发生在 watch 建立之前，事件会永久丢失。
@@ -187,7 +187,7 @@ func TestEtcdKVStore_Integration(t *testing.T) {
 
 	// 测试 TTL 过期
 	t.Run("TTLExpiry", func(t *testing.T) {
-		key := "agentprimordia/test/ttl_key"
+		key := "github.com/Gleamseekers/AgentPrimordia/test/ttl_key"
 		if err := store.Put(ctx, key, "short-lived", 1*time.Second); err != nil {
 			t.Fatalf("Put with TTL failed: %v", err)
 		}
@@ -226,7 +226,7 @@ func TestLeaseManager_Integration(t *testing.T) {
 	defer lm.Close()
 
 	ctx := context.Background()
-	key := "agentprimordia/test/lease_node1"
+	key := "github.com/Gleamseekers/AgentPrimordia/test/lease_node1"
 
 	// 注册
 	if err := lm.RegisterWithLease(ctx, key, `{"node":"1"}`, 5); err != nil {

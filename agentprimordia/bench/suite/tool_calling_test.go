@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // BenchmarkToolCalling 基准：工具调用准确率

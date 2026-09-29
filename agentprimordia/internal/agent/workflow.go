@@ -7,7 +7,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/workflow"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/workflow"
 )
 
 // ===== 类型别名 =====

@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	ap "agentprimordia/pkg"
-	"agentprimordia/testutil"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/testutil"
 )
 
 // ExampleNewAgent 演示创建一个基本的 ReAct Agent 并运行对话。

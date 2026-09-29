@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	agentv1 "agentprimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/operator/api/v1"
 )
 
 const agentFinalizer = "agent.primordia.dev/finalizer"
@@ -165,7 +165,7 @@ func (r *AgentDeploymentReconciler) imageOrDefault(ad *agentv1.AgentDeployment) 
 	if r.DefaultImage != "" {
 		return r.DefaultImage
 	}
-	return "ghcr.io/agentprimordia/agentprimordia:latest"
+	return "ghcr.io/github.com/Gleamseekers/AgentPrimordia/agentprimordia:latest"
 }
 
 // ensureConfigMap 创建或更新 Agent 配置的 ConfigMap

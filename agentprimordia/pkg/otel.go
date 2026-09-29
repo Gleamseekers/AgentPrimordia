@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/metrics"
-	obsotel "agentprimordia/internal/observability/export/otel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
+	obsotel "github.com/Gleamseekers/AgentPrimordia/internal/observability/export/otel"
 )
 
 type Tracer = agent.Tracer

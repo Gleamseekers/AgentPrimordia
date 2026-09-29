@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
 )
 
 // mockDiscovery 模拟 discovery.Discovery 实现

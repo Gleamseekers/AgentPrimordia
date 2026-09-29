@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // Registry MCP tool注册中心，管理多个 MCP 服务器连接

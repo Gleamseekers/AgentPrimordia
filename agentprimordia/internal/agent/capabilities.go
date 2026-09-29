@@ -3,16 +3,16 @@ package agent
 import (
 	"context"
 
-	"agentprimordia/internal/agent/learning"
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/agent/reflection"
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/audit"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/observability"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/audit"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // OutputGuard 是输出端 Guardrail 检查函数类型（避免 agent → guardrail 反向依赖）

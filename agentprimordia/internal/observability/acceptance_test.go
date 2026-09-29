@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/observability"
-	obsotel "agentprimordia/internal/observability/export/otel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/observability"
+	obsotel "github.com/Gleamseekers/AgentPrimordia/internal/observability/export/otel"
 )
 
 // ===== 可观测性验收测试 A1–A5 =====

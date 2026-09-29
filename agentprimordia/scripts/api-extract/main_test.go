@@ -23,7 +23,7 @@ func TestAPIContractNoDrift(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Getwd 失败: %v", err)
 	}
-	// cwd = <repo>/agentprimordia/scripts/api-extract
+	// cwd = <repo>/github.com/Gleamseekers/AgentPrimordia/scripts/api-extract
 	repoRoot := filepath.Join(cwd, "..", "..", "..")
 	apDir := filepath.Join(repoRoot, "agentprimordia")
 	baselineFile := filepath.Join(repoRoot, "sdk", "typescript", "api-contract.json")
@@ -59,6 +59,6 @@ func TestAPIContractNoDrift(t *testing.T) {
 	if string(actual) != string(baseline) {
 		t.Errorf("API 契约漂移！\n"+
 			"基线文件: %s\n"+
-			"修复: 在 agentprimordia/ 下运行 `make api-extract` 并提交更新。", baselineFile)
+			"修复: 在 github.com/Gleamseekers/AgentPrimordia/ 下运行 `make api-extract` 并提交更新。", baselineFile)
 	}
 }

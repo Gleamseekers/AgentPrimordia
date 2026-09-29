@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // capTestMemoryStore 是 CapabilityAgent 测试专用的 MemoryStore 实现

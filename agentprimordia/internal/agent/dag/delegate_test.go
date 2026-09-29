@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 type mockDelegateAgent struct {

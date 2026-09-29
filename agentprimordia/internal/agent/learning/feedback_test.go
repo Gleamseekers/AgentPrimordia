@@ -8,8 +8,8 @@ import (
 	"sync"
 	"testing"
 
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 )
 
 // fakeFailureStore 测试用失败库

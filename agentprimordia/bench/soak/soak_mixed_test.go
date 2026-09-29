@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/llm/soak"
-	ap "agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm/soak"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // mixedProvider 确定性混合流量 Provider：Complete 给结论（QA 轮收尾），

@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 func TestVisualizer_DAGExport(t *testing.T) {

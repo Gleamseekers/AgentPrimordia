@@ -66,7 +66,7 @@ func seedIssues() []Issue {
 		{
 			Number:    4,
 			Title:     "Build fails on Windows with CGO error",
-			Body:      "Trying to build on Windows 11 with Go 1.22:\n\n```\n# agentprimordia/internal/memory\nC:\\Users\\me\\go\\pkg\\mod\\modernc.org\\sqlite@v1.28.0\\...\\sqlite.c:15:10: fatal error: stdio.h: No such file or directory\n```\n\nIt says Zero CGO but the build is failing with CGO. What's wrong?",
+			Body:      "Trying to build on Windows 11 with Go 1.22:\n\n```\n# github.com/Gleamseekers/AgentPrimordia/internal/memory\nC:\\Users\\me\\go\\pkg\\mod\\modernc.org\\sqlite@v1.28.0\\...\\sqlite.c:15:10: fatal error: stdio.h: No such file or directory\n```\n\nIt says Zero CGO but the build is failing with CGO. What's wrong?",
 			State:     "open",
 			Labels:    []string{},
 			Author:    "diana",

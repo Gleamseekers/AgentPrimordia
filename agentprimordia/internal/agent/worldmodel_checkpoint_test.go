@@ -13,9 +13,9 @@ import (
 	"log/slog"
 	"testing"
 
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 )
 
 // TestWorldModel_StateCheckpoint_ContinueKnowing 续知端到端：

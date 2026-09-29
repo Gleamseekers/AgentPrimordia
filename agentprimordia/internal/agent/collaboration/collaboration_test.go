@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
 )
 
 // ===== mockAgent =====

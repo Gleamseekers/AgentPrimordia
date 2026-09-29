@@ -15,8 +15,8 @@ import (
 	"fmt"
 	"os"
 
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/self_bootstrap"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/self_bootstrap"
 )
 
 func main() {

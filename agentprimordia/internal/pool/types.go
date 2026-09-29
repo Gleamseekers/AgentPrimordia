@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 type PoolTaskStatus string

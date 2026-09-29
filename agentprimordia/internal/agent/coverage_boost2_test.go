@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/agent/hitl"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hitl"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // noopTool 用于覆盖 tool 调用路径的占位工具

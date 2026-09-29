@@ -118,8 +118,8 @@ func TestRunInit_BasicTemplate(t *testing.T) {
 	if !contains(string(modContent), "module my-agent") {
 		t.Error("go.mod 缺 module my-agent")
 	}
-	if !contains(string(modContent), "agentprimordia") {
-		t.Error("go.mod 缺 agentprimordia 依赖")
+	if !contains(string(modContent), "github.com/Gleamseekers/AgentPrimordia") {
+		t.Error("go.mod 缺框架模块依赖")
 	}
 }
 
@@ -172,7 +172,7 @@ func TestRunInit_MultiAgentTemplate(t *testing.T) {
 }
 
 // TestRunInit_GeneratedProjectBuilds 端到端：验证生成项目可编译。
-// 用相对路径 replace 指向 ../agentprimordia（仓库内）。
+// 用相对路径 replace 指向 ../agentprimordia（仓库内目录名不变）。
 func TestRunInit_GeneratedProjectBuilds(t *testing.T) {
 	if testing.Short() {
 		t.Skip("short 模式跳过 e2e 构建")
@@ -192,7 +192,7 @@ func TestRunInit_GeneratedProjectBuilds(t *testing.T) {
 	// 验证 go.mod 含 replace 指令
 	modContent, _ := os.ReadFile(filepath.Join(targetDir, "go.mod"))
 	modContentStr := string(modContent)
-	if !contains(modContentStr, "replace agentprimordia =>") {
+	if !contains(modContentStr, "replace github.com/Gleamseekers/AgentPrimordia =>") {
 		t.Skip("go.mod 不含 replace，跳过 e2e 构建")
 	}
 	t.Logf("生成 go.mod 包含预期的 replace 指令，%d 字节", len(modContentStr))
@@ -371,10 +371,10 @@ func TestRunInit_QuickstartTemplate(t *testing.T) {
 	mainGo := filepath.Join(targetDir, "main.go")
 	content, _ := os.ReadFile(mainGo)
 
-	if contains(string(content), "agentprimordia/internal/") {
+	if contains(string(content), "github.com/Gleamseekers/AgentPrimordia/internal/") {
 		t.Error("quickstart 模板不应直接引用 internal/ 包，应使用 pkg/")
 	}
-	if !contains(string(content), `ap "agentprimordia/pkg"`) {
+	if !contains(string(content), `ap "github.com/Gleamseekers/AgentPrimordia/pkg"`) {
 		t.Error("quickstart 模板应通过 pkg/ 公共 API 引用框架")
 	}
 }
@@ -395,8 +395,8 @@ func TestRunInit_GoModVersion(t *testing.T) {
 	if !contains(string(modContent), "go 1.26") {
 		t.Errorf("生成的 go.mod 应包含 go 1.26，实际: %s", string(modContent))
 	}
-	if !contains(string(modContent), "agentprimordia v0.0.0") {
-		t.Errorf("生成的 go.mod 应包含 require agentprimordia（占位版本），实际: %s", string(modContent))
+	if !contains(string(modContent), "github.com/Gleamseekers/AgentPrimordia v0.0.0") {
+		t.Errorf("生成的 go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia（占位版本），实际: %s", string(modContent))
 	}
 	if contains(string(modContent), "replace") {
 		t.Errorf("standalone 场景 go.mod 不应包含 replace，实际: %s", string(modContent))

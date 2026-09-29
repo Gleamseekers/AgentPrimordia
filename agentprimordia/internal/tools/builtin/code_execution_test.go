@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func TestMain(m *testing.M) {

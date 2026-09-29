@@ -11,7 +11,7 @@ import (
 	"os"
 	"strings"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // DOCXDocument 表示解析后的 DOCX 文档结构

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/skills"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 func activeSkillStore(t *testing.T) (*skills.Store, *skills.Matcher) {

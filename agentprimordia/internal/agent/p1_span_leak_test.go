@@ -18,10 +18,10 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/hitl"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hitl"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // recordingSpan 记录自身是否已闭合的 Span 实现（测试专用）。

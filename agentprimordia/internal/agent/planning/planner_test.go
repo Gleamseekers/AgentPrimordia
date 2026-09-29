@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // TestPlannerInterface 验证 Planner 接口定义

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // MemoryQuerier 可选接口：实现者支持长期记忆回读。

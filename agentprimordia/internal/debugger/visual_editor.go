@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/orchestration"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/orchestration"
 )
 
 // 默认execution timeout时间

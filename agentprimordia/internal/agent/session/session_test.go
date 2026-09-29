@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // mockAgent 用于测试的模拟 Agent

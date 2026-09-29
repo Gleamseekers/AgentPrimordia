@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // DeadlockDetector 死路检测器——连续失败超过阈值即判定死路

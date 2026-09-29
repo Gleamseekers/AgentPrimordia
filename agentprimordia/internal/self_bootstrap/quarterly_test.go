@@ -16,7 +16,7 @@ import (
 	"runtime"
 	"testing"
 
-	"agentprimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
 )
 
 // quarterlyCases 季度测量任务集：冷启动阈值 0/1/2 交错，保证 base 曲线非平凡。

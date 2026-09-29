@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"time"
 
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 )
 
 // subtaskFailPattern 匹配 plan 子任务失败的错误格式（见 react_plan_executor.go）

@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/health"
+	"github.com/Gleamseekers/AgentPrimordia/internal/health"
 )
 
 // ===== 稳态验证器 =====

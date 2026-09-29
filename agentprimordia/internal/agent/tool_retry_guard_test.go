@@ -9,8 +9,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // retryTool 第一次执行返回瞬时错误，之后成功

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // TestTelemetryFromEnvDisabledByDefault 未配置时不得构造 Provider（默认零开销）。

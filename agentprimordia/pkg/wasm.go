@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/wasm"
 )
 
 // ===== WASM 沙箱 =====

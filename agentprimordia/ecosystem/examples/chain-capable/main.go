@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // MockLLM 是示例用的模拟 LLM

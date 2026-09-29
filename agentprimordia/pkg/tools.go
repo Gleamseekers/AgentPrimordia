@@ -7,9 +7,9 @@
 package ap
 
 import (
-	"agentprimordia/internal/concurrency"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 // Tool 是所有tool必须实现的接口，定义名称、描述、参数和执行方法

@@ -1,7 +1,7 @@
 package prompt
 
 import (
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 	"bytes"
 	"fmt"
 	"strings"

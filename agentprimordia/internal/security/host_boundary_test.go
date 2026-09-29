@@ -16,17 +16,17 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 // wasmWhitelistPrefixes 允许 import wazero 的包路径前缀（AGENTS.md §2.1 白名单边界）：
-// 根模块 agentprimordia-wasm-sandbox（wasm/）与主模块 agentprimordia/wasm 包。
-var wasmWhitelistPrefixes = []string{"agentprimordia/wasm", "agentprimordia-wasm-sandbox"}
+// 根模块 github.com/Gleamseekers/AgentPrimordia-wasm-sandbox（wasm/）与主模块 github.com/Gleamseekers/AgentPrimordia/wasm 包。
+var wasmWhitelistPrefixes = []string{"github.com/Gleamseekers/AgentPrimordia/wasm", "github.com/Gleamseekers/AgentPrimordia-wasm-sandbox"}
 
 // moduleRoots 参与扫描的 Go 模块目录（相对仓库根）。
 var moduleRoots = []struct{ dir, module string }{
-	{"agentprimordia", "agentprimordia"},
-	{"wasm", "agentprimordia-wasm-sandbox"},
+	{"agentprimordia", "github.com/Gleamseekers/AgentPrimordia"}, // dir = 仓库内目录名（迁移不变），module = 模块路径（已迁移）
+	{"wasm", "github.com/Gleamseekers/AgentPrimordia-wasm-sandbox"},
 }
 
 func findRepoRoot(t *testing.T) string {

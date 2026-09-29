@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ===== ContentPart / Message tests =====

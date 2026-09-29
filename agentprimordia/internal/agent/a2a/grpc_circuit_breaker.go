@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"agentprimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/internal/resilience"
 	"google.golang.org/grpc"
 )
 

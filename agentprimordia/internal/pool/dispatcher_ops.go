@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func (p *Pool) getTask(id string) *poolTask {

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"unsafe"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 func TestZeroCopyMessage_Create(t *testing.T) {

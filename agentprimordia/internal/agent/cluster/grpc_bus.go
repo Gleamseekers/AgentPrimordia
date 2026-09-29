@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

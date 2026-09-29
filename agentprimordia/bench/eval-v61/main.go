@@ -32,15 +32,15 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent"
-	agenthooks "agentprimordia/internal/agent/hooks"
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/multi_agent/federation"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	agenthooks "github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/multi_agent/federation"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 // ===== 题面结构（long-horizon-v1.json）=====

@@ -19,7 +19,7 @@ RAG 能力由 `internal/memory` 包中的向量存储层实现：
 ## 使用示例
 
 ```go
-import ap "agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 
 // 创建带向量检索的记忆存储
 store := ap.NewSQLiteStore("memory.db")

@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/trace"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/trace"
 )
 
 // SpanKind Span 类型

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 func TestLesseeClient_LeaseTool(t *testing.T) {

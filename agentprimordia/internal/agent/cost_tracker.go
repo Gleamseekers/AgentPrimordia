@@ -2,8 +2,8 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/cost"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/cost"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // CostRecord 单次成本记录

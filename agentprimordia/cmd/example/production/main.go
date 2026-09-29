@@ -10,15 +10,15 @@ import (
 	"syscall"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/events"
-	"agentprimordia/internal/memory"
-	"agentprimordia/internal/metrics"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
-	ap "agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/events"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 func main() {

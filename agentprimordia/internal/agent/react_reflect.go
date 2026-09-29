@@ -6,7 +6,7 @@ import (
 	"context"
 	"strings"
 
-	"agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/reflection"
 )
 
 // reflectionSeverityOrder 严重度排序（高 → 低）

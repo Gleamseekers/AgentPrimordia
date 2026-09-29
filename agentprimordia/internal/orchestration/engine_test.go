@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 func TestExecutionEngine_Parallel(t *testing.T) {

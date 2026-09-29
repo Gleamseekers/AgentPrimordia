@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // slowDemoLLM 创建一个带延迟的 DemoLLM，延迟期间可被 ctx 取消

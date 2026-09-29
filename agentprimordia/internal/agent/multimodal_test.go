@@ -11,7 +11,7 @@ package agent
 import (
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 func TestUserMultimodalMessage(t *testing.T) {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"agentprimordia/internal/agent/core"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 func TestEstimateTokens(t *testing.T) {

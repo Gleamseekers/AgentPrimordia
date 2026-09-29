@@ -28,7 +28,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
 )
 
 // NodeRole 节点角色

@@ -324,7 +324,7 @@ var (
         "log"
         "os"
 
-        ap "agentprimordia/pkg"
+        ap "github.com/Gleamseekers/AgentPrimordia/pkg"
     )
 
     func main() {

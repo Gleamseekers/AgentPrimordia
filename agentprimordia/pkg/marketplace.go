@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/marketplace"
 )
 
 // AgentTemplate Agent 模板定义（配置+tool集+系统提示+记忆策略）

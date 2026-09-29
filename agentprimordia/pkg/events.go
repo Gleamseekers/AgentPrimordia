@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/events"
+	"github.com/Gleamseekers/AgentPrimordia/internal/events"
 )
 
 // Bus 是事件总线，支持发布/订阅模式的事件分发

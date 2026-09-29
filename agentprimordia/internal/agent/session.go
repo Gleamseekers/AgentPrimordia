@@ -1,8 +1,8 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/session"
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/session"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 	"context"
 )
 

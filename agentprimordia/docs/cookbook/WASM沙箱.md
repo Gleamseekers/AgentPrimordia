@@ -22,7 +22,7 @@ import (
     "context"
     "fmt"
 
-    "agentprimordia/wasm"
+    "github.com/Gleamseekers/AgentPrimordia/wasm"
 )
 
 func main() {

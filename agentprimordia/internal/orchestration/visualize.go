@@ -1,6 +1,6 @@
 package orchestration
 
-import "agentprimordia/internal/agent"
+import "github.com/Gleamseekers/AgentPrimordia/internal/agent"
 
 // Re-exports of the visualization types and methods now living in internal/agent.
 // These aliases keep the orchestration package as the public entry point for

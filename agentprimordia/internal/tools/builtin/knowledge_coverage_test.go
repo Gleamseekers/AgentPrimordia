@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // mockSearcher 模拟知识库搜索

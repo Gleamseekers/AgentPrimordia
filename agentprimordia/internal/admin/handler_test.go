@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"agentprimordia/internal/pool"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 const testToken = "test-admin-token"

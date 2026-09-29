@@ -2,8 +2,8 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/metrics"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/metrics"
 )
 
 // AgentMetricsCollector 是 Agent 指标收集器，记录 LLM 调用、tool调用和轮次等指标

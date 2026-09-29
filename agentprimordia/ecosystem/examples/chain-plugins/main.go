@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 
-	emailplugin "agentprimordia/ecosystem/plugins/email"
-	jsonplugin "agentprimordia/ecosystem/plugins/json"
-	kvplugin "agentprimordia/ecosystem/plugins/kv"
-	ap "agentprimordia/pkg"
+	emailplugin "github.com/Gleamseekers/AgentPrimordia/ecosystem/plugins/email"
+	jsonplugin "github.com/Gleamseekers/AgentPrimordia/ecosystem/plugins/json"
+	kvplugin "github.com/Gleamseekers/AgentPrimordia/ecosystem/plugins/kv"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // MockLLM 是示例用的模拟 LLM

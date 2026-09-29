@@ -1,4 +1,4 @@
-module agentprimordia-wasm-sandbox
+module github.com/Gleamseekers/AgentPrimordia-wasm-sandbox
 
 go 1.26.6
 

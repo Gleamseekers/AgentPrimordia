@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
 )
 
 // ===== KVStore 接口 =====
@@ -275,7 +275,7 @@ func (s *MemKVStore) Cleanup() int {
 // ===== DistributedDiscovery 分布式服务发现 =====
 
 // discoveryKeyPrefix etcd/KV 中 Agent 信息的键前缀
-const discoveryKeyPrefix = "agentprimordia/discovery/"
+const discoveryKeyPrefix = "github.com/Gleamseekers/AgentPrimordia/discovery/"
 
 // DistributedDiscovery 基于 KV 存储的分布式服务发现
 //

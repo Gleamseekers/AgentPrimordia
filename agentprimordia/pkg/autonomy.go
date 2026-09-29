@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/autonomy"
 )
 
 // --- 核心类型导出 ---

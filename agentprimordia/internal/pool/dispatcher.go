@@ -18,10 +18,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/concurrency"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 const (

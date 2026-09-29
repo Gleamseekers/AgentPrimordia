@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
 )
 
 // Planner 定义任务规划和分解接口

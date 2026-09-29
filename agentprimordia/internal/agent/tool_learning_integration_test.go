@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"agentprimordia/internal/agent/tool_learning"
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ===== mock =====

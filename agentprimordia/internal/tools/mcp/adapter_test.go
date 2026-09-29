@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ===== MCPToolAdapter 测试 =====

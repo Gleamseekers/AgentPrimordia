@@ -24,7 +24,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // === 桩实现 ===

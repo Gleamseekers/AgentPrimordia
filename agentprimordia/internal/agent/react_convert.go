@@ -5,7 +5,7 @@ package agent
 import (
 	"encoding/json"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // Helper functions for type conversion

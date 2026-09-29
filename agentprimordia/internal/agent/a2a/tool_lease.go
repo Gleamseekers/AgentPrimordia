@@ -39,7 +39,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // ===== 租赁元数据 =====

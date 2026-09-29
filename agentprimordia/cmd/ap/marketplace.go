@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	agentmarket "agentprimordia/internal/agent/marketplace"
-	"agentprimordia/internal/marketplace"
+	agentmarket "github.com/Gleamseekers/AgentPrimordia/internal/agent/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/internal/marketplace"
 )
 
 // validateTemplateID 验证模板 ID 安全性

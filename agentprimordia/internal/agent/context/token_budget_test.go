@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
 )
 
 func TestTokenBudget_UnderBudgetUnchanged(t *testing.T) {

@@ -26,9 +26,9 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	gitplugin "agentprimordia/ecosystem/plugins/git"
-	ap "agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	gitplugin "github.com/Gleamseekers/AgentPrimordia/ecosystem/plugins/git"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // 计划协议：JSON 数组 [{id, description, depends_on}]。

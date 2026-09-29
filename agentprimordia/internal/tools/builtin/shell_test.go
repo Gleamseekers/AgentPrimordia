@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 // testOutputCmd 返回跨平台可用的、会输出内容并退出 0 的命令

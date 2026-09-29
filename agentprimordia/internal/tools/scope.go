@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"agentprimordia/internal/concurrency"
+	"github.com/Gleamseekers/AgentPrimordia/internal/concurrency"
 )
 
 type ScopePolicy interface {

@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // idCounter 实例级 ID 生成器，消除全局可变状态

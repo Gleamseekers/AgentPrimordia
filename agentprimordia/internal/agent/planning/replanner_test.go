@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // mockProvider 模拟 LLM Provider，用于 replanner 测试

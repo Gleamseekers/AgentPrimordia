@@ -1,7 +1,7 @@
 // Stability: Stable — 结构化日志。
 package ap
 
-import "agentprimordia/internal/logger"
+import "github.com/Gleamseekers/AgentPrimordia/internal/logger"
 
 // Logger 结构化日志器
 type Logger = logger.Logger

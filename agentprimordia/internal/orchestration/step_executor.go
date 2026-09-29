@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 // StepExecutor 执行单个 step。

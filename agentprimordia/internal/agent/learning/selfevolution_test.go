@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"testing"
 
-	"agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/internal/memory"
 )
 
 // evoTask 进化实验任务

@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/dag"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/dag"
 )
 
 // ===== 类型别名 =====

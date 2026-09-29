@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // Reflector 定义自我反思和纠错接口

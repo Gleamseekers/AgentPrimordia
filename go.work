@@ -21,6 +21,4 @@ use ./agentprimordia/operator
 
 use ./gateway
 
-use (
-	./wasm
-)
+use ./wasm

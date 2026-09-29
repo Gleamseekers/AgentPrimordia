@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"agentprimordia/internal/jsonutil"
+	"github.com/Gleamseekers/AgentPrimordia/internal/jsonutil"
 )
 
 // BenchmarkRequestMarshal_Map 对比 map[string]any 与 typed struct 的序列化性能

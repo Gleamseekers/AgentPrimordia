@@ -8,15 +8,17 @@
 [![Tests](https://img.shields.io/badge/tests-622%20files-green.svg)](agentprimordia/internal/)
 
 <p align="center">
-  <img src="agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
+  <img src="github.com/Gleamseekers/AgentPrimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
   <br>
-  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
+  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="github.com/Gleamseekers/AgentPrimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
 </p>
 
 ```bash
-# 框架尚未发布为可经 GOPROXY 解析的 Go module（模块路径 agentprimordia 无点号，
-# 且 v2+ 标签受语义化导入版本限制），因此从源码获取：
-git clone <AgentPrimordia 仓库> && cd AgentPrimordia
+# 方式一：go install（模块路径已迁移至 github.com/Gleamseekers/AgentPrimordia）
+go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest
+
+# 方式二：从源码获取
+git clone https://github.com/Gleamseekers/AgentPrimordia.git && cd AgentPrimordia
 go build -o ap ./agentprimordia/cmd/ap/
 ./ap start my-agent
 ```
@@ -57,9 +59,9 @@ go build -o ap ./agentprimordia/cmd/ap/
 go build -o ap ./agentprimordia/cmd/ap/
 ```
 
-> **安装说明**：`go install agentprimordia/cmd/ap@latest` **不可用**——模块路径 `agentprimordia`
-> 首段不含点号（GOPROXY 无法解析），且 `v2+` 标签受 Go 语义化导入版本规则限制。
-> 请从源码构建；`ap start` 会自动探测本地框架源码并通过 `replace` 生成自洽项目。
+> **安装说明**：`go install github.com/Gleamseekers/AgentPrimordia/cmd/ap@latest` 需要框架
+> 已发布到 GOPROXY（tag 发布后自动可用）；未发布期间请从源码构建。`ap start` 会自动探测
+> 本地框架源码并通过 `replace` 生成自洽项目。
 
 ### 30 秒体验（无需 API Key）
 

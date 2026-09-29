@@ -1,13 +1,13 @@
 // gomod_template_test.go — ap init/plugin 脚手架 go.mod 生成策略测试。
 //
 // v6.0 复测发现的问题（本组测试锁定修复行为）：
-//  1. 模板硬编码 go 1.23 / agentprimordia v1.0.0，落后框架实际要求（go 1.26）与版本（v6.0.0）
-//  2. 根模块的 replace agentprimordia/pgvector => ../pgvector 不具传递性——
+//  1. 模板硬编码 go 1.23 / 框架 v1.0.0，落后框架实际要求（go 1.26）与版本（v6.0.0）
+//  2. 根模块的 replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../pgvector 不具传递性——
 //     生成的独立子项目 import pkg → internal/memory → pgvector 链路无法解析，
 //     go mod tidy 直接失败（workspace 模式掩盖了该问题，独立构建必现）
 //
 // 生成策略：
-//   - 从项目目录向上探测框架模块（go.mod 声明 module agentprimordia）：
+//   - 从项目目录向上探测框架模块（go.mod 声明 module github.com/Gleamseekers/AgentPrimordia）：
 //     找到 → emit 相对路径 replace，并连带 pgvector 的 require+replace
 //   - 未找到（standalone）→ 不 emit replace，调用方提示依赖 GOPROXY 发布版
 package main
@@ -19,7 +19,7 @@ import (
 	"testing"
 )
 
-// makeFakeFramework 构造最小假框架布局：<dir>/frame/go.mod(module agentprimordia) + <dir>/pgvector/go.mod
+// makeFakeFramework 构造最小假框架布局：<dir>/frame/go.mod(module github.com/Gleamseekers/AgentPrimordia) + <dir>/pgvector/go.mod
 func makeFakeFramework(t *testing.T, dir string) string {
 	t.Helper()
 	frame := filepath.Join(dir, "frame")
@@ -34,8 +34,8 @@ func makeFakeFramework(t *testing.T, dir string) string {
 			t.Fatalf("write %s: %v", p, err)
 		}
 	}
-	write(filepath.Join(frame, "go.mod"), "module agentprimordia\n\ngo 1.26\n")
-	write(filepath.Join(pgv, "go.mod"), "module agentprimordia/pgvector\n\ngo 1.26\n")
+	write(filepath.Join(frame, "go.mod"), "module github.com/Gleamseekers/AgentPrimordia\n\ngo 1.26\n")
+	write(filepath.Join(pgv, "go.mod"), "module github.com/Gleamseekers/AgentPrimordia/pgvector\n\ngo 1.26\n")
 	return frame
 }
 
@@ -49,8 +49,8 @@ func TestBuildGoMod_Standalone(t *testing.T) {
 	if !strings.Contains(content, "go 1.26") {
 		t.Errorf("go.mod 应声明 go 1.26:\n%s", content)
 	}
-	if !strings.Contains(content, "agentprimordia v0.0.0") {
-		t.Errorf("go.mod 应包含 require agentprimordia（SIV 合法占位版本）:\n%s", content)
+	if !strings.Contains(content, "github.com/Gleamseekers/AgentPrimordia v0.0.0") {
+		t.Errorf("go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia（SIV 合法占位版本）:\n%s", content)
 	}
 	if strings.Contains(content, "replace") {
 		t.Errorf("standalone 场景不应包含 replace:\n%s", content)
@@ -68,10 +68,10 @@ func TestBuildGoMod_InRepoWithPgvector(t *testing.T) {
 	}
 	for _, want := range []string{
 		"go 1.26",
-		"agentprimordia v0.0.0",
-		"agentprimordia/pgvector v0.0.0",
-		"replace agentprimordia => ..",
-		"replace agentprimordia/pgvector => ../../pgvector",
+		"github.com/Gleamseekers/AgentPrimordia v0.0.0",
+		"github.com/Gleamseekers/AgentPrimordia/pgvector v0.0.0",
+		"replace github.com/Gleamseekers/AgentPrimordia => ..",
+		"replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../../pgvector",
 	} {
 		if !strings.Contains(content, want) {
 			t.Errorf("go.mod 缺少 %q:\n%s", want, content)
@@ -98,7 +98,7 @@ func TestRunInit_GoModInRepo(t *testing.T) {
 		t.Fatalf("读取 go.mod 失败: %v", err)
 	}
 	s := string(mod)
-	if !strings.Contains(s, "replace agentprimordia/pgvector") {
+	if !strings.Contains(s, "replace github.com/Gleamseekers/AgentPrimordia/pgvector") {
 		t.Errorf("框架内 init 的 go.mod 必须包含 pgvector replace（否则 tidy 断链）:\n%s", s)
 	}
 	if !strings.Contains(s, "go 1.26") {
@@ -113,7 +113,7 @@ func TestGenerate_GoModVersion(t *testing.T) {
 		t.Fatalf("Generate 失败: %v", err)
 	}
 	mod := string(files["go.mod"])
-	if !strings.Contains(mod, "go 1.26") || !strings.Contains(mod, "agentprimordia v0.0.0") {
-		t.Errorf("go.mod 版本未对齐（期望 go 1.26 + agentprimordia v0.0.0 占位）:\n%s", mod)
+	if !strings.Contains(mod, "go 1.26") || !strings.Contains(mod, "github.com/Gleamseekers/AgentPrimordia v0.0.0") {
+		t.Errorf("go.mod 版本未对齐（期望 go 1.26 + github.com/Gleamseekers/AgentPrimordia v0.0.0 占位）:\n%s", mod)
 	}
 }

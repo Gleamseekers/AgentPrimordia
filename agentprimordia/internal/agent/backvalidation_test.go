@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 	"log/slog"
 )
 

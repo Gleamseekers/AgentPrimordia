@@ -17,7 +17,7 @@ import (
 	"syscall"
 	"time"
 
-	"agentprimordia/internal/agent/live"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/live"
 )
 
 func main() {

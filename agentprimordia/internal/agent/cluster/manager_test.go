@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/agent/bus"
-	"agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/discovery"
 )
 
 func TestConsistentHashAddRemove(t *testing.T) {

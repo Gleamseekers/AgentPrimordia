@@ -16,9 +16,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/intelligence"
-	"agentprimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/wasm"
 )
 
 // stubCreator 测试用基础生成器：返回预设工件。

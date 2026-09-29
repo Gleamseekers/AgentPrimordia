@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"time"
 
-	"agentprimordia/internal/agent/lifecycle"
-	"agentprimordia/internal/agent/multimodal"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/lifecycle"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/multimodal"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // ===== 请求 ID 关联 =====

@@ -27,14 +27,14 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/agent/worldmodel"
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
 )
 
 // taskResult 单条任务单臂运行结果。

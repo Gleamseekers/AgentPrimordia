@@ -24,15 +24,15 @@ import (
 	"sync/atomic"
 	"time"
 
-	"agentprimordia/internal/agent"
-	"agentprimordia/internal/agent/hooks"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
-	"agentprimordia/internal/tools"
-	"agentprimordia/internal/tools/builtin"
-	"agentprimordia/internal/tools/intelligence"
-	"agentprimordia/internal/tools/intelligence/create"
-	"agentprimordia/internal/tools/intelligence/optimize"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools/intelligence/optimize"
 )
 
 // taskItem 题面

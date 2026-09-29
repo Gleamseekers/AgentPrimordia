@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"agentprimordia/internal/agent/sse"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/sse"
 )
 
 // SSEWriter 服务端推送事件写入器（sse 子包别名）。

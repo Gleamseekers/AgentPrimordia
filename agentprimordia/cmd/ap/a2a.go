@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"agentprimordia/internal/agent/a2a"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/a2a"
 )
 
 const a2aUsage = `Usage: ap a2a <subcommand> [arguments]

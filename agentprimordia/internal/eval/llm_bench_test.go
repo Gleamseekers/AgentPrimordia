@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // mockBenchProvider 实现 llm.Provider，用于真实跑分逻辑的单元测试。

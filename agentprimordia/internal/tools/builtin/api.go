@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/internal/tools"
 )
 
 const (

@@ -1,7 +1,7 @@
 package http
 
 import (
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // Plugin 是 HTTP 客户端插件，封装 tools.API

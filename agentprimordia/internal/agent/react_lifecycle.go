@@ -8,9 +8,9 @@ import (
 	"maps"
 	"time"
 
-	"agentprimordia/internal/agent/planning"
-	"agentprimordia/internal/llm"
-	"agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/persist"
 )
 
 // Stats returns current agent statistics

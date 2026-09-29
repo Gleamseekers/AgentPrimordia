@@ -6,7 +6,7 @@
 package agent
 
 import (
-	"agentprimordia/internal/agent/workflow"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/workflow"
 )
 
 // VisualizeConfig 可视化配置

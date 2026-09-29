@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"agentprimordia/cmd/example/demo"
-	ap "agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/cmd/example/demo"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 func main() {

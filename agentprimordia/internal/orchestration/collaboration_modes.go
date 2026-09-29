@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent"
 )
 
 func (s *CollaborationSession) executeDebate(ctx context.Context, topic string) error {

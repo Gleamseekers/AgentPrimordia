@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/tool_learning"
 )
 
 // ToolLearner 定义tool学习能力接口

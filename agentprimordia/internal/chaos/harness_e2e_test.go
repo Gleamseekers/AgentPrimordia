@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/eval"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // compliantMockProvider 对任何基准用例都返回包含全部 Requires 片段的输出

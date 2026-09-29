@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // BenchmarkStartupTime 测试 agent 启动时间

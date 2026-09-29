@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	ap "agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // dataMonitorExecutor 模拟数据监控修复执行器

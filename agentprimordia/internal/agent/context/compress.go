@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"agentprimordia/internal/agent/core"
-	"agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
 )
 
 // CompressConfig 压缩配置

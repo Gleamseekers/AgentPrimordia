@@ -68,7 +68,7 @@ func LoadQualityBaseline(path string) (*QualityBaseline, error) {
 // DefaultQualityBaselinePath 返回仓库内默认质量基线文件路径
 func DefaultQualityBaselinePath() string {
 	_, filename, _, _ := runtime.Caller(0)
-	// internal/eval/ -> internal/ -> agentprimordia/
+	// internal/eval/ -> internal/ -> github.com/Gleamseekers/AgentPrimordia/
 	root := filepath.Dir(filepath.Dir(filepath.Dir(filename)))
 	return filepath.Join(root, "bench", "results", "2026-Q3-v5.1-quality-baseline.json")
 }

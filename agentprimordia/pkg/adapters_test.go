@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"agentprimordia/internal/llm"
-	ap "agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/internal/llm"
+	ap "github.com/Gleamseekers/AgentPrimordia/pkg"
 )
 
 // ===== EventBusAdapter 测试 =====

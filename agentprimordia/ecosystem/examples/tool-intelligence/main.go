@@ -16,6 +16,7 @@
 package main
 
 import (
+	"sort"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
@@ -317,7 +318,14 @@ func main() {
 	allProfiles, _ := profiler.AllProfiles(ctx)
 	fmt.Println("--- 系统状态汇总 ---")
 	fmt.Printf("  Profiler 追踪工具数: %d\n", len(allProfiles))
-	for name, p := range allProfiles {
+	// AllProfiles 返回 map；示例层按键排序输出，保证演示确定可复现。
+	profileNames := make([]string, 0, len(allProfiles))
+	for name := range allProfiles {
+		profileNames = append(profileNames, name)
+	}
+	sort.Strings(profileNames)
+	for _, name := range profileNames {
+		p := allProfiles[name]
 		fmt.Printf("    %s: %d 次调用, 成功率 %.0f%%\n", name, p.TotalCalls, p.SuccessRate*100)
 	}
 	fmt.Printf("  Selector 统计工具数: 3 (bash_exec, shell_cmd, python_exec)\n")

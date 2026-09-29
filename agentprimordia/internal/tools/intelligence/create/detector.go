@@ -2,6 +2,7 @@
 package create
 
 import (
+	"sort"
 	"context"
 	"strings"
 	"sync"
@@ -74,9 +75,19 @@ func (d *TraceGapDetector) Detect(_ context.Context, trace []intelligence.ToolCa
 		}
 	}
 
-	// 转换为 GapCandidate 列表
+	// 转换为 GapCandidate 列表（**按键排序保证确定性**）。
+	// 修复（2026-09-28）：clusters 为 map，直接 range 迭代使缺口列表
+	// 顺序运行间抖动（演示输出 3↔4 个缺口时看似计数变化，实为顺序+
+	// 展示问题）；按键升序排序后输出稳定。
+	keys := make([]string, 0, len(clusters))
+	for key := range clusters {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
 	result := make([]intelligence.GapCandidate, 0, len(clusters))
-	for key, cluster := range clusters {
+	for _, key := range keys {
+		cluster := clusters[key]
 		// 计算出现次数
 		count := 0
 		for _, rec := range all {
@@ -105,24 +116,31 @@ func extractGapKey(errMsg string) string {
 		return ""
 	}
 
-	// 常见错误模式映射
-	patterns := map[string]string{
-		"not found":          "missing_resource",
-		"no such file":       "missing_file",
-		"permission denied":  "missing_permission",
-		"connection refused": "missing_service",
-		"timeout":            "missing_timeout_handler",
-		"unsupported":        "missing_capability",
-		"not implemented":    "missing_feature",
-		"parse error":        "missing_parser",
-		"invalid format":     "missing_formatter",
-		"out of memory":      "missing_resource_limit",
+	// 常见错误模式（**有序切片，首匹配优先**）。
+	// 修复（2026-09-28）：原为 map，Go map 迭代顺序随机——同一消息
+	// 命中多个 pattern 时（如 "parse error: invalid CSV format"）返回
+	// 的 gap key 不确定，导致缺口去重计数与键名运行间抖动。改为有序
+	// 切片后行为确定；声明序即优先级（更具体的模式靠前）。
+	patterns := []struct {
+		pattern string
+		key     string
+	}{
+		{"not found", "missing_resource"},
+		{"no such file", "missing_file"},
+		{"permission denied", "missing_permission"},
+		{"connection refused", "missing_service"},
+		{"timeout", "missing_timeout_handler"},
+		{"unsupported", "missing_capability"},
+		{"not implemented", "missing_feature"},
+		{"parse error", "missing_parser"},
+		{"invalid format", "missing_formatter"},
+		{"out of memory", "missing_resource_limit"},
 	}
 
 	lower := strings.ToLower(errMsg)
-	for pattern, key := range patterns {
-		if strings.Contains(lower, pattern) {
-			return key
+	for _, p := range patterns {
+		if strings.Contains(lower, p.pattern) {
+			return p.key
 		}
 	}
 

@@ -1,23 +1,31 @@
-# 仓库根 context 的 dockerignore（v7.5 布局：go.mod 移至根，Dockerfile 在 agentprimordia/）
-# 与 agentprimordia/.dockerignore 对齐并扩展至 monorepo 根布局
+# 仓库根 context 的 dockerignore（v7.5 布局：go.mod 位于仓库根，Dockerfile 在 agentprimordia/）
+# 模式说明：**/ 前缀匹配任意深度（根级模式不命中子目录内的同名目录——
+# 曾因 node_modules/.gocache 只写根级致 context 达 3GB+）
 .git
 .gitignore
 go.work
 go.work.sum
-*.exe
-*.dll
-*.so
-*.dylib
-*.test
-*.out
-coverage.out
-coverage.html
+
+# 构建/缓存产物（任意深度）
+**/node_modules
+**/.gocache
+**/dist
+**/coverage.out
+**/coverage.html
+**/*.out
+**/*.test
+**/*.exe
+**/*.dll
+**/*.so
+**/*.dylib
+
+# 文档与媒体（Go 构建不需要）
 docs/
-docs/node_modules/
-node_modules/
-dist/
-.idea/
-.vscode/
-.gocache/
+**/docs/
+images/
+**/images/
 .pdf-build/
 .promo-build/
+.idea/
+.vscode/
+vibe_images/

@@ -227,6 +227,7 @@ jobs:
             type=sha
 
       - name: Build and push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -243,7 +244,7 @@ jobs:
       - name: Sign image (keyless)
         env:
           COSIGN_EXPERIMENTAL: 1  # keyless 签名必需（对照 supply-chain.yml）
-        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.meta.outputs.digest }}
+        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
 
   npm-publish:
     name: Publish TypeScript SDK

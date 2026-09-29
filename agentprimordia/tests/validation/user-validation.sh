@@ -49,13 +49,14 @@ section() {
 # 准备临时目录
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-AP_ROOT="$REPO_ROOT/agentprimordia"
+AP_ROOT="$REPO_ROOT"  # v7.5 布局：框架主模块 go.mod 位于仓库根
+AP_MODULE_DIR="$REPO_ROOT/agentprimordia"  # 代码包目录（cmd/ap 等）
 
 TMPDIR=$(mktemp -d)
 trap "rm -rf $TMPDIR" EXIT
 
 section "Phase 1: 编译 ap CLI"
-cd "$AP_ROOT"
+cd "$AP_MODULE_DIR"
 check "go build ./cmd/ap/" go build -o "$TMPDIR/ap" ./cmd/ap/
 export PATH="$TMPDIR:$PATH"
 
@@ -74,17 +75,17 @@ check "go.mod 存在" test -f "$TMPDIR/demo-agent/go.mod"
 
 section "Phase 3: 项目结构验证"
 cd "$TMPDIR/demo-agent"
-check "go.mod 包含 agentprimordia" grep -q "agentprimordia" go.mod
-check "main.go 包含 ap 导入" grep -q "agentprimordia/pkg" main.go
+check "go.mod 包含框架模块" grep -q "github.com/Gleamseekers/AgentPrimordia/v7" go.mod
+check "main.go 包含 ap 导入" grep -q "Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg" main.go
 
 section "Phase 4: 项目编译"
 # 使用 replace 指令指向本地框架源码，避免 go work use 的模块路径校验问题
-check "添加 replace 指令" bash -c "cd '$TMPDIR/demo-agent' && go mod edit -replace agentprimordia='$AP_ROOT'"
+check "添加 replace 指令" bash -c "cd '$TMPDIR/demo-agent' && go mod edit -replace github.com/Gleamseekers/AgentPrimordia/v7='$AP_ROOT'"
 check "go mod tidy 成功" bash -c "cd '$TMPDIR/demo-agent' && go mod tidy 2>/dev/null"
 check "go build 成功" bash -c "cd '$TMPDIR/demo-agent' && go build . 2>/dev/null"
 
 section "Phase 5: ap profile 命令"
-cd "$AP_ROOT"
+cd "$AP_MODULE_DIR"
 check "ap profile 可执行" bash -c "$TMPDIR/ap profile 2>/dev/null || true"
 check "ap profile history 可执行" bash -c "$TMPDIR/ap profile history 2>/dev/null || true"
 
@@ -93,7 +94,7 @@ check "ap config set provider 可执行" bash -c "$TMPDIR/ap config set provider
 check "ap config set model 可执行" bash -c "$TMPDIR/ap config set model gpt-4o 2>/dev/null || true"
 
 section "Phase 7: 示例编译验证"
-cd "$AP_ROOT"
+cd "$AP_MODULE_DIR"
 check "code-review-agent 编译" go build ./ecosystem/examples/code-review-agent/
 check "data-analysis-agent 编译" go build ./ecosystem/examples/data-analysis-agent/
 check "a2a-connect 编译" go build ./ecosystem/examples/a2a-connect/

@@ -72,6 +72,7 @@ coverage/
 **/frontend-backup/
 Design/
 AGENTS.md
+!agentprimordia/internal/AGENTS.md  # 被根 AGENTS.md/README/文档索引引用的模块上下文路由，必须入库
 ref_*.txt
 ref_*.png
 gen_*.py

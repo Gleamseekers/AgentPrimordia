@@ -260,9 +260,15 @@ func TestDistributedMessageRouting(t *testing.T) {
 		Address: transport3.Addr(),
 	}
 
-	discovery.Register(ctx, info1)
-	discovery.Register(ctx, info2)
-	discovery.Register(ctx, info3)
+	if err := discovery.Register(ctx, info1); err != nil {
+		t.Fatalf("注册 agent-1 失败: %v", err)
+	}
+	if err := discovery.Register(ctx, info2); err != nil {
+		t.Fatalf("注册 agent-2 失败: %v", err)
+	}
+	if err := discovery.Register(ctx, info3); err != nil {
+		t.Fatalf("注册 agent-3 失败: %v", err)
+	}
 
 	// 启动接收协程
 	received1 := make(chan *BusMessage, 10)
@@ -336,7 +342,9 @@ func TestDistributedMessageRouting(t *testing.T) {
 	for _, agent := range agents {
 		if agent.ID != "agent-1" { // 不发送给自己
 			target, _ := discovery.Discover(ctx, agent.ID)
-			transport1.Send(ctx, target.Address, broadcastMsg)
+			if err := transport1.Send(ctx, target.Address, broadcastMsg); err != nil {
+				t.Errorf("广播到 %s 失败: %v", agent.ID, err)
+			}
 		}
 	}
 

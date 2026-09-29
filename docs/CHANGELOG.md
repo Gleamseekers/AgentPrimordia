@@ -33,6 +33,15 @@
 - **诚实遗留项清零**：FalsePositives 误拦口径接线（b491a4ad）；config FlagSet 注入（38f50a89）；intelligence pkg 导出 + ecosystem internal 依赖清零（0cd94443）
 - **演示输出非确定性**：extractGapKey/缺口聚合/示例汇总三处 map 迭代有序化（go run 10 连跑一致）（fe4b8ade）
 
+### Fixed — 发布链路与 CI 门修复（v7.5.0 tag 后实测）
+
+- **CI lint 归零**：errcheck（session/distributed_integration 恢复测试的未检查错误返回）、unused（tool_forge 辅助函数）、ineffassign（jsonutil 并发测试）共 8 处（golangci-lint 实跑 0 问题）
+- **死链门**：`.gitignore` 的 `AGENTS.md` 规则把被根 AGENTS.md/README/文档索引引用的 `agentprimordia/internal/AGENTS.md` 排除出仓库（本地存在但 CI 检出缺失 → 4 条死链）——negation 放行并纳入跟踪
+- **双线豁免矩阵门**：常驻运行时豁免行补「豁免/平台限制」关键字（检查器要求豁免行必须含理由/升格字样）
+- **govulncheck**：grpc v1.82.1 → v1.83.1，修复 GO-2026-6443（Host 头缺失致服务 panic）与 GO-2026-6348（HTTP/2 DATA 帧分片致 OOM）两个实测命中的漏洞
+- **User Validation 脚本**：适配新模块路径（AP_ROOT 指向仓库根、go.mod/replace 断言改 `/v7` 路径），24/24 通过
+- **Release 工作流三处**：TS SDK `npm ci` 前置——package-lock.json 同步 7.5.0（原 6.0.1 致 ci 必失败）；Docker 构建补 `file: agentprimordia/Dockerfile.prod` 且 Dockerfile 构建路径适配仓库根布局（prod 的 ap-admin、sbomlabel 的 ap）；cosign keyless 签名补 `id-token: write` 权限（对照 supply-chain.yml）
+
 ### Changed — 模块路径迁移（首次可发布模块路径）
 
 - **五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia` 命名空间**：主模块 + pgvector/operator/gateway/wasm-sandbox（1390 个 Go 文件 import + 5 go.mod + 49 文档 import 块）。旧路径首段无点号导致模块从未可被 GOPROXY 解析（go install 一直不可用），故无下游兼容影响；迁移后 `go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest` 随 tag 发布自动可用（d6455bba）

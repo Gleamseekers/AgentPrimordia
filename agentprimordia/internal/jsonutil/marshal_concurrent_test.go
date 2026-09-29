@@ -60,7 +60,7 @@ func TestMarshalAppendSafe(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	a = append(a, 'X', 'Y') // 触发可能的底层数组扩容/覆写
+	_ = append(a[:len(a):len(a)], 'X', 'Y') // 限制容量迫使扩容：若底层数组与 pool 共享，后续 Marshal 将覆写本结果
 	b, err := Marshal(map[string]string{"k": "v2"})
 	if err != nil {
 		t.Fatal(err)

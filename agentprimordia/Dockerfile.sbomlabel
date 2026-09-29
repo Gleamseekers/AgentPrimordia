@@ -18,7 +18,7 @@ RUN go mod download
 
 COPY . .
 ENV CGO_ENABLED=0
-RUN go build -ldflags="-s -w -X main.version=${VERSION} -X main.revision=${REVISION}" -o /bin/app .
+RUN go build -ldflags="-s -w -X main.version=${VERSION} -X main.revision=${REVISION}" -o /bin/app ./agentprimordia/cmd/ap/
 
 # SBOM 和 provenance labels (OCI image spec)
 LABEL org.opencontainers.image.title="AgentPrimordia"

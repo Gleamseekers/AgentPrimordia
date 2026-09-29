@@ -22,7 +22,7 @@ COPY . .
 # 无 CGO（modernc.org/sqlite 为纯 Go 驱动）
 ENV CGO_ENABLED=0
 RUN go build -ldflags="-s -w -X main.Version=$(git describe --tags --always --dirty 2>/dev/null || echo dev)" \
-    -o /bin/ap-admin ./cmd/admin/
+    -o /bin/ap-admin ./agentprimordia/cmd/admin/
 
 # ---- Stage 2: Runtime ----
 FROM alpine:3.20

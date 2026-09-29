@@ -75,7 +75,9 @@ func TestSession_LastResponse(t *testing.T) {
 		t.Fatal("expected nil before any Ask")
 	}
 
-	sess.Ask(context.Background(), "hi")
+	if _, err := sess.Ask(context.Background(), "hi"); err != nil {
+		t.Fatalf("Ask: %v", err)
+	}
 	if sess.LastResponse() == nil {
 		t.Fatal("expected non-nil after Ask")
 	}
@@ -124,8 +126,12 @@ func TestSession_History(t *testing.T) {
 	}
 
 	sess := NewSession(agent, nil)
-	sess.Ask(context.Background(), "q1")
-	sess.Ask(context.Background(), "q2")
+	if _, err := sess.Ask(context.Background(), "q1"); err != nil {
+		t.Fatalf("Ask q1: %v", err)
+	}
+	if _, err := sess.Ask(context.Background(), "q2"); err != nil {
+		t.Fatalf("Ask q2: %v", err)
+	}
 
 	h := sess.History()
 	if len(h) != 4 { // 2 user + 2 assistant
@@ -151,7 +157,9 @@ func TestSession_Reset(t *testing.T) {
 	}
 
 	sess := NewSession(agent, nil)
-	sess.Ask(context.Background(), "q1")
+	if _, err := sess.Ask(context.Background(), "q1"); err != nil {
+		t.Fatalf("Ask q1: %v", err)
+	}
 
 	sess.Reset()
 

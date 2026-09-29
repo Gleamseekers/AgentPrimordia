@@ -20,13 +20,11 @@ package main
 
 import (
 	"context"
-	"crypto/ed25519"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"path/filepath"
 
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
@@ -162,12 +160,3 @@ func (v *pinnedArtifactVerifier) VerifyArtifact(art *intelligence.ToolArtifact) 
 	}
 	return nil
 }
-
-// signToolArtifact 为工件签名（生产侧供受信生成方使用；密钥管理归运维）。
-// 返回 Signature/PublicKey 对，调用方填入 ToolArtifact。
-func signToolArtifact(artifact []byte, privateKey ed25519.PrivateKey) (signature, publicKey []byte, err error) {
-	return wasm.SignWASM(artifact, privateKey)
-}
-
-// forgeWorkspace 返回工件落盘目录（<dir>/.intel-tools 的父级）。
-func forgeWorkspace(dir string) string { return filepath.Join(dir, ".intel-tools") }

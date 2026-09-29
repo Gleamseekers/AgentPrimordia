@@ -1,4 +1,4 @@
-module github.com/Gleamseekers/AgentPrimordia/agentprimordia
+module github.com/Gleamseekers/AgentPrimordia
 
 go 1.26.6
 
@@ -49,4 +49,4 @@ require (
 	modernc.org/memory v1.11.0 // indirect
 )
 
-replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../pgvector
+replace github.com/Gleamseekers/AgentPrimordia/pgvector => ./pgvector

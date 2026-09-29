@@ -58,7 +58,7 @@ OTel 端到端接线、Studio 接真实引擎、模板注册表持久化+远程�
 
 | 模块 | 新路径 |
 |------|--------|
-| 主模块 | `github.com/Gleamseekers/AgentPrimordia/agentprimordia` |
+| 主模块（仓库根 go.mod） | `github.com/Gleamseekers/AgentPrimordia`（包路径如 `.../agentprimordia/cmd/ap`） |
 | pgvector | `github.com/Gleamseekers/AgentPrimordia/pgvector` |
 | operator | `github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator` |
 | gateway | `github.com/Gleamseekers/AgentPrimordia/gateway` |

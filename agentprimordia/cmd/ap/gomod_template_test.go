@@ -49,8 +49,8 @@ func TestBuildGoMod_Standalone(t *testing.T) {
 	if !strings.Contains(content, "go 1.26") {
 		t.Errorf("go.mod 应声明 go 1.26:\n%s", content)
 	}
-	if !strings.Contains(content, "github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0") {
-		t.Errorf("go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia/agentprimordia（SIV 合法占位版本）:\n%s", content)
+	if !strings.Contains(content, "github.com/Gleamseekers/AgentPrimordia v0.0.0") {
+		t.Errorf("go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia（SIV 合法占位版本）:\n%s", content)
 	}
 	if strings.Contains(content, "replace") {
 		t.Errorf("standalone 场景不应包含 replace:\n%s", content)
@@ -68,9 +68,9 @@ func TestBuildGoMod_InRepoWithPgvector(t *testing.T) {
 	}
 	for _, want := range []string{
 		"go 1.26",
-		"github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0",
+		"github.com/Gleamseekers/AgentPrimordia v0.0.0",
 		"github.com/Gleamseekers/AgentPrimordia/pgvector v0.0.0",
-		"replace github.com/Gleamseekers/AgentPrimordia/agentprimordia => ..",
+		"replace github.com/Gleamseekers/AgentPrimordia => ..",
 		"replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../../pgvector",
 	} {
 		if !strings.Contains(content, want) {
@@ -113,7 +113,7 @@ func TestGenerate_GoModVersion(t *testing.T) {
 		t.Fatalf("Generate 失败: %v", err)
 	}
 	mod := string(files["go.mod"])
-	if !strings.Contains(mod, "go 1.26") || !strings.Contains(mod, "github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0") {
-		t.Errorf("go.mod 版本未对齐（期望 go 1.26 + github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0 占位）:\n%s", mod)
+	if !strings.Contains(mod, "go 1.26") || !strings.Contains(mod, "github.com/Gleamseekers/AgentPrimordia v0.0.0") {
+		t.Errorf("go.mod 版本未对齐（期望 go 1.26 + github.com/Gleamseekers/AgentPrimordia v0.0.0 占位）:\n%s", mod)
 	}
 }

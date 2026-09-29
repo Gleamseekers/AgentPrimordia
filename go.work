@@ -13,7 +13,7 @@
 // 只确保 examples 的可发现性 + 跑法清晰，不强拆独立拆分。
 go 1.26.6
 
-use ./agentprimordia
+use .
 
 use ./pgvector
 

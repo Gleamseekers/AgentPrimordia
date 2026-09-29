@@ -100,18 +100,15 @@ func runStart(args []string) error {
 	if err != nil {
 		return fmt.Errorf("获取绝对路径失败: %w", err)
 	}
-	frameworkDir := os.Getenv("AP_ROOT")
-	if frameworkDir == "" {
-		frameworkDir = findFrameworkRoot(absTarget)
-	}
+	frameworkDir := resolveFrameworkDir(os.Getenv("AP_ROOT"), absTarget)
 
 	if frameworkDir == "" {
 		fmt.Println()
 		errorf("未检测到本地框架源码，无法解析依赖")
-		infof("原因：模块路径 agentprimordia 无 /vN 后缀，v2+ 标签不可经 GOPROXY require（详见 docs/版本规范.md）")
+		infof("原因：未检测到本地框架源码，且框架尚未经 GOPROXY 发布（或网络不可达）")
 		infof("修复（任选其一）后重试：")
-		fmt.Printf("  1) 从仓库源码获取框架：git clone <AgentPrimordia 仓库> && cd agentprimordia && go build -o ap ./cmd/ap/\n")
-		fmt.Printf("  2) 在 %s/go.mod 添加：replace agentprimordia => <框架源码目录>，再运行 ap run\n", targetDir)
+		fmt.Printf("  1) 安装发布版框架 CLI：go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest\n")
+		fmt.Printf("  2) 在 %s/go.mod 添加：replace github.com/Gleamseekers/AgentPrimordia => <框架源码目录>，再运行 ap run\n", targetDir)
 		return fmt.Errorf("缺少本地框架源码，已创建项目但未启动")
 	}
 

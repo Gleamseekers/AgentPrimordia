@@ -17,7 +17,7 @@ func TestHasLocalFrameworkReplace(t *testing.T) {
 	}{
 		{
 			name:  "框架 replace（生成项目形态）",
-			goMod: "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0\n\nreplace github.com/Gleamseekers/AgentPrimordia/agentprimordia => ../../agentprimordia\n",
+			goMod: "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia v0.0.0\n\nreplace github.com/Gleamseekers/AgentPrimordia => ../../agentprimordia\n",
 			want:  true,
 		},
 		{
@@ -27,12 +27,12 @@ func TestHasLocalFrameworkReplace(t *testing.T) {
 		},
 		{
 			name:  "standalone：无 replace",
-			goMod: "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0\n",
+			goMod: "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia v0.0.0\n",
 			want:  false,
 		},
 		{
 			name:  "代理版本 require（非本地）",
-			goMod: "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia/agentprimordia v1.2.3\n",
+			goMod: "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia v1.2.3\n",
 			want:  false,
 		},
 		{
@@ -59,7 +59,7 @@ func TestHasLocalFrameworkReplace(t *testing.T) {
 // TestIsolatedGoEnv 校验本地 replace 项目会以 GOWORK=off 隔离构建。
 func TestIsolatedGoEnv(t *testing.T) {
 	dir := t.TempDir()
-	goMod := "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia/agentprimordia v0.0.0\n\nreplace github.com/Gleamseekers/AgentPrimordia/agentprimordia => ../../agentprimordia\n"
+	goMod := "module demo\n\nrequire github.com/Gleamseekers/AgentPrimordia v0.0.0\n\nreplace github.com/Gleamseekers/AgentPrimordia => ../../agentprimordia\n"
 	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte(goMod), 0o644); err != nil {
 		t.Fatalf("写入 go.mod 失败: %v", err)
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"embed"
 	"fmt"
 	"io/fs"
@@ -134,9 +135,10 @@ data/
 // 详见 github.com/Gleamseekers/AgentPrimordia/agentprimordia/docs/版本规范.md「模块消费与语义化导入版本限制」。
 const apRequirePlaceholder = "v0.0.0"
 
-// frameworkModulePath 框架主模块路径（v7.5 模块路径迁移：主模块 go.mod 位于
-// 仓库 agentprimordia/ 子目录，故模块路径含 /agentprimordia 前缀）。
-const frameworkModulePath = "github.com/Gleamseekers/AgentPrimordia/agentprimordia"
+// frameworkModulePath 框架主模块路径（v7.5 布局修正：go.mod 位于仓库根，
+// 模块路径即仓库路径；代码包位于 agentprimordia/ 子目录，import 路径
+// 形如 <frameworkModulePath>/agentprimordia/pkg）。
+const frameworkModulePath = "github.com/Gleamseekers/AgentPrimordia"
 
 // buildGoMod 生成脚手架项目的 go.mod 内容。
 //
@@ -167,10 +169,7 @@ func buildGoMod(projectName, projectDir string) (content string, standalone bool
 		projectDir = filepath.Join(real, filepath.Base(projectDir))
 	}
 
-	frameworkDir := os.Getenv("AP_ROOT")
-	if frameworkDir == "" {
-		frameworkDir = findFrameworkRoot(filepath.Dir(projectDir))
-	}
+	frameworkDir := resolveFrameworkDir(os.Getenv("AP_ROOT"), filepath.Dir(projectDir))
 	if frameworkDir == "" {
 		// standalone：无本地框架，依赖代理发布版
 		return fmt.Sprintf(`module %s
@@ -215,6 +214,35 @@ replace github.com/Gleamseekers/AgentPrimordia/pgvector => %s
 		sb.WriteString(fmt.Sprintf("require %s %s\n\nreplace %s => %s\n", frameworkModulePath, apRequirePlaceholder, frameworkModulePath, frameRel))
 	}
 	return sb.String(), false
+}
+
+// resolveFrameworkDir 解析框架源码目录：AP_ROOT 显式指定优先，但必须
+// 含框架 go.mod（v7.5 布局：go.mod 位于仓库根，声明 module
+// github.com/Gleamseekers/AgentPrimordia）；无效（未设置/目录不存在/
+// 无 go.mod——如指向旧 agentprimordia/ 子目录的过期值）则回退向上探测。
+func resolveFrameworkDir(apRoot, fallbackStart string) string {
+	if apRoot != "" {
+		if hasFrameworkGoMod(apRoot) {
+			return apRoot
+		}
+		// AP_ROOT 无效：告警并回退探测（不静默信任过期值）
+		slog.Warn("AP_ROOT 无效（无框架 go.mod），回退向上探测", "AP_ROOT", apRoot)
+	}
+	return findFrameworkRoot(fallbackStart)
+}
+
+// hasFrameworkGoMod 判断目录是否含框架主模块 go.mod。
+func hasFrameworkGoMod(dir string) bool {
+	data, err := os.ReadFile(filepath.Join(dir, "go.mod"))
+	if err != nil {
+		return false
+	}
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.TrimSpace(line) == "module "+frameworkModulePath {
+			return true
+		}
+	}
+	return false
 }
 
 // findFrameworkRoot 从 start 向上探测框架模块根（go.mod 声明 module github.com/Gleamseekers/AgentPrimordia），
@@ -282,7 +310,7 @@ func hasLocalFrameworkReplace(dir string) bool {
 	}
 	for _, line := range strings.Split(string(data), "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia/agentprimordia ") ||
+		if strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia ") ||
 			strings.HasPrefix(line, "replace github.com/Gleamseekers/AgentPrimordia/") {
 			return true
 		}

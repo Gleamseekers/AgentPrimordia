@@ -46,7 +46,7 @@ func TestApStartFlow(t *testing.T) {
 	// 否则在 t.TempDir() 这种隔离环境会落入 standalone 模式
 	startCmd := exec.Command(apBin, "start", "test-agent")
 	startCmd.Dir = tmpDir
-	startCmd.Env = append(os.Environ(), "AP_ROOT="+filepath.Join(origDir, "..", ".."))
+	startCmd.Env = append(os.Environ(), "AP_ROOT="+filepath.Join(origDir, "..", "..", ".."))
 	output, err := startCmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("ap start 失败: %v\n%s", err, output)

@@ -59,8 +59,10 @@ OTel 端到端接线、Studio 接真实引擎、模板注册表持久化+远程�
 | 模块 | 新路径 |
 |------|--------|
 | 主模块 | `github.com/Gleamseekers/AgentPrimordia/agentprimordia` |
-| pgvector / operator / gateway | `github.com/Gleamseekers/AgentPrimordia/{pgvector,operator,gateway}` |
-| wasm 沙箱 | `github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm` |
+| pgvector | `github.com/Gleamseekers/AgentPrimordia/pgvector` |
+| operator | `github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator` |
+| gateway | `github.com/Gleamseekers/AgentPrimordia/gateway` |
+| wasm 沙箱 | `github.com/Gleamseekers/AgentPrimordia/wasm` |
 
 旧路径首段无点号导致模块从未可经 GOPROXY 解析（无下游消费者，无兼容影响）。源码用户 import 路径需更新；本地 replace 消费方式见 `agentprimordia/docs/版本规范.md`。
 

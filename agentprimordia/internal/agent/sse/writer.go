@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bufferpool"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bufferpool"
 )
 
 // SSEWriter 服务端推送事件写入器

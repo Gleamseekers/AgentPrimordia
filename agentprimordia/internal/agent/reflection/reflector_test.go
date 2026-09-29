@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 // TestReflectorInterface 验证 Reflector 接口定义

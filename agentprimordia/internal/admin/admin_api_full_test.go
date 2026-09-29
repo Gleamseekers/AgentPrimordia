@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/pool"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
 )
 
 // doRequestWithPool 使用指定 pool 创建 handler 并发起授权请求

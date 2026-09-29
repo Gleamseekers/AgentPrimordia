@@ -3,9 +3,9 @@ package agent
 import (
 	"fmt"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability"
 )
 
 // AgentOption 是 NewAgent 的函数式选项类型。

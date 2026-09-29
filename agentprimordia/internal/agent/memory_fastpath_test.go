@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
 )
 
 // memoryCapableMock 实现 MemoryCapable + Agent。

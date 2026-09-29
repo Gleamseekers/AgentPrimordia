@@ -26,7 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/operator/api/v1"
 )
 
 const agentFinalizer = "agent.primordia.dev/finalizer"

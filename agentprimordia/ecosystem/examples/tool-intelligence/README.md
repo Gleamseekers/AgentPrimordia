@@ -49,7 +49,7 @@ go run ./ecosystem/examples/tool-intelligence/
 
 ## 生态边界
 
-本示例仅经 `pkg/` 公共 API（`ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"`）与核心交互，
+本示例仅经 `pkg/` 公共 API（`ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"`）与核心交互，
 不直依赖 `internal/*`（AGENTS.md §4.2）。intelligence 子系统公共面见 `pkg/intelligence.go`
 （Stability: Experimental）；`main_test.go` 固化该边界与演示输出关键标记。
 

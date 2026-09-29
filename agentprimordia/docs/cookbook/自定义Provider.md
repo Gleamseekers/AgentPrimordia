@@ -8,7 +8,7 @@
 package myprovider
 
 import (
-    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+    "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 type Provider struct{ apiKey string }

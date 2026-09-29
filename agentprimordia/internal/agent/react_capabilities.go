@@ -6,14 +6,14 @@ import (
 	"context"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/learning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/reflection"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
 )
 
 // initSelf 初始化自引用，必须在构造后调用（因为需要返回值赋值后再设置）

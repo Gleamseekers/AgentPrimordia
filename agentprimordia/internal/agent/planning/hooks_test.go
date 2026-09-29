@@ -5,7 +5,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 // hooksStubProvider 最小化 LLM Provider 桩（仅用于构造，不实际调用）

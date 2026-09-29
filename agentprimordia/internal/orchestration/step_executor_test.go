@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/example/demo"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
 )
 
 func TestDefaultStepExecutor_ExecutesAgent(t *testing.T) {

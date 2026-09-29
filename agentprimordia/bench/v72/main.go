@@ -27,14 +27,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/worldmodel"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/eval"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/builtin"
 )
 
 // taskResult 单条任务单臂运行结果。

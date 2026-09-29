@@ -4,7 +4,7 @@ package agent
 import (
 	"context"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
 )
 
 // ===== 请求 ID 关联 =====

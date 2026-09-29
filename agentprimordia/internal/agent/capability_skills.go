@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/skills"
 )
 
 // SkillsCapable 标识 Agent 具备技能进化能力。

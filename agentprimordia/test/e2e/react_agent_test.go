@@ -13,11 +13,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/testutil"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/testutil"
 )
 
 // TestE2E_ReActAgent_SimpleConversation 验证最基本的 Agent 对话流程：

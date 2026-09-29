@@ -15,7 +15,7 @@ import (
 	"log"
 	"strings"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 func main() {

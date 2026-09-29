@@ -112,7 +112,7 @@ import (
 	"log"
 	"testing"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // EvalTestSuite defines the agent eval test suite.

@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/jsonutil" // perf-v6 round 6 Task 1
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/jsonutil" // perf-v6 round 6 Task 1
 )
 
 // AnthropicVisionProvider Anthropic Claude 视觉多模态 Provider

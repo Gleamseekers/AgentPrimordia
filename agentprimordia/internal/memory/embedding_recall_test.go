@@ -22,7 +22,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 // s03RecallSeeds 三档固定种子（v5.1 口径 7+N）。种子只影响 HNSW 构建

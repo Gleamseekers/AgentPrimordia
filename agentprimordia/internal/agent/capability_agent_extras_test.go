@@ -16,14 +16,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/lifecycle"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/reflection"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg/logger"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/lifecycle"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg/logger"
 )
 
 // stubPlanner 是 planning.Planner 的最小实现，仅用于验证 WithPlanner 注入语义。

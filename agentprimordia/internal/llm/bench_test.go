@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/jsonutil"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/jsonutil"
 )
 
 // BenchmarkCache_Get_FingerprintHit 精确指纹命中快路径

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
 )
 
 // TestInMemoryProfiler_RecordAndProfile 测试记录并获取画像

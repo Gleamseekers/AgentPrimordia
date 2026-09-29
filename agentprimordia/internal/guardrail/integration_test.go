@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/metrics"
-	obsotel "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability/export/otel"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/metrics"
+	obsotel "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability/export/otel"
 )
 
 // TestIntegration_FullGuardrailPipeline 端到端集成测试：

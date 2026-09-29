@@ -21,8 +21,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/eval"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 func main() {

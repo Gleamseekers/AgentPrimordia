@@ -3,8 +3,8 @@ package dag
 import (
 	"context"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/lifecycle"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/lifecycle"
 )
 
 // mockAgentForOrch 用于测试的模拟 Agent

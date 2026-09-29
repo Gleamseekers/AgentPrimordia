@@ -42,8 +42,8 @@ import (
     "fmt"
     "log"
 
-    ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
-    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/testutil"
+    ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
+    "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/testutil"
 )
 
 func main() {
@@ -84,7 +84,7 @@ go run ./ecosystem/examples/basic/
 ### OpenAI (GPT-4o)
 
 ```go
-import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+import ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 
 provider := ap.NewOpenAIProvider(ap.Config{
     APIKey: os.Getenv("OPENAI_API_KEY"),

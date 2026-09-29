@@ -7,7 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
 )
 
 // LifecycleCreator 生命周期工具生成器

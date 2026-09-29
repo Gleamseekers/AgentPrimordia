@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
 )
 
 // AgentToolConfig AgentTool 配置

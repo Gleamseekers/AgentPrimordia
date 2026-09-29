@@ -32,15 +32,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
-	agenthooks "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/hooks"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/worldmodel"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/eval"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/multi_agent/federation"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
+	agenthooks "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/eval"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/multi_agent/federation"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/builtin"
 )
 
 // ===== 题面结构（long-horizon-v1.json）=====

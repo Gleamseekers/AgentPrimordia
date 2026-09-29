@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 
 	_ "modernc.org/sqlite" // 纯 Go SQLite 驱动
 )

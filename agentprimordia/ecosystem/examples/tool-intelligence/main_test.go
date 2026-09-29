@@ -74,7 +74,7 @@ func TestExampleNoInternalImports(t *testing.T) {
 	if strings.Contains(src, "AgentPrimordia/internal/") {
 		t.Error("main.go 仍直依赖 agentprimordia/internal/*，违反 AGENTS.md §4.2（ecosystem 应仅经 pkg 公共 API 交互）")
 	}
-	if !strings.Contains(src, `ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"`) {
+	if !strings.Contains(src, `ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"`) {
 		t.Error("main.go 未以 ap 别名导入 pkg 公共 API")
 	}
 }

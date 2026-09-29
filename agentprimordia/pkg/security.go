@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/security"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/security"
 )
 
 // ACL 是访问控制列表，管理 Agent 对资源的访问权限

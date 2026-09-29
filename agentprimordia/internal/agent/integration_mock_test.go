@@ -15,10 +15,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/builtin"
 )
 
 // TestMockIntegration_ReActLoopWithTool 完整 ReAct 链路：MockLLM 先要求

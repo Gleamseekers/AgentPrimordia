@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
 )
 
 // defaultCheckpointDB 返回默认的 checkpoint 数据库路径

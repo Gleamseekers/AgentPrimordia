@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/worldmodel"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/worldmodel"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
 )
 
 // WorldModelCapable 世界模型能力接口（协议式微内核发现入口，接线点①）。

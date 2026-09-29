@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/persist"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
 )
 
 // ReplayFunc 失败重放函数签名：返回重放执行的输出内容。

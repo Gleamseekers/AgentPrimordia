@@ -3,7 +3,7 @@ package sqlplugin
 import (
 	"fmt"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // Plugin 是 SQLite 数据库插件，封装 ap.SQLiteTool

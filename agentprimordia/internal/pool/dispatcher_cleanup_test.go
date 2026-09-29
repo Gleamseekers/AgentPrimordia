@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 // TestPool_AutoCleanupTaskMap 验证 M8 修复：当 MaxRetainedTasks > 0 时，

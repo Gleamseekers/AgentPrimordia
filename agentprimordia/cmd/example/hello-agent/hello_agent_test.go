@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/example/demo"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/pool"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/builtin"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/example/demo"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/pool"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/builtin"
 )
 
 func TestHelloAgent_BasicRun(t *testing.T) {

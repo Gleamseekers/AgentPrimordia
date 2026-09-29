@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // Plugin 是 {{.ProjectName}} 插件实现。

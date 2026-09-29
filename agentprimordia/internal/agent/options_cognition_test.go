@@ -6,7 +6,7 @@ package agent
 import (
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/reflection"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/reflection"
 )
 
 // ===== 顶层快捷注入 Option 测试 =====

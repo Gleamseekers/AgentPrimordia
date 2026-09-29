@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
 )
 
 // TraceGapDetector 轨迹缺口检测器（并发安全）

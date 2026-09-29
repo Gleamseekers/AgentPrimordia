@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
 )
 
 // DataDrivenTuner 数据驱动调优器（基于画像提出参数调整建议）

@@ -35,7 +35,7 @@ func main() {
 		threshold  = flag.Float64("threshold", 0.8, "最小通过率 [0,1]")
 		jsonOutput = flag.Bool("json", false, "输出 JSON 格式结果")
 		filter     = flag.String("filter", "TestExactMatch|TestEvalSuite|TestEvaluator", "go test -run 过滤正则")
-		pkg        = flag.String("pkg", "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/eval/...", "go test 包路径")
+		pkg        = flag.String("pkg", "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/eval/...", "go test 包路径")
 		toolchain  = flag.String("toolchain", "go1.26.4", "Go toolchain")
 	)
 	flag.Parse()

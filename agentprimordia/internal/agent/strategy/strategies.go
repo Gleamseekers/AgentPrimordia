@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 // 策略名常量（注册键）

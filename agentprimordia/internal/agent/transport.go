@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/transport"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/transport"
 )
 
 // Transport 跨进程 Agent 通信传输层接口

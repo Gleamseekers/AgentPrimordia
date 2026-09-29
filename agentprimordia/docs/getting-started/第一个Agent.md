@@ -45,7 +45,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // WeatherTool 天气查询工具
@@ -128,7 +128,7 @@ import (
 	"os"
 	"strings"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 func main() {

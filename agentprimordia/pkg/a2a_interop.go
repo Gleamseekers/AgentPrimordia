@@ -8,7 +8,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/a2a"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/a2a"
 )
 
 // ===== 开放协议 Schema 类型 =====

@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/marketplace"
 )
 
 // pluginRegistryEntry 表示 registry.json 中的单个插件条目。
@@ -266,7 +266,7 @@ func pluginCreate(args []string) error {
 	pluginCode := fmt.Sprintf(`package %s
 
 import (
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // Plugin implements ap.ToolPlugin interface.

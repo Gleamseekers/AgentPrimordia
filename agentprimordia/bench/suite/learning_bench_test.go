@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/learning"
 )
 
 // benchInteraction 构造基准测试用交互数据

@@ -1,7 +1,7 @@
 package transport
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
 	"bufio"
 	"context"
 	"encoding/json"

@@ -29,7 +29,7 @@ v7.1.0-rc1 围绕五个命题展开能力扩展：
 多模态消息抽象，支持图文混合输入。
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/multimodal"
+import "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/multimodal"
 
 msg := multimodal.MultimodalMessage{
     Role: "user",
@@ -48,7 +48,7 @@ tools := multimodal.BuiltinTools()
 增强型规划器，支持任务分解、动态重规划与人工审批。
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+import "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
 
 planner := planning.NewEnhancedPlanner(llm)
 
@@ -70,7 +70,7 @@ managedPlan := planning.NewManagedPlan(plan, gate)
 统一可观测性层，包含告警引擎与 Dashboard。
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
+import "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability"
 
 // 告警规则
 rule := observability.AlertRule{
@@ -92,10 +92,10 @@ mux.Handle("/dashboard", handler)
 
 ```go
 import (
-    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
-    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/create"
-    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/optimize"
-    "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/reuse"
+    "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
+    "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence/create"
+    "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence/optimize"
+    "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence/reuse"
 )
 
 // 顶层类型
@@ -124,13 +124,13 @@ var _ intelligence.ToolSelector       // 工具选择器
 
 ```go
 // 旧代码无需变更，以下 import 继续有效
-import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/otel"
+import "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/otel"
 ```
 
 新代码建议直接使用新路径：
 
 ```go
-import "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability/export/otel"
+import "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability/export/otel"
 ```
 
 ### 3.2 新增类型汇总

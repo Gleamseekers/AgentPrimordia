@@ -12,10 +12,10 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/create"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/optimize"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence/reuse"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence/create"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence/optimize"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence/reuse"
 )
 
 // ===== 统一入口与核心接口 =====

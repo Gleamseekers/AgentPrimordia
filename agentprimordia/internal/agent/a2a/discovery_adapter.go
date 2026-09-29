@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/discovery"
 )
 
 // DiscoveryAdapter 将 discovery.Discovery（内部服务发现）适配为 a2a.Discovery 接口。

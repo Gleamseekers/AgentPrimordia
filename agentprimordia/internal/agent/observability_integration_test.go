@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability"
 )
 
 // TestObservability_ClosedLoop 验证 v3.5-4 全链路闭环：

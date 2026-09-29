@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
 )
 
 // RealLearningService 基于真实 SelfModel 数据的 LearningService 实现。

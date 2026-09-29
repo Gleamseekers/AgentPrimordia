@@ -18,9 +18,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/cluster"
-	agentmarket "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/marketplace"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/chaos"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/cluster"
+	agentmarket "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/chaos"
 )
 
 // ===== Cluster =====

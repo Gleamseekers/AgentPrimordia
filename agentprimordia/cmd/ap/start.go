@@ -107,8 +107,8 @@ func runStart(args []string) error {
 		errorf("未检测到本地框架源码，无法解析依赖")
 		infof("原因：未检测到本地框架源码，且框架尚未经 GOPROXY 发布（或网络不可达）")
 		infof("修复（任选其一）后重试：")
-		fmt.Printf("  1) 安装发布版框架 CLI：go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest\n")
-		fmt.Printf("  2) 在 %s/go.mod 添加：replace github.com/Gleamseekers/AgentPrimordia => <框架源码目录>，再运行 ap run\n", targetDir)
+		fmt.Printf("  1) 安装发布版框架 CLI：go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest\n")
+		fmt.Printf("  2) 在 %s/go.mod 添加：replace github.com/Gleamseekers/AgentPrimordia/v7 => <框架源码目录>，再运行 ap run\n", targetDir)
 		return fmt.Errorf("缺少本地框架源码，已创建项目但未启动")
 	}
 

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/planning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
 )
 
 // TestPlanBudget_TurnDistribution 验证轮次预算按子任务数均分

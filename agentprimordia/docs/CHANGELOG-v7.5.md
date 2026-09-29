@@ -10,7 +10,7 @@
 
 **v7.5 是一次安全与质量战役的交付，并让框架首次具备 GOPROXY 分发能力。**
 
-对全仓 302K 行 Go 的深度评估实证了 4 个 P0（默认 Shell 工具 7 条攻击链 RCE、jsonutil 并发请求体覆写、Anthropic 公开 API panic、167 个测试被禁用）与 12 项 P1——全部以 TDD 修复并以回归测试固化。同时五项工作区模块迁移至 `github.com/Gleamseekers/AgentPrimordia/agentprimordia` 命名空间，`go install` 随 tag 发布即可用。
+对全仓 302K 行 Go 的深度评估实证了 4 个 P0（默认 Shell 工具 7 条攻击链 RCE、jsonutil 并发请求体覆写、Anthropic 公开 API panic、167 个测试被禁用）与 12 项 P1——全部以 TDD 修复并以回归测试固化。同时五项工作区模块迁移至 `github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia` 命名空间，`go install` 随 tag 发布即可用。
 
 - 测试文件 622 → **659**，总覆盖率 78.8% → **81.1%**
 - 评估报告与全程实证记录：`docs/项目深度评估报告-2026-09-28.md`
@@ -58,9 +58,9 @@ OTel 端到端接线、Studio 接真实引擎、模板注册表持久化+远程�
 
 | 模块 | 新路径 |
 |------|--------|
-| 主模块（仓库根 go.mod） | `github.com/Gleamseekers/AgentPrimordia`（包路径如 `.../agentprimordia/cmd/ap`） |
+| 主模块（仓库根 go.mod） | `github.com/Gleamseekers/AgentPrimordia/v7`（包路径如 `.../agentprimordia/cmd/ap`） |
 | pgvector | `github.com/Gleamseekers/AgentPrimordia/pgvector` |
-| operator | `github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator` |
+| operator | `github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/operator` |
 | gateway | `github.com/Gleamseekers/AgentPrimordia/gateway` |
 | wasm 沙箱 | `github.com/Gleamseekers/AgentPrimordia/wasm` |
 
@@ -69,7 +69,7 @@ OTel 端到端接线、Studio 接真实引擎、模板注册表持久化+远程�
 ## 安装
 
 ```bash
-go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest
+go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest
 ```
 
 ## 验证门（发布前全绿）
@@ -78,6 +78,6 @@ go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest
 
 ## 升级
 
-- 新用户：`go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest`
-- 源码 clone 用户：import 路径 `agentprimordia/...` → `github.com/Gleamseekers/AgentPrimordia/agentprimordia/...`
+- 新用户：`go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest`
+- 源码 clone 用户：import 路径 `agentprimordia/...` → `github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/...`
 - 本地 replace 用户：go.mod require/replace 更新为新路径（`ap init` 已内置）

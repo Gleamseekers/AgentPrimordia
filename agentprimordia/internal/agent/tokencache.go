@@ -2,7 +2,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tokencache"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/tokencache"
 )
 
 // ClearTokenCache 清空 token 缓存（测试用 / 内存压力场景）

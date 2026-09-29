@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/lifecycle"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/lifecycle"
 )
 
 // Lifecycle 是生命周期管理器的类型别名

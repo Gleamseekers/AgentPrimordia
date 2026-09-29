@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/operator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

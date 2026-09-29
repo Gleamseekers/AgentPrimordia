@@ -8,8 +8,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
 )
 
 // TestRun_SessionHistoryReadback 验证同一 SessionID 的历史消息被回读并注入 LLM 请求，

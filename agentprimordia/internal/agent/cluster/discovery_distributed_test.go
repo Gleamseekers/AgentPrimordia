@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/discovery"
 )
 
 func TestMemKVStorePutGet(t *testing.T) {

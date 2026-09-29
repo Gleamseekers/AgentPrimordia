@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 func runMCP(args []string) error {

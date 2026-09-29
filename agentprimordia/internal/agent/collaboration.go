@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/collaboration"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/collaboration"
 	"context"
 	"time"
 )

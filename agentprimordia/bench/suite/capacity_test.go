@@ -17,7 +17,7 @@ import (
 	"testing"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // TestCapacity_SingleNode_100ConcurrentAgents 容量：单节点 100+ Agent 并发

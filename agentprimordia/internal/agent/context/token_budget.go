@@ -13,7 +13,7 @@
 package context
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
 )
 
 // defaultCharsPerToken 默认字符/token 换算比（与 TS 一致：1 token ≈ 4 字符）

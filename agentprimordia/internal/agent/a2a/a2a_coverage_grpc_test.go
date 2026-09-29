@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	a2av1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/a2a/proto/a2a/v1"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/resilience"
+	a2av1 "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/a2a/proto/a2a/v1"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/resilience"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

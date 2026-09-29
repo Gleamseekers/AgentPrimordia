@@ -35,7 +35,7 @@
 
 ### Changed — 模块路径迁移（首次可发布模块路径）
 
-- **五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia/agentprimordia` 命名空间**：主模块 + pgvector/operator/gateway/wasm-sandbox（1390 个 Go 文件 import + 5 go.mod + 49 文档 import 块）。旧路径首段无点号导致模块从未可被 GOPROXY 解析（go install 一直不可用），故无下游兼容影响；迁移后 `go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest` 随 tag 发布自动可用（d6455bba）
+- **五个工作区模块路径迁移至 `github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia` 命名空间**：主模块 + pgvector/operator/gateway/wasm-sandbox（1390 个 Go 文件 import + 5 go.mod + 49 文档 import 块）。旧路径首段无点号导致模块从未可被 GOPROXY 解析（go install 一直不可用），故无下游兼容影响；迁移后 `go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest` 随 tag 发布自动可用（d6455bba）
 - 脚手架探测/发射逻辑、README 安装说明、版本规范.md、AGENTS.md 依赖边界表述同步切换；A1 边界断言模块清单更新
 
 ### Fixed — 诚实遗留项清零（评估报告 §8.5）

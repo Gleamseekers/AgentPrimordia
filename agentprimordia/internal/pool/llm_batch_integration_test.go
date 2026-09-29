@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
 )
 
 // mockProvider 是最简的 llm.Provider 实现，仅用于 Phase 3 Task 6 集成测试。

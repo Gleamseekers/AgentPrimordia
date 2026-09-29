@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/hooks"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/hooks"
 )
 
 func (d *DAGWorkflow) Run(ctx context.Context, input string) (*DAGResult, error) {

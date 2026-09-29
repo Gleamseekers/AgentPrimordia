@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/debugger"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/debugger"
 )
 
 func runDebug(args []string) error {

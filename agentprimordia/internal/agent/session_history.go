@@ -10,7 +10,7 @@ import (
 	"context"
 	"sort"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
 )
 
 // maxSessionHistoryMessages 会话历史回读上限（条）。

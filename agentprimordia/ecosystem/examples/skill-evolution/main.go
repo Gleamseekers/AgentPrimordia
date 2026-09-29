@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // mockDistiller 模拟 LLM 提炼器

@@ -29,14 +29,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/autonomy"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/cluster"
-	agentmarket "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/marketplace"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/realtime"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/chaos"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/studio"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/autonomy"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/cluster"
+	agentmarket "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/marketplace"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/realtime"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/chaos"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/studio"
 )
 
 // studioDataDir Studio 本地持久化目录（var 便于测试注入临时目录）。

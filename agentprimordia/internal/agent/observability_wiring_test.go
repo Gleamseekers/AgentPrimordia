@@ -3,8 +3,8 @@ package agent
 import (
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/observability"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability"
 )
 
 // TestCorrelationStoreAutoWiredWhenObservabilityEnabled 回归：任一可观测能力开启时，

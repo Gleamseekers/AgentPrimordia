@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
 )
 
 // BridgeEnabled 标识 OTel SDK 桥接是否启用（统一实现，始终启用）

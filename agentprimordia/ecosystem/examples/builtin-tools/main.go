@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/example/demo"
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/example/demo"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 func main() {

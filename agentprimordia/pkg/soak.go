@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm/soak"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm/soak"
 )
 
 // ===== Soak Test 运行器 =====

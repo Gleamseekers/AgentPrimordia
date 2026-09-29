@@ -18,7 +18,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
 )
 
 // execShellResult 执行 shell 工具并返回结果（辅助，与现有测试风格一致）

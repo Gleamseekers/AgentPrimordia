@@ -29,7 +29,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/jsonutil"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/jsonutil"
 )
 
 // EmbeddingProvider 语义嵌入 Provider 抽象（S0-3 语义原生化）。

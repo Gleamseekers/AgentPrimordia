@@ -14,9 +14,9 @@ import (
 	"strings"
 	"testing"
 
-	gitplugin "github.com/Gleamseekers/AgentPrimordia/agentprimordia/ecosystem/plugins/git"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/llm"
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	gitplugin "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/ecosystem/plugins/git"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/llm"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // singleSubtaskPlan 是子任务 runLoop 再次触发 Planning 时的应答：

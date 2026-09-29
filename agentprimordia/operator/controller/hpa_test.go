@@ -18,7 +18,7 @@ import (
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrlfake "sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/operator/api/v1"
 )
 
 // ---- defaultHPABehavior ----

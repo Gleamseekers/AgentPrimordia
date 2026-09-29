@@ -11,7 +11,7 @@ Agent 通过类型断言发现能力，而非配置文件：
 === "Go"
 
     ```go
-    import ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+    import ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 
     // 创建 Agent 时通过 Functional Options 注入能力
     agent, err := ap.NewAgent("my-agent", "你是助手", provider,

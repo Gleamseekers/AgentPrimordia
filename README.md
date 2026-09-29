@@ -8,14 +8,14 @@
 [![Tests](https://img.shields.io/badge/tests-659%20files-green.svg)](agentprimordia/internal/)
 
 <p align="center">
-  <img src="github.com/Gleamseekers/AgentPrimordia/agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
+  <img src="github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
   <br>
-  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="github.com/Gleamseekers/AgentPrimordia/agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
+  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
 </p>
 
 ```bash
 # 方式一：go install（模块路径已迁移至 github.com/Gleamseekers/AgentPrimordia）
-go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest
+go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest
 
 # 方式二：从源码获取
 git clone https://github.com/Gleamseekers/AgentPrimordia.git && cd AgentPrimordia
@@ -59,7 +59,7 @@ go build -o ap ./agentprimordia/cmd/ap/
 go build -o ap ./agentprimordia/cmd/ap/
 ```
 
-> **安装说明**：`go install github.com/Gleamseekers/AgentPrimordia/agentprimordia/cmd/ap@latest` 需要框架
+> **安装说明**：`go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest` 需要框架
 > 已发布到 GOPROXY（tag 发布后自动可用）；未发布期间请从源码构建。`ap start` 会自动探测
 > 本地框架源码并通过 `replace` 生成自洽项目。
 

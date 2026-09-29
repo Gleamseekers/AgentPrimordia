@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/jsonutil"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/jsonutil"
 )
 
 // ===== 泛型 Provider 基础设施（v2.0 #3） =====

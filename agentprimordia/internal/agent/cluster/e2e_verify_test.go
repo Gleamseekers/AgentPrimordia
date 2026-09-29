@@ -29,11 +29,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/discovery"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/tool_learning"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/chaos"
-	apwasm "github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/discovery"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/tool_learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/chaos"
+	apwasm "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/wasm"
 )
 
 // ===== TestE2E_EtcdDiscovery =====

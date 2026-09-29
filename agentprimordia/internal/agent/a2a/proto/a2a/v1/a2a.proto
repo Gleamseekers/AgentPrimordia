@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package a2a.v1;
 
-option go_package = "github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/a2a/proto/a2a/v1;a2av1";
+option go_package = "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/a2a/proto/a2a/v1;a2av1";
 
 import "google/protobuf/timestamp.proto";
 

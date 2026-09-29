@@ -3,7 +3,7 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/bus"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
 )
 
 // BusMessage 是消息总线传递的统一消息类型

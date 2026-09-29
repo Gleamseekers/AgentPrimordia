@@ -28,10 +28,10 @@ import (
 	"log/slog"
 	"path/filepath"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools/intelligence"
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools/intelligence"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/wasm"
 )
 
 // ToolForge 工具锻造装配：验签门 + wasm 沙箱执行通道。

@@ -12,7 +12,7 @@
 //   - 验签未通过 → 拒绝；
 //   - 全部通过后才以 0644（数据文件，无可执行位）落盘并注册；
 //   - 注册工具的 Execute 绝不派生宿主进程，仅可经 WithExecutor 注入的
-//     执行器（唯一合法实现：github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm 沙箱适配器）执行。
+//     执行器（唯一合法实现：github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/wasm 沙箱适配器）执行。
 package intelligence
 
 import (
@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/tools"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
 )
 
 // ArtifactVerifier 工件验签门（INV-0/A6 门控接口）。
@@ -36,7 +36,7 @@ type ArtifactVerifier interface {
 }
 
 // ArtifactExecutor 工件执行器注入点。
-// 唯一合法实现是 wazero WASM 沙箱（github.com/Gleamseekers/AgentPrimordia/agentprimordia/wasm.WASMToolAdapter），
+// 唯一合法实现是 wazero WASM 沙箱（github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/wasm.WASMToolAdapter），
 // 由组装根（cmd/ 或测试）绑定；宿主进程禁止直接执行 agent 生成代码。
 // args 为工具调用参数 JSON。
 type ArtifactExecutor func(ctx context.Context, art *ToolArtifact, args json.RawMessage) (*tools.Result, error)

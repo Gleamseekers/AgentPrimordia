@@ -3,7 +3,7 @@ package eval
 import (
 	"context"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/core"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
 )
 
 // CoreAgentAdapter 将 core.Agent 适配为 eval.Agent 接口。

@@ -13,7 +13,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/skills"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/skills"
 )
 
 // getSkillMatcherOrNil 通过 SkillsCapable 接口发现技能匹配器（nil-safe）。

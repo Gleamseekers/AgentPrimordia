@@ -14,7 +14,7 @@ package controller
 import (
 	autoscalingv2 "k8s.io/api/autoscaling/v2"
 
-	agentv1 "github.com/Gleamseekers/AgentPrimordia/agentprimordia/operator/api/v1"
+	agentv1 "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/operator/api/v1"
 )
 
 // defaultScaleDownStabilizationSeconds 默认缩容稳定窗口（秒）

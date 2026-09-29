@@ -1,4 +1,4 @@
-module github.com/Gleamseekers/AgentPrimordia
+module github.com/Gleamseekers/AgentPrimordia/v7
 
 go 1.26.6
 

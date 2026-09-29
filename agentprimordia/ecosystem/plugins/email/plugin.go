@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	ap "github.com/Gleamseekers/AgentPrimordia/agentprimordia/pkg"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 // Plugin 是邮件发送插件，提供 SMTP 邮件发送能力

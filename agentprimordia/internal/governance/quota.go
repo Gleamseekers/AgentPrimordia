@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/resilience"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/resilience"
 )
 
 // TokenBucket 令牌桶限流器（v6.x 评估报告 §五.1 "重复实现大赏" 修复）。

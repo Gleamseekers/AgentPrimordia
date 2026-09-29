@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/memory"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/memory"
 )
 
 func runProfile(args []string) error {

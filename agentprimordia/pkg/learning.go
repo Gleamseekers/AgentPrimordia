@@ -2,7 +2,7 @@
 package ap
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/agentprimordia/internal/agent/learning"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/learning"
 )
 
 // ===== 知识蒸馏 =====

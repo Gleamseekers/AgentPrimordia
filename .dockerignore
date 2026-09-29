@@ -1,0 +1,21 @@
+# 仓库根 context 的 dockerignore（v7.5 布局：go.mod 移至根，Dockerfile 在 agentprimordia/）
+# 与 agentprimordia/.dockerignore 对齐并扩展至 monorepo 根布局
+.git
+.gitignore
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.out
+coverage.html
+docs/
+docs/node_modules/
+node_modules/
+dist/
+.idea/
+.vscode/
+.gocache/
+.pdf-build/
+.promo-build/

@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 需完整 tag 历史做版本比较（浅检出会漏最新 tag 致重复打 tag 冲突）
 
       - uses: actions/setup-go@v5
         with:

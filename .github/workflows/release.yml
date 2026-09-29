@@ -244,7 +244,14 @@ jobs:
       - name: Sign image (keyless)
         env:
           COSIGN_EXPERIMENTAL: 1  # keyless 签名必需（对照 supply-chain.yml）
-        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          IMAGE="ghcr.io/${{ github.repository }}"
+          if cosign sign --yes "${IMAGE}@${{ steps.build.outputs.digest }}"; then
+            echo "✅ 已按 digest 签名: ${IMAGE}@${{ steps.build.outputs.digest }}"
+          else
+            echo "::warning::按 digest 签名失败，回退按 sha tag 签名"
+            cosign sign --yes "${IMAGE}:${{ github.sha }}"
+          fi
 
   npm-publish:
     name: Publish TypeScript SDK

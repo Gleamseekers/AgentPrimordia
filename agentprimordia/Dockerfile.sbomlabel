@@ -34,11 +34,12 @@ LABEL com.agentprimordia.sbom="${SBOM_PATH}"
 LABEL com.agentprimordia.sbom.format="cyclonedx-json"
 LABEL com.agentprimordia.build.timestamp=""
 
-# 安全加固
-RUN addgroup -S app && adduser -S app -G app
-
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata
+
+# 安全加固：用户必须在最终阶段创建（builder 阶段的 /etc/passwd 不跨阶段继承，
+# 此前 USER app 引用不存在的用户致构建失败）
+RUN addgroup -S app && adduser -S app -G app
 
 COPY --from=builder /bin/app /usr/local/bin/app
 

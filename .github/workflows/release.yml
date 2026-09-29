@@ -240,7 +240,10 @@ jobs:
       - name: Sign container image with cosign
         uses: sigstore/cosign-installer@v3
 
-      - run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.meta.outputs.digest }}
+      - name: Sign image (keyless)
+        env:
+          COSIGN_EXPERIMENTAL: 1  # keyless 签名必需（对照 supply-chain.yml）
+        run: cosign sign --yes ghcr.io/${{ github.repository }}@${{ steps.meta.outputs.digest }}
 
   npm-publish:
     name: Publish TypeScript SDK

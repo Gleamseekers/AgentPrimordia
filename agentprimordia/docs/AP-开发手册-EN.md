@@ -126,7 +126,7 @@ agent:
 
 AP speaks more than Go: `sdk/` hosts typescript / python / rust SDKs, with **Go as the single authoritative implementation surface** — other languages align via one contract and one benchmark set.
 
-### 8.1 TypeScript SDK (sdk/typescript, @agentprimordia/sdk v7.5.0)
+### 8.1 TypeScript SDK (sdk/typescript, @agentprimordia/sdk v7.5.1)
 
 - Build `npm run build` (tsup, ESM); typecheck `npm run typecheck`; API-surface check `npm run api-check` (api-extractor);
 - Tests `npm run test` (vitest, 111 test files; plus coverage / affected / bench variants); docs site on vitepress;

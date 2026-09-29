@@ -4,7 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.26+-00ADD8.svg)](https://golang.org)
-[![Version](https://img.shields.io/badge/version-7.5.0-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
+[![Version](https://img.shields.io/badge/version-7.5.1-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
 [![Tests](https://img.shields.io/badge/tests-659%20files-green.svg)](agentprimordia/internal/)
 
 <p align="center">

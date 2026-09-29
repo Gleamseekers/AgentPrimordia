@@ -3,7 +3,7 @@ name: agentprimordia
 description: AgentPrimordia — 通用 Go Agent 开发框架生产部署
 type: application
 version: 0.1.0
-appVersion: "7.3.0"
+appVersion: "7.5.0"
 keywords:
   - agent
   - ai

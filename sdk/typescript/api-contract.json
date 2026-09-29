@@ -1,5 +1,5 @@
 {
-  "version": "7.3.0",
+  "version": "7.5.0",
   "generated_at": "",
   "modules": [
     {
@@ -1680,7 +1680,7 @@
         },
         {
           "name": "Version",
-          "value": "\"7.3.0\"",
+          "value": "\"7.5.0\"",
           "doc": "Version 是 AgentPrimordia 框架的当前版本号"
         }
       ],

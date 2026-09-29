@@ -53,7 +53,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ap-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: ap-${{ matrix.goos }}-${{ matrix.goarch }}*
+          # 路径相对 workspace 根解析（构建在 agentprimordia/ 子目录产出）——
+          # 此前写 ap-*（根下不存在）触发了 v4 默认的 if-no-files-found: warn，
+          # 二进制从未上传（v7.3.0 及历次 Release 资产均为 0/仅校验和的根因）。
+          path: agentprimordia/ap-${{ matrix.goos }}-${{ matrix.goarch }}*
+          if-no-files-found: error
 
   generate-sbom:
     name: Generate SBOM

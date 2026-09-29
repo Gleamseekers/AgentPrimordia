@@ -199,6 +199,10 @@ jobs:
     name: Docker Build & Push
     runs-on: ubuntu-latest
     needs: [build-binaries]
+    permissions:
+      contents: read
+      packages: write
+      id-token: write  # keyless cosign 镜像签名必需（对照 supply-chain.yml build-and-sign）
     steps:
       - uses: actions/checkout@v4
 

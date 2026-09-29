@@ -184,10 +184,12 @@ jobs:
       - name: Organize release files
         run: |
           mkdir -p release-files
-          cp artifacts/binaries/**/* release-files/ || true
-          cp artifacts/signatures/* release-files/ || true
-          cp artifacts/sbom/* release-files/ || true
-          cp artifacts/llm-bench-report/* release-files/ || true
+          # download-artifact@v4 按 artifact 名分目录下载（ap-<os>-<arch>/、
+          # signatures/、sbom/、llm-bench-report/，部分还带嵌套路径）。
+          # 统一 find 扁平化拷贝；此前误写 artifacts/binaries/**（不存在该名
+          # 产物）致 6 个平台二进制全部静默缺失（|| true 吞掉错误）。
+          find artifacts -type f -exec cp {} release-files/ \;
+          echo "发布文件:"; ls -la release-files/
 
       - name: Create release
         uses: softprops/action-gh-release@v2

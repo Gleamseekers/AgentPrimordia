@@ -4,7 +4,16 @@
 
 ## 背景
 
-v3.5 将 JSON-RPC over HTTP/SSE 对齐开放 Agent2Agent 协议（2025，Google 主导），重新定位为**开放协议标准传输**（不再标记移除）；gRPC 继续作为 ap 内网高性能传输，两者并行。
+ap 内部 A2A 传输为 **gRPC**（自 v4.0-3 起为 Stable 默认传输；早期 JSON-RPC 传输已在
+v4.0-1 移除，见 [`docs/版本规范.md`](../版本规范.md)）。为与外部生态互通，框架另提供一套
+**开放协议互操作面**（`OpenInteropServer` / `OpenInteropClient`）：按开放 Agent2Agent 规范
+以 JSON-RPC 2.0 over HTTP（端点 `/a2a/v1`）+ SSE 暴露与消费任务，用于跨生态对接；ap 集群
+内部仍走 gRPC。二者用途不同，不要混用：
+
+| 面 | 入口 | 用途 |
+|----|------|------|
+| 开放协议互操作 | `ap.NewOpenInteropServer` / `ap.NewOpenInteropClient` | 跨生态（第三方 Agent 遵循开放规范） |
+| ap A2A gRPC | `ap.NewA2AGRPCServer` / `ap.NewA2AGRPCClient` | ap 集群内网高性能传输 |
 
 ## 暴露 Agent Card
 
@@ -44,11 +53,38 @@ curl -X POST http://localhost:8080/a2a/v1 \
 
 ```go
 client := ap.NewOpenInteropClient("https://third-party.example.com")
-card, _ := client.FetchAgentCard(ctx)              // 发现
-task, _ := client.SendTask(ctx, ap.NewTextMessage("user", "do X")) // 委托
-got, _  := client.GetTask(ctx, task.ID)            // 轮询
-_       = client.CancelTask(ctx, task.ID)          // 取消
+ctx := context.Background()
+
+card, err := client.FetchAgentCard(ctx) // 发现
+if err != nil {
+    log.Fatalf("发现失败: %v", err)
+}
+
+task, err := client.SendTask(ctx, ap.NewTextMessage("user", "do X")) // 委托
+if err != nil {
+    log.Fatalf("委托失败: %v", err)
+}
+
+// 轮询：GetTask 失败时返回 (nil, err)，禁止用 _ 丢弃错误后解构 task——
+// 那会在对端异常时直接 nil panic。
+for {
+    got, err := client.GetTask(ctx, task.ID)
+    if err != nil {
+        log.Fatalf("查询失败: %v", err)
+    }
+    if got.Status.State == ap.OpenTaskCompleted || got.Status.State == ap.OpenTaskFailed {
+        break
+    }
+    time.Sleep(200 * time.Millisecond)
+}
+
+if err := client.CancelTask(ctx, task.ID); err != nil { // 取消
+    log.Fatalf("取消失败: %v", err)
+}
 ```
+
+> 纪律：本指南所有片段都不使用 `_` 丢弃错误后解构返回值。`SendTask` / `GetTask` /
+> `CancelTask` / `FetchAgentCard` 失败时均返回 `(nil, err)`，必须先判 err。
 
 ## 流式事件（SSE）
 

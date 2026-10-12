@@ -61,12 +61,25 @@ func main() {
 	fmt.Printf("📨 任务已委托: %s (state=%s)\n", task.ID, task.Status.State)
 
 	// 查询状态
-	got, _ := client.GetTask(ctx, task.ID)
+	// 纪律：GetTask 失败时返回 (nil, err)，禁止用 _ 丢弃错误后解构 task——
+	// 那会在对端异常时直接 nil panic（v7.6 前门修复在 README 示例中抓到同模式）。
+	got, err := client.GetTask(ctx, task.ID)
+	if err != nil {
+		fmt.Printf("   ❌ 查询失败: %v\n", err)
+		return
+	}
 	fmt.Printf("📊 任务状态: %s\n", got.Status.State)
 
 	// 取消
-	_ = client.CancelTask(ctx, task.ID)
-	canceled, _ := client.GetTask(ctx, task.ID)
+	if err := client.CancelTask(ctx, task.ID); err != nil {
+		fmt.Printf("   ❌ 取消失败: %v\n", err)
+		return
+	}
+	canceled, err := client.GetTask(ctx, task.ID)
+	if err != nil {
+		fmt.Printf("   ❌ 查询失败: %v\n", err)
+		return
+	}
 	fmt.Printf("🛑 取消后状态: %s\n", canceled.Status.State)
 	fmt.Println()
 

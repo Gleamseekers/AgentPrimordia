@@ -1,76 +1,75 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Go-1.26+-00ADD8?logo=go&style=for-the-badge" alt="Go Version">
-  <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&style=for-the-badge" alt="TypeScript">
+  <img src="https://img.shields.io/badge/TypeScript-5.4+-3178C6?logo=typescript&style=for-the-badge" alt="TypeScript">
   <img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Zero_CGO-✓-brightgreen?style=for-the-badge" alt="Zero CGO">
-  <img src="https://img.shields.io/badge/version-v7.3.0-blue?style=for-the-badge" alt="Version">
+  <a href="https://github.com/Gleamseekers/AgentPrimordia/releases"><img src="https://img.shields.io/github/v/release/Gleamseekers/AgentPrimordia?style=for-the-badge" alt="Latest release"></a>
+  <a href="https://github.com/Gleamseekers/AgentPrimordia/actions/workflows/ci.yml"><img src="https://github.com/Gleamseekers/AgentPrimordia/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <h1 align="center">⚡ AgentPrimordia</h1>
 
 <p align="center">
-  <strong>万物之源，智能之始</strong><br>
-  生产级 AI Agent 开发框架 — Go + TypeScript 双语言支持
+  <strong>Origin of all things, beginning of intelligence</strong><br>
+  A production-grade AI agent framework — Go first, with a feature-parity TypeScript SDK
 </p>
 
 <p align="center">
-  <a href="#-quick-start">快速开始</a> · <a href="#-核心特性">核心特性</a> · <a href="#-架构设计">架构设计</a> · <a href="./DEVELOPMENT.md">开发文档</a> · <a href="#-typescript-sdk">TypeScript SDK</a>
+  <a href="#-quick-start">Quick Start</a> ·
+  <a href="#-why-agentprimordia">Why</a> ·
+  <a href="#-core-features">Features</a> ·
+  <a href="#-architecture">Architecture</a> ·
+  <a href="#-documentation">Docs</a> ·
+  <a href="./README.zh-CN.md">中文</a>
 </p>
-
----
-
-## 💡 为什么选择 AgentPrimordia？
-
-构建 AI Agent 应用时，你是否遇到这些痛点？
-
-| 痛点 | AgentPrimordia 的答案 |
-|------|----------------------|
-| 🧩 LLM Provider 耦合，换个模型就要改代码 | **统一 Provider 接口**，10+ 内置 Provider，一行代码切换 |
-| 💥 API 调用不稳定，偶尔超时或限流 | **ResilientProvider**：自动重试 + 降级链 + 熔断器 |
-| 🔧 工具系统从零搭建，每个工具都要写胶水代码 | **Plugin Tool 接口**，7 个内置工具 + 权限确认机制 |
-| 🧠 Agent 没有记忆，每次对话从零开始 | **Episodic Memory**：SQLite + FTS5 + 向量检索 + RAG |
-| 🔄 多任务编排复杂，手动管理 goroutine | **Pool 调度器**：并发控制 + 超时 + 重试 + 事件通知 |
-| 🔒 Agent 执行危险操作没有防线 | **Sandbox + ACL**：命令白名单 + 路径穿越检测 + 访问控制 |
-| 📊 生产环境缺乏可观测性 | **Prometheus 指标 + Hook 系统 + Event Bus** |
-
-**一句话**：AgentPrimordia 让你专注 Agent 的业务逻辑，基础设施我们包了。
-
-### 🚀 v3.3–v3.6 能力跃迁（已实现）
-
-| 版本 | 能力 | 一句话 | CLI |
-|------|------|--------|-----|
-| v3.3 | 长期自治 | 给定目标自主规划/执行/校验/重规划，崩溃恢复 + 幂等 | `ap autonomy` |
-| v3.4 | 技能进化 | 运行中习得/验证/沉淀可复用技能，语义匹配自动调用 | `ap skill` |
-| v3.5 | 协议互操作 | 对齐开放 Agent2Agent 协议，跨生态任务委托 + 符合性报告 | `ap a2a interop-check` |
-| v3.6 | 多模态实时 | 语音/视觉实时双向流 + 打断，ASR/TTS 可插拔 | `ap realtime` |
-
-> 详见 [`docs/V4路线图.md`](../docs/V4路线图.md)，模块概念 `docs/concepts/{autonomy,skills,realtime}.md`，使用指南 `docs/guides/{skill-format,a2a-interop,realtime}.md`。
-
----
-
-## ✨ 核心特性
-
-| 能力 | 说明 |
-|------|------|
-| 🧠 **ReAct Loop 引擎** | Reason→Act→Observe 循环，流式输出，上下文自动裁剪，检查点恢复 |
-| 🛡️ **弹性调用** | ResilientProvider：指数退避重试 + 降级链 + 熔断器 |
-| 🧩 **10+ LLM Provider** | OpenAI / Anthropic / Gemini / Ollama / Azure / Qwen / GLM / Mistral / Cohere / DeepSeek |
-| 🔧 **工具系统** | 7 内置工具（FS/Shell/Web/API/DB/Code/Knowledge）+ MCP + 插件，4 方法自定义 |
-| 🧠 **三层记忆** | SQLite FTS5 + Vector Store + RAG 混合检索（RRF 融合） |
-| 🔄 **多 Agent 调度** | Pool 信号量并发 + 会话隔离 + AutoScaler + 事件通知 |
-| 🔒 **安全沙箱** | ACL + Sandbox + 路径穿越/symlink 逃逸防护 + Guardrails/PII |
-| 🪝 **20+ 生命周期 Hook** | 审计/告警/成本追踪等关键节点插桩 |
-| 📊 **可观测性** | Prometheus 指标 + OpenTelemetry + 35 个结构化错误码 |
-| 🧭 **多模式编排** | Pipeline / Handoff / Parallel / DAG / GroupChat / Debate / Workflow |
-
-> 每项能力的代码示例与详解见 [docs/index.md](docs/index.md) 与 [docs/concepts/](docs/concepts/)。V4 新增能力（自治/技能/互操作/实时）见上方速览表。
 
 ---
 
 ## 🚀 Quick Start
 
+### 1. Install the CLI
+
 ```bash
-go get agentprimordia
+go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest
+
+ap version        # verify
+```
+
+The framework is a normal Go module — it resolves through `GOPROXY`, no clone required.
+Requires Go 1.26 or newer (the `toolchain` directive pulls it automatically).
+
+### 2. Run your first agent — no API key needed
+
+```bash
+ap init my-agent --template quickstart
+cd my-agent
+go mod tidy
+go run .
+```
+
+> **Note:** if your `ap` build predates the scaffold fix, the generated `go.mod` may pin a
+> framework version the module proxy cannot resolve. Drop the pin and let `tidy` pick the
+> latest release:
+>
+> ```bash
+> go mod edit -droprequire=github.com/Gleamseekers/AgentPrimordia/v7 && go mod tidy
+> ```
+
+With `AP_LLM_API_KEY` unset the scaffolded project runs in **Demo mode**: a keyword-matching
+provider (`ap.NewDemoProvider()`) so you can exercise the full ReAct loop — turns, tool
+dispatch, stats — before you own a single token. To switch to a real model:
+
+```bash
+export AP_LLM_API_KEY=sk-...
+export AP_LLM_BASE_URL=https://api.openai.com/v1   # any OpenAI-compatible endpoint
+export AP_LLM_MODEL=gpt-4o-mini
+go run .                                          # or: ap run  (build + hot reload)
+```
+
+### 3. Or use it as a library
+
+```bash
+go get github.com/Gleamseekers/AgentPrimordia/v7@latest
 ```
 
 ```go
@@ -95,138 +94,204 @@ func main() {
 }
 ```
 
-> 带工具/记忆/RAG/多 Agent 的进阶示例见 [docs/getting-started/](docs/getting-started/) 与 [docs/guides/](docs/guides/)。
-
-### 🎯 5 分钟体验
-
-```bash
-# 克隆并进入项目
-git clone https://github.com/Gleamseekers/AgentPrimordia.git && cd AgentPrimordia/agentprimordia
-
-# 方式1: CLI 一键启动（无需 API key 也能跑 Demo 模式）
-./ap init my-agent --template quickstart && cd my-agent && ../ap run
-
-# 方式2: 多 Agent 辩论展示（需设置 API key）
-export AP_LLM_API_KEY=sk-xxx
-export AP_LLM_BASE_URL=https://token.sensenova.cn/v1  # 或其他 OpenAI 兼容端点
-export AP_LLM_MODEL=sensenova-6.8-flash-lite
-go run showcase-debate.go
-```
-
-**辩论展示输出示例**：三个 Agent（架构师/安全专家/产品经理）围绕「微服务 vs 单体」进行多轮辩论，各自从专业角度阐述立场、回应对方、收敛共识——这是 AgentPrimordia 独有的多 Agent 编排能力。
+> `ap init` ships 7 templates: `quickstart` (recommended) · `basic` · `with-tools` ·
+> `agent-with-rag` · `agent-with-cache` · `agent-with-metrics` · `multi-agent`.
+> Tool/memory/RAG/multi-agent walkthroughs: [docs/getting-started/](docs/getting-started/).
 
 ---
 
-## 🏗️ 架构设计
+## 💡 Why AgentPrimordia?
+
+| Pain | Answer |
+|------|--------|
+| 🧩 LLM vendor lock-in — switching models means rewriting code | **One `Provider` interface**, 10+ built-in providers, one-line swap |
+| 💥 Flaky APIs — timeouts, rate limits, partial outages | **Resilient provider**: exponential-backoff retry + fallback chain + circuit breaker |
+| 🔧 Tool plumbing rebuilt from scratch for every project | **Tool registry + executor** with scope checks, MCP, plugins, 20+ built-ins |
+| 🧠 Agents that forget everything between runs | **Three-tier memory**: SQLite (FTS5) + vector store (HNSW) + RAG hybrid fusion |
+| 🔄 Hand-rolled goroutines for concurrency | **Pool scheduler**: bounded concurrency + session isolation + autoscaling + events |
+| 🔒 No guardrail in front of dangerous actions | **ACL + sandbox + path-traversal/symlink escape protection + in-loop guardrails** |
+| 📊 Production blind spots | **Prometheus metrics + OpenTelemetry traces + 35 structured error codes + 30+ hooks** |
+
+**In one line**: you write the agent's business logic; the infrastructure is already there.
+
+---
+
+## 🧭 v7.x status (what actually shipped)
+
+Version reality is maintained in [`docs/版本规范.md`](docs/版本规范.md) and
+[`docs/能力清单.md`](../docs/能力清单.md); the table below is the short version.
+
+| Release | What shipped |
+|---------|--------------|
+| **v7.5.1** | Release pipeline fixed: 6-platform binaries + SHA256 checksums + cosign signatures + SBOM, Docker build context, `go install …@latest` works end to end |
+| **v7.5** | Security & quality campaign: shell-tool allowlist hardened against 7 verified attack chains, `jsonutil` concurrent-marshal corruption fixed, Anthropic structured-output panic fixed, 167 disabled tests restored; coverage 78.8% → 81.1%; module path moved to `github.com/Gleamseekers/AgentPrimordia/v7` so the framework is distributable via `GOPROXY` |
+| **v7.4** | Wiring batch: OTel end-to-end export, Studio bound to real engines, template registry persistence + signed remote protocol, tool-learner auto-assembly, correlation store, skill-library persistence + in-loop injection, autonomy CLI real execution |
+| **v7.3** | Zero-barrier entry (`ap start` / `ap init` templates), visible learning loop, A2A ecosystem interop |
+| **v7.0–v7.2** | Five-component GA line (distillation, gap tools, resident runtime, federation, …) plus the evaluation campaign that produced the evidence below |
+
+### What we deliberately do **not** claim
+
+Honesty is part of the API surface. Three capabilities are intentionally kept off the
+marketing table:
+
+- **World model is opt-in.** `WithWorldModel()` stays off by default: the pre-registered
+  experiment ran 112 pairs, A 89/112 vs B 95/112 (+5.4pp, McNemar p=0.1796), gate
+  (+15pp and p<0.05) not met — flipping the default was formally rejected
+  ([docs/降级豁免登记-V7弧线.md](../docs/降级豁免登记-V7弧线.md), E-1).
+- **`EnhancedPlanner` is not a selling point.** Its recursive decomposition measured
+  **−47.8pp (p=0.001)** on short-horizon ReAct tasks in the v7.2 acceptance campaign
+  ([docs/v7.2-验收实验报告.md](../docs/v7.2-验收实验报告.md)). It ships as `Experimental`
+  behind planning-budget guardrails, not as a headline feature.
+- **Agent-authored tools are research-blocked.** The sandbox half is real — agent-generated
+  artifacts execute only inside the signed wazero WASM sandbox, and the host never compiles
+  or loads agent code — but the *generator* has no production implementation. Do not expect
+  an agent to write you a working tool today.
+
+What we do claim: a single provider interface with resilient calling, a ReAct loop with
+per-turn checkpoints and resume, three-tier memory, pool scheduling, sandbox/ACL,
+A2A protocol interop (`ap a2a interop-check`), and a reproducible evaluation culture
+(pre-registered gates, quarterly bootstrap comparisons, published reports).
+
+---
+
+## ✨ Core features
+
+| Capability | Notes |
+|------------|-------|
+| 🧠 **ReAct loop engine** | Reason→Act→Observe, streaming output, context trimming, per-turn checkpoint + crash resume |
+| 🛡️ **Resilient calling** | Exponential-backoff retry + fallback chain + circuit breaker on one `Provider` |
+| 🧩 **10+ LLM providers** | OpenAI / Anthropic / Gemini / Ollama (local) / Azure / Qwen / GLM / Mistral / Cohere / DeepSeek |
+| 🔧 **Tool system** | 20+ built-ins (filesystem / shell / web / api / database / code execution / knowledge + document loaders) + MCP + plugins, `Registry.Register` |
+| 🧠 **Three-tier memory** | SQLite FTS5 + HNSW vector store + RAG hybrid retrieval (RRF fusion) |
+| 🔄 **Multi-agent scheduling** | Pool: bounded concurrency + session isolation + AutoScaler + event backpressure |
+| 🔒 **Security** | ACL + sandbox + path-traversal/symlink escape protection + guardrails (injection / PII / topic) wired into the loop |
+| 🪝 **30+ lifecycle hooks** | Audit, alerting, cost tracking at every stage of a run |
+| 📊 **Observability** | Prometheus metrics + OpenTelemetry OTLP export + 35 structured error codes |
+| 🧭 **Orchestration** | Pipeline / Handoff / Parallel / DAG / GroupChat / Debate / MapReduce |
+| 💾 **Checkpoints** | SQLite by default; etcd / Redis backends behind build tags |
+| 🤝 **A2A interop** | Agent2Agent protocol (gRPC transport) + `ap a2a interop-check` self-test |
+| 🧪 **Reproducible evals** | Pre-registered gates, quarterly bootstrap comparison, published reports |
+
+> Per-capability examples: [docs/index.md](docs/index.md), [docs/concepts/](docs/concepts/),
+> [docs/cookbook/](docs/cookbook/).
+
+---
+
+## 🏗️ Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  pkg/ (公共 API)                 │
+│                  pkg/ (public API)               │
 ├─────────────────────────────────────────────────┤
 │  pool/   │  agent/   │  security/  │ concurrency│
 │ (调度)   │ (ReAct)   │  (安全)     │  (并发)    │
-├──────────┼───────────┼────────────────────────┤
-│  tools/  │  memory/  │  events/   │  metrics/  │
-│ (工具)   │  (记忆)    │  (事件)    │  (指标)    │
-├──────────┴───────────┴────────────┴────────────┤
-│              llm/ (Provider 抽象层)              │
+├──────────┼───────────┼──────────────────────────┤
+│  tools/  │  memory/  │  events/   │  metrics/   │
+│ (工具)   │ (记忆)    │  (事件)    │  (指标)     │
+├──────────┴───────────┴────────────┴─────────────┤
+│              llm/ (provider abstraction)         │
 ├─────────────────────────────────────────────────┤
-│            persist/ (检查点持久化)               │
+│            persist/ (checkpoint store)           │
 └─────────────────────────────────────────────────┘
 ```
 
-**设计原则**：接口驱动 · 组合优于继承 · 弹性优先 · 零 CGO · 协议式微内核（能力经 `*Capable` 接口自动发现）。
+**Design principles**: interface-driven · composition over inheritance · resilience first ·
+zero CGO · protocol-style microkernel (capabilities are discovered via `*Capable` interfaces).
 
-> 分层详解与 ReAct 数据流见 [docs/架构图.md](../docs/架构图.md) 与 [docs/concepts/react-loop.md](docs/concepts/ReAct循环.md)。
+> Layering detail and the ReAct data flow: [docs/架构图.md](../docs/架构图.md) and
+> [docs/concepts/ReAct循环.md](docs/concepts/ReAct循环.md).
+> Complete English walkthrough: [docs/AP-开发手册-EN.md](docs/AP-开发手册-EN.md).
 
 ---
 
 ## 🟦 TypeScript SDK
 
-为 Node.js 开发者提供与 Go 100% 功能对等的 TypeScript SDK：
+A feature-parity TypeScript SDK for Node.js developers (`@agentprimordia/sdk`, Node 18+):
 
 ```bash
 npm install @agentprimordia/sdk
 ```
 
-> 完整 API、Provider/工具/记忆/编排示例见 [docs/index.md](docs/index.md)（TypeScript 标签页）与 [sdk/typescript/](../sdk/typescript/)。
+> Go is the single authoritative implementation surface; the TS side is kept in lock-step by
+> the cross-language API check (one contract, one benchmark set). See
+> [sdk/typescript/](../sdk/typescript/).
 
 ---
 
-## 📦 项目结构
+## 📦 Project structure
 
 ```
 agentprimordia/
-├── cmd/ap/              # CLI (init/run/debug/loop/autonomy/skill/a2a/realtime/...)
+├── cmd/ap/              # CLI (init/run/debug/loop/cluster/marketplace/autonomy/skill/a2a/realtime/…)
 ├── internal/
-│   ├── agent/           # ReAct 引擎 + 编排 + 协议式微内核
-│   │   ├── autonomy/    # 长期自治 (v3.3)
-│   │   ├── skills/      # 技能进化 (v3.4)
-│   │   ├── realtime/    # 多模态实时 (v3.6)
-│   │   ├── a2a/         # Agent2Agent + 开放协议互操作 (v3.5)
+│   ├── agent/           # ReAct engine + orchestration + protocol microkernel
+│   │   ├── a2a/         # Agent2Agent protocol
 │   │   ├── planning/ reflection/ tool_learning/ learning/
 │   ├── llm/ memory/ tools/ pool/ persist/ orchestration/
-│   ├── guardrail/ security/ metrics/ otel/ events/ config/
-│   └── ...              # admin / debugger / chaos / health / logger / ...
-├── pkg/                 # 公共 API 重导出
-├── ecosystem/           # 插件 / 示例 / 模板
+│   ├── guardrail/ security/ metrics/ observability/ events/ config/
+│   └── ...              # admin / debugger / chaos / health / logger / governance / …
+├── pkg/                 # the single public API surface
+├── ecosystem/           # plugins / examples / templates
 ├── operator/            # Kubernetes Operator (CRD + HPA)
-├── bench/               # 性能基准测试套件
-├── docs/                # 概念 / 指南 / API 参考 / 路线图
-└── ../sdk/typescript/   # TypeScript SDK（仓库根，另有 ../sdk/python、../sdk/rust）
+├── bench/               # benchmarks, eval suites, soak tests
+├── docs/                # concepts / guides / API reference / roadmaps
+└── ../sdk/typescript/   # TypeScript SDK (repo root; python/rust clients alongside)
 ```
 
 ---
 
-## 🧪 运行示例
+## 🧪 Run examples
 
 ```bash
-# 既有示例（monorepo 根 agentprimordia/ 下）
-make run-hello          # 最简 Agent
-make run-multi          # 多 Agent 并发
-make run-production     # RAG + 弹性调用 + 事件系统
+# from the agentprimordia/ directory of a source checkout
+make run-hello          # minimal agent
+make run-multi          # concurrent agents
+make run-production     # RAG + resilient calling + events
 
-# V4 验收 demo
-go run ./ecosystem/examples/autonomous-task/   # v3.3 长期自治 + 崩溃恢复
-go run ./ecosystem/examples/skill-evolution/   # v3.4 习得→复用
-go run ./ecosystem/examples/a2a-interop/       # v3.5 跨生态委托
-go run ./ecosystem/examples/realtime-voice/    # v3.6 语音多轮 + 打断
+go run ./ecosystem/examples/a2a-interop/       # cross-ecosystem delegation over A2A
+go run ./ecosystem/examples/skill-evolution/   # skills learned → reused
+go run ./ecosystem/examples/resilient-provider/# retry / fallback / circuit breaker
 ```
 
-> 全部示例见 [ecosystem/examples/](ecosystem/examples/)。
+> All examples: [ecosystem/examples/](ecosystem/examples/).
 
 ---
 
-## 📚 文档
+## 📚 Documentation
 
-- **入门** — [getting-started/](docs/getting-started/) · [guides/create-agent.md](docs/guides/创建Agent.md)
-- **概念** — [concepts/](docs/concepts/)（react-loop / memory / orchestration / tools / [autonomy](docs/concepts/自治.md) / [skills](docs/concepts/技能系统.md) / [realtime](docs/concepts/实时通信.md) / [a2a](docs/concepts/A2A通信.md)）
-- **指南** — [guides/](docs/guides/)（[skill-format](docs/guides/技能格式.md) · [a2a-interop](docs/guides/A2A互通.md) · [realtime](docs/guides/实时通信.md) · 部署 · 安全 · 性能）
-- **API 参考** — [docs/api/](docs/api/) · [docs/api-reference/](docs/api-reference/)
-- ** cookbook** — [docs/cookbook/](docs/cookbook/)（RAG / 多 Agent / 代码审查机器人 / K8s 部署 / WASM 沙箱 …）
-- **路线图与变更** — [V4路线图.md](../docs/V4路线图.md) · [ROADMAP.md](../docs/路线图.md) · [CHANGELOG.md](../docs/CHANGELOG.md)
-- **性能与部署** — [benchmarks/](docs/benchmarks/) · [DEPLOYMENT.md](../docs/部署指南.md) · [DEVELOPMENT.md](./DEVELOPMENT.md)
+- **Getting started (English)** — [five-minutes.md](docs/getting-started/five-minutes.md) ·
+  [installation.md](docs/getting-started/installation.md) ·
+  [first-agent.md](docs/getting-started/first-agent.md)
+- **Complete handbook (English)** — [AP-开发手册-EN.md](docs/AP-开发手册-EN.md)
+- **入门（中文）** — [docs/getting-started/](docs/getting-started/) ·
+  [docs/AP-开发手册.md](docs/AP-开发手册.md)
+- **Concepts** — [concepts/](docs/concepts/) (ReAct loop / memory / orchestration / tools / A2A / autonomy / skills / realtime)
+- **Guides & cookbook** — [guides/](docs/guides/) · [cookbook/](docs/cookbook/) (RAG / multi-agent / code-review bot / K8s / WASM sandbox)
+- **API reference** — [api/](docs/api/) · [api-reference/](docs/api-reference/)
+- **Compatibility & stability tiers** — [版本规范.md](docs/版本规范.md)
+- **Roadmaps & changelogs** — [V7路线图.md](../docs/V7路线图.md) · [CHANGELOG.md](../docs/CHANGELOG.md) · [CHANGELOG-v7.5.md](docs/CHANGELOG-v7.5.md)
+- **Performance & deployment** — [benchmarks/](docs/benchmarks/) · [部署指南.md](../docs/部署指南.md) · [DEVELOPMENT.md](DEVELOPMENT.md)
 
 ---
 
-## 🌟 核心优势总结
+## ⚖️ Honest comparison
 
 | | AgentPrimordia | LangChain | AutoGen |
 |---|---|---|---|
-| **语言** | Go + TypeScript | Python | Python |
-| **CGO 依赖** | ❌ 零 CGO | — | — |
-| **弹性调用** | ✅ 内建重试+降级+熔断 | 需自行实现 | 需自行实现 |
-| **记忆系统** | ✅ SQLite+FTS+Vector+RAG | 需外接 | 基础支持 |
-| **安全沙箱** | ✅ ACL+Sandbox+路径穿越检测 | ❌ | ❌ |
-| **长期自治 / 技能进化** | ✅ v3.3 / v3.4 内建 | ❌ | ❌ |
-| **Prometheus** | ✅ 内建 | 需自行集成 | 需自行集成 |
-| **结构化错误码** | ✅ 35 个错误码 | ❌ |  |
-| **TypeScript SDK** | ✅ 官方对等 | 社区 | ❌ |
-| **单二进制部署** | ✅ | ❌ | ❌ |
+| **Language** | Go + TypeScript | Python | Python |
+| **CGO** | ❌ none | — | — |
+| **Resilient calling** | ✅ built in (retry + fallback + breaker) | DIY | DIY |
+| **Memory** | ✅ SQLite + FTS5 + vector + RAG | external | basic |
+| **Security** | ✅ ACL + sandbox + escape protection | ❌ | ❌ |
+| **Autonomy / skills CLI** | ✅ real, wired since v7.4 | ❌ | ❌ |
+| **Prometheus** | ✅ built in | integrate yourself | integrate yourself |
+| **Structured error codes** | ✅ 35 codes | ❌ | — |
+| **TypeScript SDK** | ✅ official parity | community | ❌ |
+| **Single-binary deploy** | ✅ | ❌ | ❌ |
 
 ---
 
 <p align="center">
-  <strong>万物之源，智能之始</strong><br>
-  用 AgentPrimordia 构建你自己的 AI Agent
+  <strong>Origin of all things, beginning of intelligence</strong><br>
+  Build your own AI agent with AgentPrimordia · <a href="./README.zh-CN.md">中文说明</a>
 </p>

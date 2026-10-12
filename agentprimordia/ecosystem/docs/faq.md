@@ -45,13 +45,11 @@ AgentPrimordia 是 **Go 原生** 的 Agent 开发框架，核心差异：
 ### Q: 如何安装？
 
 ```bash
-# 方式一：从源码构建
-git clone https://github.com/your-org/AgentPrimordia.git
-cd AgentPrimordia
-go build ./cmd/ap/
+# 方式一：安装 CLI（推荐，经 GOPROXY，无需克隆仓库）
+go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest
 
 # 方式二：作为依赖引入
-go get agentprimordia
+go get github.com/Gleamseekers/AgentPrimordia/v7@latest
 ```
 
 ---

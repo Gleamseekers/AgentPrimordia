@@ -1,5 +1,7 @@
 # 第一个 Agent
 
+> English version: [first-agent.md](first-agent.md)
+
 本教程将带你从零创建一个完整的 Agent 应用。
 
 ## 前置条件

@@ -21,13 +21,13 @@
 
 ### 报告 Bug
 
-1. 首先检查 [现有 Issue](https://github.com/AgentPrimordia/agentprimordia/issues) 是否已报告该问题
+1. 首先检查 [现有 Issue](https://github.com/Gleamseekers/AgentPrimordia/issues) 是否已报告该问题
 2. 如果没有，创建新的 Issue 并选择 "Bug Report" 模板
 3. 提供清晰的描述、复现步骤和环境信息
 
 ### 提出新功能
 
-1. 先在 [Discussions](https://github.com/AgentPrimordia/agentprimordia/discussions) 中讨论您的想法
+1. 先在 [Discussions](https://github.com/Gleamseekers/AgentPrimordia/discussions) 中讨论您的想法
 2. 获得社区反馈后，创建 Feature Request Issue
 3. 等待维护者确认方向后再开始开发
 
@@ -60,17 +60,17 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/AgentPrimordia/agentprimordia.git
-cd agentprimordia
+git clone https://github.com/Gleamseekers/AgentPrimordia.git
+cd AgentPrimordia
 
 # 安装依赖
 go mod download
 
-# 运行测试
-go test ./...
+# 运行测试（快速回归；完整门见 Makefile 的 test / test-race / test-integration）
+make test-short
 
 # 运行示例
-go run cmd/example/hello-agent/main.go
+go run ./agentprimordia/ecosystem/examples/chain-api/
 ```
 
 ### 项目结构
@@ -268,7 +268,7 @@ Fixes #456
 
 ### 讨论区
 
-- [GitHub Discussions](https://github.com/AgentPrimordia/agentprimordia/discussions)
+- [GitHub Discussions](https://github.com/Gleamseekers/AgentPrimordia/discussions)
   - 提问和答疑
   - 功能讨论
   - 展示项目
@@ -294,4 +294,4 @@ Fixes #456
 
 ---
 
-**有问题？** 欢迎在 [Discussions](https://github.com/AgentPrimordia/agentprimordia/discussions) 中提问，或联系维护者。
+**有问题？** 欢迎在 [Discussions](https://github.com/Gleamseekers/AgentPrimordia/discussions) 中提问，或联系维护者。

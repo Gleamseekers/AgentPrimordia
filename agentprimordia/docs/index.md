@@ -3,7 +3,7 @@
 > 通用 AI Agent 开发框架 — 轻量、并发原生、生产验证
 > **Go + TypeScript 双语言 SDK，100% 功能对等**
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/AgentPrimordia/agentprimordia)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/Gleamseekers/AgentPrimordia)
 [![Go Version](https://img.shields.io/badge/go-1.26+-00ADD8E.svg)](https://golang.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Go%20Parity-3178C6.svg)](../../sdk/typescript/)
 
@@ -48,15 +48,16 @@ AgentPrimordia（AP）是一个用 Go 语言编写、同时提供 TypeScript SDK
 ### 安装
 
 ```bash
-# 安装 CLI 工具
-go install github.com/AgentPrimordia/agentprimordia/cmd/ap@latest
+# 安装 CLI 工具（框架为普通 Go 模块，经 GOPROXY 解析）
+go install github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/ap@latest
 
 # 创建新项目
 ap init my-agent --template quickstart
 cd my-agent
+go mod tidy
 
-# 运行
-ap run
+# 运行（未设 AP_LLM_API_KEY 时走 Demo 模式，无需 key 即可跑通）
+go run .
 ```
 
 ### 5 行代码创建 Agent
@@ -69,20 +70,33 @@ ap run
     import (
         "context"
         "fmt"
+        "log"
         "os"
+
         ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
     )
 
     func main() {
-        agent := ap.NewAgent("HelloAgent", "你是一个智能助手",
-            ap.NewOpenAIProvider(ap.Config{
-                APIKey: os.Getenv("OPENAI_API_KEY"),
-                Model:  "gpt-4o",
-            }),
+        provider, err := ap.NewOpenAIProvider(ap.Config{
+            APIKey: os.Getenv("OPENAI_API_KEY"),
+            Model:  "gpt-4o",
+        })
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        agent, err := ap.NewAgent("HelloAgent", "你是一个智能助手",
+            provider,
             ap.WithMaxTurns(10),
         )
+        if err != nil {
+            log.Fatal(err)
+        }
 
-        resp, _ := agent.Run(context.Background(), ap.UserMessage("你好"))
+        resp, err := agent.Run(context.Background(), ap.UserMessage("你好"))
+        if err != nil {
+            log.Fatal(err)
+        }
         fmt.Println(resp.Content)
     }
     ```
@@ -108,15 +122,25 @@ ap run
     console.log(resp.content);
     ```
 
-### 链式 API — 工具 + 记忆 + RAG 一步到位
+### 函数式选项 — 工具 + 记忆 + RAG 一步到位
 
 === "Go"
 
     ```go
-    agent := ap.NewAgent("assistant", "你是助手", provider, ap.WithMaxTurns(10)).
-        WithToolkit(toolkit).
-        WithMemory(mem).
-        WithRAG(ragProvider)
+    // NewAgent 返回 (*CapabilityAgent, error)，配置走函数式选项（非链式方法）
+    agent, err := ap.NewAgent("assistant", "你是助手", provider,
+        ap.WithMaxTurns(10),
+        ap.WithToolkit(toolkit),
+        ap.WithMemory(mem),
+        ap.WithRAG(ap.RAGConfig{
+            Provider: ap.NewRAGProviderAdapter(ragStore),
+            Mode:     ap.RAGModeAuto,
+            TopK:     5,
+        }),
+    )
+    if err != nil {
+        log.Fatal(err)
+    }
     ```
 
 === "TypeScript"
@@ -206,27 +230,39 @@ ap completion bash                              # 生成 Shell 补全脚本
 JSON-RPC over HTTP 兼容层已于 **v4.0.0 移除**（见 版本规范.md「已移除记录」）；
 开放 Agent2Agent 协议互操作（JSON-RPC over HTTP/SSE 承载开放协议）见 `pkg/a2a_interop.go`。
 
-=== "Go（推荐 gRPC）"
+=== "Go（gRPC 客户端）"
 
     ```go
     service := ap.NewA2AService(card, taskManager)
-    srv  := ap.NewA2AGRPCServer(service,
-        ap.WithGRPCLogger(slog.Default()),
-        ap.ChainUnaryInterceptors(
-            ap.RecoveryInterceptor(),
-            ap.LoggingInterceptor(ap.A2AInterceptorConfig{...}),
-            ap.MetricsInterceptor(metrics),
-        ),
-    )
-    cli, _ := ap.NewA2AGRPCClient("localhost:50051")
-    resp, _ := cli.GetAgentCard(ctx, &ap.A2AGetAgentCardRequest{})
+    srv := ap.NewA2AGRPCServer(service, ap.WithGRPCLogger(slog.Default()))
+
+    cli, err := ap.NewA2AGRPCClient("localhost:50051")
+    if err != nil {
+        log.Fatalf("连接失败: %v", err)
+    }
+    defer cli.Close()
+
+    // 客户端方法集：FetchAgentCard / CreateTask / GetTask / CancelTask / StreamEvents / Close
+    remoteCard, err := cli.FetchAgentCard(ctx)
+    if err != nil {
+        log.Fatalf("发现失败: %v", err)
+    }
     ```
 
-=== "Go（gRPC Server，推荐）"
+=== "Go（拦截器链）"
 
     ```go
-    // 推荐：gRPC 传输（v1.x 起为默认）
-    srv := ap.NewA2AGRPCServer(service)
+    // 拦截器链用于自建 *grpc.Server 时（ap.NewA2AGRPCServer 的选项是 GRPCServerOption，
+    // 不是拦截器；需要自定义拦截器时走 Register 路线）。
+    // 注意：grpc.NewServer 收 grpc.ServerOption，拦截器要用 grpc.ChainUnaryInterceptor 包；
+    // ap.ChainUnaryInterceptors 则是把多个拦截器合并成单个 UnaryServerInterceptor，
+    // 供只接受单个拦截器的 API 使用。
+    grpcServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
+        ap.RecoveryInterceptor(),
+        ap.LoggingInterceptor(ap.A2AInterceptorConfig{SlowRequestThreshold: time.Second}),
+        ap.MetricsInterceptor(ap.NewA2AInterceptorMetrics()),
+    ))
+    ap.NewA2AGRPCServer(service).Register(grpcServer)
     ```
 
 ## 文档导览
@@ -243,8 +279,8 @@ JSON-RPC over HTTP 兼容层已于 **v4.0.0 移除**（见 版本规范.md「已
 
 ## 社区
 
-- [GitHub Discussions](https://github.com/AgentPrimordia/agentprimordia/discussions)
-- [贡献指南](https://github.com/AgentPrimordia/agentprimordia/blob/main/CONTRIBUTING.md)
+- [GitHub Discussions](https://github.com/Gleamseekers/AgentPrimordia/discussions)
+- [贡献指南](https://github.com/Gleamseekers/AgentPrimordia/blob/main/agentprimordia/CONTRIBUTING.md)
 - [TypeScript SDK 文档](../../sdk/typescript/README.md)
 
 ## License

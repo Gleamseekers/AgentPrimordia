@@ -414,8 +414,8 @@ Apache-2.0 © AgentPrimordia Contributors
   Update together with the code, then re-run: node scripts/doc-version-consistency.mjs
 
   [![Version](https://img.shields.io/badge/version-7.5.1-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.5.md)
-  [![Tests](https://img.shields.io/badge/tests-665%20files-green.svg)](agentprimordia/internal/)
-  Red → Green → Refactor，665 个测试文件
-  核心框架主模块（162 个包，1369 个 Go 文件）
+  [![Tests](https://img.shields.io/badge/tests-667%20files-green.svg)](agentprimordia/internal/)
+  Red → Green → Refactor，667 个测试文件
+  核心框架主模块（163 个包，1376 个 Go 文件）
   微内核（34 个子包）
 -->

@@ -1,0 +1,104 @@
+name: WASM Tool Supply Chain Smoke (Clean-Room)
+
+on:
+  pull_request:
+    # 仅 WASM 安全供应链相关变更触发：demo 本体与 wasm 沙箱/签名实现。
+    # 两者共同决定对外「自带 WASM 工件的安全供应链」叙事，任一变动都需
+    # 重新验证 clean-room 可走通（demo 确定性、单次运行约 1~2 秒）。
+    paths:
+      - 'agentprimordia/ecosystem/examples/wasm-tool-supply-chain/**'
+      - 'agentprimordia/wasm/**'
+  workflow_dispatch:
+
+# 安全基线（对齐 quickstart-smoke.yml / a2a-smoke.yml）：
+#   - 不使用工作流级 permissions，job 按最小权限精确声明（contents: read 足够——
+#     本门只读代码、构建、跑 demo，不写仓库、不发 Release）；
+#   - 第三方 action 一律 pin 到提交 SHA 并附 # vX 可读注释，避免上游 tag 被移动
+#     导致供应链投毒。
+jobs:
+  wasm-smoke:
+    name: Clean-room WASM Supply Chain Smoke
+    runs-on: ubuntu-latest
+    # 硬性时限：整 job 必须 <10 分钟（demo 本身约 1~2 秒，余量为依赖下载/构建）
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          # 精确 pin：浮动 '1.26' 无法保证拿到已修补补丁版（go1.26.9 修复了
+          # govulncheck 报出的 11 个可达标准库漏洞，见 quickstart-smoke.yml 同款断言）。
+          go-version: '1.26.9'
+
+      - name: Unit tests (module bytes + rejection branches + agent path)
+        run: |
+          set -euo pipefail
+          echo "工具链: $(go version)"
+          # GOWORK=off：显式关闭 workspace 模式，走模块依赖图（同 quickstart-smoke 口径）
+          GOWORK=off go test ./agentprimordia/ecosystem/examples/wasm-tool-supply-chain/
+          echo "OK: wasm-tool-supply-chain 单测通过"
+
+      - name: Run demo (outside repo)
+        # 关键口径：从仓库外临时目录（$RUNNER_TEMP/wasm-smoke）调起 demo 脚本；
+        # run.sh 内部再把二进制放进仓库外 mktemp 目录并本地构建（不依赖
+        # go install 代理），证明 demo 不依赖仓库内相对状态。
+        working-directory: ${{ runner.temp }}
+        env:
+          # 显式置空：不设 AP_LLM_API_KEY → 走零凭据脚本化 provider
+          # （不发任何网络请求，CI 无需任何密钥）
+          AP_LLM_API_KEY: ''
+        run: |
+          set -euo pipefail
+          SMOKE_DIR="${RUNNER_TEMP}/wasm-smoke"
+          rm -rf "${SMOKE_DIR}"
+          mkdir -p "${SMOKE_DIR}"
+          cd "${SMOKE_DIR}"
+          # set +e 包裹：命令替换失败时先拿到退出码再决定（set -e 下赋值失败会直接退出）
+          set +e
+          OUTPUT="$("${GITHUB_WORKSPACE}/agentprimordia/ecosystem/examples/wasm-tool-supply-chain/run.sh" 2>&1)"
+          RC=$?
+          set -e
+          echo "${OUTPUT}"
+          if [ "${RC}" -ne 0 ]; then
+            echo "::error::wasm-tool-supply-chain run.sh 退出码 ${RC}"
+            exit "${RC}"
+          fi
+          echo "${OUTPUT}" > demo-output.txt
+
+      - name: Assert key output strings
+        working-directory: ${{ runner.temp }}/wasm-smoke
+        run: |
+          set -euo pipefail
+          # 断言关键字来自 main.go/run.sh 的真实输出（grep -F 固定串匹配，
+          # 避免正则元字符歧义）；run.sh 内部已断言同一组串，此处为 CI 侧复核。
+          # 四类拒绝分支 + 成功执行分支各有断言，缺一即红。
+          assert_contains() {
+            if ! grep -qF "$1" demo-output.txt; then
+              echo "::error::demo 输出缺少关键串: $1"
+              exit 1
+            fi
+          }
+          # 定位与诚实边界
+          assert_contains "=== WASM 工具安全供应链 Demo（v7.7 副线）==="
+          assert_contains "诚实边界：工具生成器无生产实现"
+          # 拒绝分支 A：未签名工件
+          assert_contains "拒绝分支 A · 未签名工件（A6 签名前置）"
+          assert_contains "✗ 拒绝: wasm: tool \"unsigned-tool\" 注册被拒绝：缺少签名或公钥（A6 签名前置）"
+          # 拒绝分支 B：公钥未钉扎
+          assert_contains "拒绝分支 B · 签名公钥未钉扎"
+          assert_contains "✗ 拒绝: 签名公钥未在钉扎集合中（指纹"
+          # 拒绝分支 C：非 WASM 工件
+          assert_contains "拒绝分支 C · 非 WASM 工件（shell 脚本，已签名且公钥已钉扎）"
+          assert_contains "✗ 拒绝: wasm: load module for tool \"shell-tool\""
+          # 拒绝分支 D：篡改工件
+          assert_contains "✗ 篡改工件被验签门拒绝"
+          # 成功执行分支
+          assert_contains "✓ 注册成功: name=wasm-checksum-tool"
+          assert_contains "✓ 注册进 tools.Registry（AsTool 桥，ReActAgent toolkit 调用路径）"
+          assert_contains "✓ agent 运行（零凭据脚本化 provider，无网络调用）: tool_calls=1"
+          assert_contains "✓ 沙箱执行结果: wasm-tool-exec ok; input-checksum="
+          assert_contains "✓ 独立复算对账: 沙箱内计算与宿主复算一致"
+          assert_contains "=== 全链路通过：签名 → 钉扎 → 注册 → 沙箱执行 ==="
+          echo "OK: 安全供应链 demo（签名→钉扎→注册→沙箱执行，四类拒绝）关键输出全部命中"

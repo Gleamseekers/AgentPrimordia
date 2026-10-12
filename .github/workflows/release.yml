@@ -5,14 +5,16 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-  packages: write
+# 安全基线：不再使用工作流级 permissions（原为 contents:write + packages:write 全 job 继承，
+# 过宽）。改为每个 job 按最小权限精确声明，见各 job 的 permissions 字段。
+# 第三方 action 一律 pin 到 commit SHA（附可读版本注释），避免上游 tag 被移动导致供应链投毒。
 
 jobs:
   build-binaries:
     name: Build Release Binaries
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         include:
@@ -29,11 +31,27 @@ jobs:
           - goos: windows
             goarch: arm64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.26'
+          # 精确 pin：浮动 '1.26' 无法保证拿到已修补补丁版。
+          # go1.26.9 修复了 govulncheck 报出的 11 个可达标准库漏洞
+          # （net/http Range 头 DoS、html/template ×2、net/textproto、crypto/tls、os 等）。
+          go-version: '1.26.9'
+
+      - name: Assert Go toolchain is patched (>= 1.26.9)
+        run: |
+          set -euo pipefail
+          GOV=$(go env GOVERSION)
+          echo "构建工具链: ${GOV}"
+          case "${GOV}" in
+            go1.26.9|go1.26.1[0-9]|go1.2[7-9]*|go1.[3-9][0-9]*) ;;
+            *)
+              echo "::error::工具链 ${GOV} 低于安全下限 go1.26.9（含可达标准库漏洞），拒绝构建"
+              exit 1
+              ;;
+          esac
 
       - name: Build binary
         working-directory: agentprimordia
@@ -42,15 +60,17 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: 0
         run: |
+          set -euo pipefail
           VERSION=${GITHUB_REF_NAME#v}
           BINARY=ap-${{ matrix.goos }}-${{ matrix.goarch }}
           if [ "${{ matrix.goos }}" = "windows" ]; then
             BINARY=${BINARY}.exe
           fi
           go build -ldflags="-s -w -X main.Version=${VERSION}" -o ${BINARY} ./cmd/ap/
+          test -s "${BINARY}"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ap-${{ matrix.goos }}-${{ matrix.goarch }}
           # 路径相对 workspace 根解析（构建在 agentprimordia/ 子目录产出）——
@@ -62,83 +82,130 @@ jobs:
   generate-sbom:
     name: Generate SBOM
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.26'
+          go-version: '1.26.9'
 
       - name: Generate Go SBOM with syft
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
         with:
-          image: .
+          # 原为 image: .（image 输入期望容器镜像引用，传 "." 无法正确扫描目录）
+          path: .
           format: spdx-json
           output-file: sbom-go.spdx.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: sdk/typescript/package-lock.json
 
-      - name: Generate Node SBOM with syft
+      - name: Install TypeScript SDK dependencies
         working-directory: sdk/typescript
         run: |
+          set -euo pipefail
           npm ci
-        # syft will scan the directory for both Go and Node dependencies
+
+      - name: Generate Node SBOM with syft
+        # 原先此步骤只跑 npm ci，没有任何 syft 命令——注释声称 "syft will scan
+        # the directory" 与实现不符，导致 TS/npm 依赖从未进入 SBOM。
+        # 现补上真实扫描，产出独立资产 sbom-node.spdx.json。
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0
+        with:
+          path: sdk/typescript
+          format: spdx-json
+          output-file: sbom-node.spdx.json
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: sbom
           path: sbom-*.spdx.json
+          if-no-files-found: error
 
   sign-binaries:
     name: Sign Release Binaries
     runs-on: ubuntu-latest
     needs: [build-binaries, generate-sbom]
     permissions:
-      contents: write
+      contents: read
       id-token: write  # keyless cosign 签名必需（对照 supply-chain.yml）
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          path: binaries
+          path: artifacts
 
-      - name: Generate SHA256 checksums
+      - name: Flatten binaries and generate SHA256 checksums
+        # 关键顺序：先扁平化 → 再算校验和 → 再签名。
+        # 旧实现直接在 binaries/ 内 find，产出形如 ./ap-linux-amd64/ap-linux-amd64 的
+        # 带目录前缀条目；而 release 作业会把产物扁平化为 ap-linux-amd64，
+        # 导致用户侧 `sha256sum -c` 全部报 No such file or directory（校验和签名形同虚设）。
         run: |
-          cd binaries
-          find . -type f -name 'ap-*' | sort | xargs sha256sum > ../checksums-sha256.txt
+          set -euo pipefail
+          mkdir -p flat
+          find artifacts -type f -name 'ap-*' -exec cp {} flat/ \;
+          COUNT=$(ls -1 flat | wc -l | tr -d ' ')
+          echo "扁平化后二进制数: ${COUNT}"
+          if [ "${COUNT}" -ne 6 ]; then
+            echo "::error::期望 6 个平台二进制，实际 ${COUNT} 个"
+            ls -la flat
+            exit 1
+          fi
+          cd flat
+          sha256sum ap-* > ../checksums-sha256.txt
           cd ..
+          echo "--- checksums-sha256.txt ---"
+          cat checksums-sha256.txt
+          test -s checksums-sha256.txt
+          # 自校验回归门：确认清单与文件名逐条对应（B1 缺陷一旦复现即在此失败）
+          (cd flat && sha256sum -c ../checksums-sha256.txt)
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
 
       - name: Sign checksums with cosign
-        uses: sigstore/cosign-installer@v3
-
-      - run: cosign sign-blob --yes checksums-sha256.txt --output-signature checksums-sha256.txt.sig --output-certificate checksums-sha256.txt.pem
+        run: |
+          set -euo pipefail
+          cosign sign-blob --yes checksums-sha256.txt \
+            --output-signature checksums-sha256.txt.sig \
+            --output-certificate checksums-sha256.txt.pem
 
       - name: Upload signatures
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: signatures
           path: |
             checksums-sha256.txt
             checksums-sha256.txt.sig
             checksums-sha256.txt.pem
+          if-no-files-found: error
 
   llm-benchmark:
     name: LLM Benchmark Report (v3.5-2)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # 质量门禁不阻断发布链路：原先该 job 失败会使 release 作业被 needs 跳过，
+    # 而 docker 作业已推送镜像 → 出现「镜像有、Release 无」的半成品发布态。
+    # 现改为 advisory（结果进 job summary + 标注），硬门禁应放在 ci.yml（打 tag 前）。
+    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.26'
+          go-version: '1.26.9'
 
       - name: Download dependencies
         working-directory: agentprimordia
-        run: go mod download
+        run: |
+          set -euo pipefail
+          go mod download
 
       - name: Run real LLM benchmark
         id: bench
@@ -146,18 +213,26 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
+          set -euo pipefail
           if [ -z "${OPENAI_API_KEY}" ]; then
             echo "::warning::OPENAI_API_KEY 未配置，跳过真实跑分（发布将不附基准报告）"
+            echo "gate=skipped" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           VERSION=${GITHUB_REF_NAME#v}
-          go run ./bench/llm-bench --provider openai --model gpt-4o-mini \
-            --version ${VERSION} --threshold 0.8 --retries 1 \
-            --out llm-bench-report.json
+          if go run ./bench/llm-bench --provider openai --model gpt-4o-mini \
+               --version ${VERSION} --threshold 0.8 --retries 1 \
+               --out llm-bench-report.json; then
+            echo "gate=passed" >> "$GITHUB_OUTPUT"
+          else
+            # 退出码非 0 仅表示门禁未达标；因 job 级 continue-on-error，不阻断发布。
+            echo "::warning::LLM 基准门禁未达标（pass_rate < gate）。本次发布不受阻，请维护者评估是否撤回。"
+            echo "gate=failed" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Upload benchmark report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: llm-bench-report
           path: |
@@ -167,7 +242,12 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "## 发布基准报告" >> $GITHUB_STEP_SUMMARY
+          set -euo pipefail
+          {
+            echo "## 发布基准报告"
+            echo ""
+            echo "- 门禁状态: \`${{ steps.bench.outputs.gate || 'unknown' }}\`"
+          } >> $GITHUB_STEP_SUMMARY
           if [ -f agentprimordia/llm-bench-report.json ]; then
             cat agentprimordia/llm-bench-report.json >> $GITHUB_STEP_SUMMARY
           else
@@ -177,46 +257,85 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
-    needs: [sign-binaries, llm-benchmark]
+    # 不再 needs llm-benchmark（见该 job 注释）。
+    needs: [sign-binaries]
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           path: artifacts
 
-      - name: Organize release files
+      - name: Organize release files and assert completeness
+        # download-artifact@v4 按 artifact 名分目录下载（ap-<os>-<arch>/、
+        # signatures/、sbom/、llm-bench-report/，部分还带嵌套路径）。
+        # 统一 find 扁平化拷贝；此前误写 artifacts/binaries/**（不存在该名
+        # 产物）致 6 个平台二进制全部静默缺失（|| true 吞掉错误）。
+        # 本步骤补齐产物完整性断言：任何一项缺失即失败，不再静默产出空/残缺 Release。
         run: |
+          set -euo pipefail
           mkdir -p release-files
-          # download-artifact@v4 按 artifact 名分目录下载（ap-<os>-<arch>/、
-          # signatures/、sbom/、llm-bench-report/，部分还带嵌套路径）。
-          # 统一 find 扁平化拷贝；此前误写 artifacts/binaries/**（不存在该名
-          # 产物）致 6 个平台二进制全部静默缺失（|| true 吞掉错误）。
-          find artifacts -type f -exec cp {} release-files/ \;
+          find artifacts -type f -exec cp -n {} release-files/ \;
+
+          SRC=$(find artifacts -type f | wc -l | tr -d ' ')
+          DST=$(find release-files -type f | wc -l | tr -d ' ')
+          echo "artifacts 文件数=${SRC}  release-files 文件数=${DST}"
           echo "发布文件:"; ls -la release-files/
+          if [ "${SRC}" -ne "${DST}" ]; then
+            echo "::error::扁平化出现同名覆盖，以下文件重名："
+            find artifacts -type f -printf '%f\n' | sort | uniq -d
+            exit 1
+          fi
+
+          BIN_COUNT=$(find release-files -maxdepth 1 -type f -name 'ap-*' | wc -l | tr -d ' ')
+          echo "平台二进制数: ${BIN_COUNT}"
+          if [ "${BIN_COUNT}" -ne 6 ]; then
+            echo "::error::期望 6 个平台二进制，实际 ${BIN_COUNT} 个"
+            exit 1
+          fi
+
+          for f in checksums-sha256.txt checksums-sha256.txt.sig checksums-sha256.txt.pem; do
+            if [ ! -s "release-files/${f}" ]; then
+              echo "::error::缺少或为空的发布资产: ${f}"
+              exit 1
+            fi
+          done
+
+          SBOM_COUNT=$(find release-files -maxdepth 1 -name 'sbom-*.spdx.json' | wc -l | tr -d ' ')
+          if [ "${SBOM_COUNT}" -lt 1 ]; then
+            echo "::error::未找到 SBOM 发布资产"
+            exit 1
+          fi
+          echo "SBOM 资产数: ${SBOM_COUNT}"
+
+          # 用户侧同款校验：确保发布的校验和清单与发布的二进制逐条对应
+          (cd release-files && sha256sum -c checksums-sha256.txt)
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
-          files: release-files/**/*
+          files: release-files/*
           generate_release_notes: true
 
   docker:
     name: Docker Build & Push
     runs-on: ubuntu-latest
-    needs: [build-binaries]
+    # 待签名与校验和产物就绪后再推镜像，避免发布校验和失效时镜像已落地
+    needs: [build-binaries, sign-binaries]
     permissions:
       contents: read
       packages: write
       id-token: write  # keyless cosign 镜像签名必需（对照 supply-chain.yml build-and-sign）
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -224,7 +343,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -234,39 +353,46 @@ jobs:
 
       - name: Build and push
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
           file: agentprimordia/Dockerfile.prod
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          # 注入版本号：Dockerfile.prod 原先用 `git describe`，但 .dockerignore 排除了
+          # .git，容器内必然回退为 "dev" —— 镜像内 ap-admin 版本号恒为 dev。
+          build-args: |
+            VERSION=${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Sign container image with cosign
-        uses: sigstore/cosign-installer@v3
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
 
       - name: Sign image (keyless)
-        env:
-          COSIGN_EXPERIMENTAL: 1  # keyless 签名必需（对照 supply-chain.yml）
+        # 供应链硬门：镜像签名失败即失败，不再降级为 ::warning::。
+        # 原先降级会导致未签名镜像被推送到 ghcr.io 并被下游拉取。
         run: |
+          set -euo pipefail
           IMAGE="ghcr.io/${{ github.repository }}"
-          if cosign sign --yes "${IMAGE}@${{ steps.build.outputs.digest }}"; then
-            echo "✅ 已按 digest 签名"
-          elif cosign sign --yes "${IMAGE}:${{ github.sha }}"; then
-            echo "✅ 已按 sha tag 签名"
-          else
-            echo "::warning::镜像 keyless 签名失败（二进制校验和签名由 sign-binaries 作业完成，为核心供应链门）。请查看日志定位 cosign 问题后补签。"
+          DIGEST="${{ steps.build.outputs.digest }}"
+          if [ -z "${DIGEST}" ]; then
+            echo "::error::build 步骤未输出 digest，无法定位签名目标"
+            exit 1
           fi
+          cosign sign --yes "${IMAGE}@${DIGEST}"
+          echo "✅ 已按 digest 完成 keyless 签名: ${IMAGE}@${DIGEST}"
 
   npm-publish:
     name: Publish TypeScript SDK
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
@@ -274,6 +400,7 @@ jobs:
       - name: Install and build
         working-directory: sdk/typescript
         run: |
+          set -euo pipefail
           npm ci
           npm run build
 

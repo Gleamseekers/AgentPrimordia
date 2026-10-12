@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-10-12T05:46:09Z",
+  "framework_version": "7.5.1",
+  "generator": "go run ./agentprimordia/ecosystem/examples/a2a-handoff report（GenerateInteropReport 离线静态分析，无需运行端点）",
+  "generation_mode": "offline-static-analysis",
+  "agent_card": {
+    "name": "ap-handoff-agent",
+    "description": "经开放 A2A 协议提供问答与任务委托能力的 ap Agent（Demo 模式，零凭据可跑）",
+    "url": "http://127.0.0.1:9797",
+    "version": "7.5.1",
+    "capabilities": {
+      "streaming": true,
+      "pushNotifications": false,
+      "stateTransitionHistory": true
+    },
+    "skills": [
+      {
+        "id": "a2a-explainer",
+        "name": "A2A 协议讲解",
+        "description": "介绍 A2A 开放协议与多 Agent 互操作要点",
+        "tags": [
+          "a2a",
+          "interop"
+        ]
+      }
+    ],
+    "defaultInputModes": [
+      "text"
+    ],
+    "defaultOutputModes": [
+      "text"
+    ]
+  },
+  "interop_config": {
+    "mode": "compatible",
+    "ioModes": {
+      "inputModes": [
+        "text"
+      ],
+      "outputModes": [
+        "text"
+      ]
+    },
+    "exposeAgentCard": true,
+    "agentCardPath": "/.well-known/agent.json"
+  },
+  "report": {
+    "mode": "compatible",
+    "checks": [
+      {
+        "name": "agent_card.name",
+        "passed": true,
+        "detail": "Agent Card 必须包含 name"
+      },
+      {
+        "name": "agent_card.url",
+        "passed": true,
+        "detail": "Agent Card 必须包含 url 端点"
+      },
+      {
+        "name": "agent_card.version",
+        "passed": true,
+        "detail": "Agent Card 应包含 version"
+      },
+      {
+        "name": "capabilities.streaming",
+        "passed": true,
+        "detail": "流式能力声明字段存在"
+      },
+      {
+        "name": "default_input_modes",
+        "passed": true,
+        "detail": "应声明默认输入模式"
+      },
+      {
+        "name": "default_output_modes",
+        "passed": true,
+        "detail": "应声明默认输出模式"
+      },
+      {
+        "name": "agent_card.exposed",
+        "passed": true,
+        "detail": "Agent Card 发现端点是否暴露"
+      },
+      {
+        "name": "io_modes.text",
+        "passed": true,
+        "detail": "文本输入输出模式支持"
+      }
+    ],
+    "score": 1
+  }
+}

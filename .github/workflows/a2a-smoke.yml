@@ -1,0 +1,93 @@
+name: A2A Handoff Smoke (Clean-Room)
+
+on:
+  pull_request:
+    # 仅 A2A 楔子相关变更触发：跨进程 demo、A2A 协议实现、英文概念页。
+    # 三者共同决定对外「A2A 多代理互操作」叙事，任一变动都需重新验证
+    # clean-room 可走通（demo 15 分钟内跑完）。
+    paths:
+      - 'agentprimordia/ecosystem/examples/a2a-handoff/**'
+      - 'agentprimordia/internal/agent/a2a/**'
+      - 'agentprimordia/docs/concepts/multi-agent-interop.md'
+  workflow_dispatch:
+
+# 安全基线（对齐 quickstart-smoke.yml / release.yml / ci.yml）：
+#   - 不使用工作流级 permissions，job 按最小权限精确声明（contents: read 足够——
+#     本门只读代码、构建、跑 Demo 模式，不写仓库、不发 Release）；
+#   - 第三方 action 一律 pin 到提交 SHA 并附 # vX 可读注释，避免上游 tag 被移动
+#     导致供应链投毒。
+
+jobs:
+  a2a-smoke:
+    name: Clean-room A2A Handoff Smoke
+    runs-on: ubuntu-latest
+    # 硬性时限：整 job 必须 <15 分钟（demo 本身约 5 秒，余量为依赖下载/构建）
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          # 精确 pin：浮动 '1.26' 无法保证拿到已修补补丁版（go1.26.9 修复了
+          # govulncheck 报出的 11 个可达标准库漏洞，见 quickstart-smoke.yml 同款断言）。
+          go-version: '1.26.9'
+
+      - name: Unit tests (executor bridge + card conformance)
+        run: |
+          set -euo pipefail
+          echo "工具链: $(go version)"
+          # GOWORK=off：显式关闭 workspace 模式，走模块依赖图（同 quickstart-smoke 口径）
+          GOWORK=off go test ./agentprimordia/ecosystem/examples/a2a-handoff/
+          echo "OK: a2a-handoff 单测通过"
+
+      - name: Run cross-process demo (outside repo)
+        # 关键口径：从仓库外临时目录（$RUNNER_TEMP/a2a-smoke）调起 demo 脚本；
+        # run.sh 内部再把二进制与日志放进仓库外 mktemp 目录并本地构建
+        # （不依赖 go install 代理），证明 demo 不依赖仓库内相对状态。
+        working-directory: ${{ runner.temp }}
+        env:
+          # 显式置空：不设 AP_LLM_API_KEY → server 走 Demo 模式
+          # （关键词匹配响应，无外部 LLM 调用，CI 无需任何密钥）
+          AP_LLM_API_KEY: ''
+        run: |
+          set -euo pipefail
+          SMOKE_DIR="${RUNNER_TEMP}/a2a-smoke"
+          rm -rf "${SMOKE_DIR}"
+          mkdir -p "${SMOKE_DIR}"
+          cd "${SMOKE_DIR}"
+          # set +e 包裹：命令替换失败时先拿到退出码再决定（set -e 下赋值失败会直接退出）
+          set +e
+          OUTPUT="$("${GITHUB_WORKSPACE}/agentprimordia/ecosystem/examples/a2a-handoff/run.sh" 2>&1)"
+          RC=$?
+          set -e
+          echo "${OUTPUT}"
+          if [ "${RC}" -ne 0 ]; then
+            echo "::error::a2a-handoff run.sh 退出码 ${RC}"
+            exit "${RC}"
+          fi
+          echo "${OUTPUT}" > demo-output.txt
+
+      - name: Assert key output strings
+        working-directory: ${{ runner.temp }}/a2a-smoke
+        run: |
+          set -euo pipefail
+          # 断言关键字来自 run.sh/client.go 的真实输出（grep -F 固定串匹配，
+          # 避免正则元字符歧义）；run.sh 内部已断言同一组串，此处为 CI 侧复核。
+          assert_contains() {
+            if ! grep -qF "$1" demo-output.txt; then
+              echo "::error::demo 输出缺少关键串: $1"
+              exit 1
+            fi
+          }
+          assert_contains "=== A2A 跨进程委托 Demo（client 进程）==="
+          assert_contains "[1/5] 发现 Agent Card: name=ap-handoff-agent"
+          assert_contains "[2/5] 委托任务:"
+          assert_contains "[3/5] 轮询至终态: state=completed"
+          assert_contains "[4/5] 取回结果:"
+          assert_contains "[5/5] 取消演示:"
+          assert_contains "协议符合性: 100%（8/8 项检查通过）"
+          assert_contains "=== A2A 跨进程委托 Demo 完成 ==="
+          assert_contains "OK: a2a-handoff demo 全链路通过"
+          echo "OK: 跨进程 demo（发现→委托→轮询→取回→取消）关键输出全部命中"

@@ -1,0 +1,18 @@
+# ap a2a interop-check 原始输出（CLI 口径，逐字保存）
+# 生成时间: 2026-10-12T05:46:26Z | 框架版本: 7.5.1 | 命令: ap a2a interop-check
+# 注意: CLI 使用内置默认 card（ap-agent @ http://localhost:8080），非 demo server 的 card；
+#       demo server card 的符合性证据见同目录 a2a-interop-report.json。
+
+🌐 开放 A2A 协议兼容性报告
+   模式: compatible | 符合性得分: 100%
+
+   ✅ agent_card.name              Agent Card 必须包含 name
+   ✅ agent_card.url               Agent Card 必须包含 url 端点
+   ✅ agent_card.version           Agent Card 应包含 version
+   ✅ capabilities.streaming       流式能力声明字段存在
+   ✅ default_input_modes          应声明默认输入模式
+   ✅ default_output_modes         应声明默认输出模式
+   ✅ agent_card.exposed           Agent Card 发现端点是否暴露
+   ✅ io_modes.text                文本输入输出模式支持
+
+✅ 全部检查通过，符合开放 A2A 协议规范

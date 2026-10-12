@@ -326,6 +326,7 @@ ap completion                  # shell completion scripts
 |---|---|---|
 | code-review-agent | code review agent with a learning loop | `go run ./agentprimordia/ecosystem/examples/code-review-agent/` |
 | data-analysis-agent | data analysis agent | `go run ./agentprimordia/ecosystem/examples/data-analysis-agent/` |
+| a2a-handoff | **cross-process A2A handoff: two processes, zero credentials** | `./agentprimordia/ecosystem/examples/a2a-handoff/run.sh` |
 | a2a-connect | A2A protocol interop | `go run ./agentprimordia/ecosystem/examples/a2a-connect/` |
 | github-issue-triage | automatic GitHub issue triage | `go run ./agentprimordia/ecosystem/examples/github-issue-triage/` |
 | multi-agent | Pool concurrent scheduling | `go run ./agentprimordia/ecosystem/examples/multi-agent/` |
@@ -413,8 +414,8 @@ Apache-2.0 © AgentPrimordia Contributors
   Update together with the code, then re-run: node scripts/doc-version-consistency.mjs
 
   [![Version](https://img.shields.io/badge/version-7.5.1-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.5.md)
-  [![Tests](https://img.shields.io/badge/tests-662%20files-green.svg)](agentprimordia/internal/)
-  Red → Green → Refactor，662 个测试文件
-  核心框架主模块（161 个包，1359 个 Go 文件）
+  [![Tests](https://img.shields.io/badge/tests-663%20files-green.svg)](agentprimordia/internal/)
+  Red → Green → Refactor，663 个测试文件
+  核心框架主模块（162 个包，1366 个 Go 文件）
   微内核（34 个子包）
 -->

@@ -241,6 +241,7 @@ make run-multi          # concurrent agents
 make run-production     # RAG + resilient calling + events
 
 go run ./ecosystem/examples/a2a-interop/       # cross-ecosystem delegation over A2A
+./ecosystem/examples/a2a-handoff/run.sh        # cross-process handoff: server + client, zero credentials
 go run ./ecosystem/examples/skill-evolution/   # skills learned → reused
 go run ./ecosystem/examples/resilient-provider/# retry / fallback / circuit breaker
 ```

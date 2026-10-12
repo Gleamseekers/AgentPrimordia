@@ -3,9 +3,43 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
+	"runtime/debug"
 )
 
+// Version 由发布流水线经 ldflags 注入（release.yml 注入去 v tag 的语义化版本，
+// ci.yml 注入带 v 的 ref_name）。未经 ldflags 的构建（go install module@version、
+// go build）回填为 "dev"——此时尝试从 build info 读取模块版本，让
+// `go install .../cmd/ap@v7.5.1` 的用户看到真实版本而不是 dev。
 var Version = "dev"
+
+func init() {
+	Version = resolveVersion(Version, debug.ReadBuildInfo)
+}
+
+// resolveVersion 决定对外展示的版本号：ldflags 注入值优先；否则取 build info
+// 的模块版本——但仅接受干净语义化版本（go install module@vX.Y.Z 的场景）；
+// 本地构建的伪版本（vX.Y.Z-0.<ts>-<commit>[+dirty]）与 (devel) 一律保持 dev，
+// 避免把不可复现的构建标识当成版本号展示。
+// readBuildInfo 为依赖注入点（测试替身），nil 表示无 build info。
+func resolveVersion(injected string, readBuildInfo func() (*debug.BuildInfo, bool)) string {
+	if injected != "dev" {
+		return injected
+	}
+	bi, ok := readBuildInfo()
+	if !ok || bi == nil {
+		return injected
+	}
+	if cleanSemverRe.MatchString(bi.Main.Version) {
+		return bi.Main.Version
+	}
+	return injected
+}
+
+// cleanSemverRe 匹配干净语义化版本：vX.Y.Z 或 vX.Y.Z-<prerelease>，其中
+// prerelease 段不含点——据此排除 go build 的伪版本（vX.Y.Z-0.<14 位时间戳>-<commit>[+dirty]，
+// 其时间戳段必含点）。ldflags 注入的真实版本不受此限（优先返回）。
+var cleanSemverRe = regexp.MustCompile(`^v\d+\.\d+\.\d+(-[0-9A-Za-z-]+)?$`)
 
 const (
 	usage = `AgentPrimordia (ap) — Go Agent Framework CLI

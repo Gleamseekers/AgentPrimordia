@@ -1,0 +1,30 @@
+# Dependabot 配置——GitHub Actions 生态的 SHA pin 自动保鲜
+#
+# 背景：v7.5.2 供应链加固批次（commit 3596d844）把全部第三方 action pin 到
+# 提交 SHA（附 # vX 可读注释）。SHA pin 的代价是上游发版后不会自动跟随，
+# 需有机制提醒更新——本配置即为该机制（版本路线 v7.8 P 项）。
+#
+# 语义说明：Dependabot 对 github-actions 生态支持 SHA pin；它在 PR 里同时
+# 更新 SHA 与行尾版本注释，保持本仓库「SHA pin + 可读注释」的双重口径。
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - supply-chain
+    # 分组更新：同一 PR 内合并多个 action 的 pin 升级，降低评审面
+    groups:
+      github-actions:
+        patterns:
+          - "*"

@@ -5563,6 +5563,16 @@
           "name": "PlanState",
           "kind": "alias",
           "doc": "PlanState 计划状态"
+        },
+        {
+          "name": "PlannerGuard",
+          "kind": "alias",
+          "doc": "PlannerGuard 规划护栏（线程安全）：turns 预算 + 递归深度双重守门。"
+        },
+        {
+          "name": "PlannerBudget",
+          "kind": "alias",
+          "doc": "PlannerBudget 规划护栏阈值配置（默认值即护栏值：20% / 2 层）。"
         }
       ],
       "constants": [
@@ -5624,6 +5634,30 @@
         {
           "name": "NewManagedPlan",
           "doc": "NewManagedPlan 创建受管计划（状态机驱动：pending→active→blocked→completed/failed）"
+        },
+        {
+          "name": "ErrPlanBudgetExceeded",
+          "doc": "ErrPlanBudgetExceeded 规划 turns 预算耗尽的哨兵错误（errors.Is 可识别）。"
+        },
+        {
+          "name": "ErrPlanDepthExceeded",
+          "doc": "ErrPlanDepthExceeded 递归分解深度超限的哨兵错误（errors.Is 可识别）。"
+        },
+        {
+          "name": "NewEnhancedPlannerWithBudget",
+          "doc": "NewEnhancedPlannerWithBudget 创建带规划护栏的增强规划器。"
+        },
+        {
+          "name": "WithPlannerTurnRatio",
+          "doc": "WithPlannerTurnRatio 设置规划 turns 占比上限（如 0.1 = 10%）。"
+        },
+        {
+          "name": "WithMaxPlanDepth",
+          "doc": "WithMaxPlanDepth 设置递归分解最大层数（如 1 = 只允许一层分解）。"
+        },
+        {
+          "name": "DefaultPlannerBudget",
+          "doc": "DefaultPlannerBudget 返回护栏默认值（20% / 2 层）。"
         }
       ]
     },

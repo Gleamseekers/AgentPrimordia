@@ -4,6 +4,45 @@
 
 ## [Unreleased]
 
+> 本段覆盖 2026-10-10 ~ 2026-10-12「GA 后巩固期」实施批次（版本路线
+> deliverables/gstack/版本路线-7.5.2到8.0-2026-10-10.md §八 有逐项 commit 索引）。
+> 版本号未 bump（仍 7.5.1）——发布时机与版本号由维护者按退出判据统一决定。
+
+### Added — v7.6「第一印象」
+
+- **英文前门**：根 README.md 与 agentprimordia/README.md 英文化为默认落地页（中文全量移 README.zh-CN.md，双向导航）；docs/getting-started 三篇英译（five-minutes / installation / first-agent）；删必然失败的 `go get agentprimordia` 与写死 v7.3.0 的腐烂徽章（改动态 release 徽章）；「5 分钟体验」改为任意目录 `ap init` + Demo 模式（免 API key）；头条能力表 v3.3–v3.6 旧闻 → v7.x 实况；新增中英双语「What we deliberately do not claim」诚实节（世界模型 opt-in / EnhancedPlanner 反向显著 / agent 自写工具研究阻塞）
+- **clean-room CI 门**：quickstart-smoke.yml（PR 级本地构建 ap → 仓库外 init→tidy→build→Demo 运行，含 standalone 版本回归锁）+ all-templates-smoke job（9 模板全普查 + 模板清单反向守护）——quickstart 从此永远不再「未经干净环境验证」
+- **API 冻结机制**：pkg/api_surface_test.go + api_surface.golden（纯标准库 AST 收集，1367 个导出符号全量在案）；新增导出即红、更新黄金 = 维护者批准的契约变更；失败输出按新增/删除/变更三类列符号
+- **EnhancedPlanner 护栏（D6）**：provider 装饰器接入不改 ReAct 循环一行代码；默认值即护栏值（规划 turns ≤ 总 turns 20% floor、递归深度 ≤ 2、totalTurns 漏配按 25 turns 兜底）；24 个新测试；实现期 -race 实测发现并修复 AcquirePlanTurn TOCTOU 超发
+
+### Added — v7.7「A2A 楔子」主副线
+
+- **A2A 跨进程委托 demo**（ecosystem/examples/a2a-handoff）：server/client 双独立进程，开放协议全链路 发现→委托→轮询→取回→取消，零凭据约 5 秒，协议符合性 8/8；a2a-smoke.yml clean-room 门；docs/concepts/multi-agent-interop.md 英文概念页（两套客户端面对照 + Known limitations）；bench/results/a2a-interop/ 符合性报告入库
+- **WASM 工具安全供应链 demo**（ecosystem/examples/wasm-tool-supply-chain，副线）：手工字节组装 WASM 工件 → ed25519 签名 → 公钥钉扎（fail-closed）→ 验签门注册 → agent 在 wazero 沙箱真实调用；四类拒绝分支（未签名 A6 / 公钥未钉扎 / 非 WASM / 篡改工件）全部有框架真实错误文本实证，成功分支有宿主侧独立复算对账；wasm-smoke.yml 门；开发期实证修掉两个 WASM 字节码 bug（i32.shr_u opcode、i32.store8 栈序）
+- **A2A 文档与示例修正**：a2a-interop 示例两处 nil 解构 panic（GetTask 失败返回 nil, err）；docs/api/A2A-API.md 整篇重写（原文整篇为 v4.0 前 API）；A2A互通.md / 第三方集成.md 按真实方法集重写（含原本编译不过的片段）
+
+### Added — v7.8「8.0 彩排」
+
+- **deprecation 全标记**：387 个导出符号（16 个 pkg 文件）加 `// Deprecated: ... [v8.0-cut]`；pkg/v8_cut_scope_test.go + v8_cut_scope.txt 双边包含断言（清单⊆已标记 且 已标记⊆清单，三个方向篡改实测有效）
+- **ap migrate 工具**：import 路径 /v7→/v8 机械重写（go/parser 定位 + go.mod module/require/replace 同步）；--check 只报告不落盘（CI 门语义）；幂等；14 单测；三下游形态实测 ecosystem 38 文件 59 处 + operator 15 文件 16 处
+- **英文文档最低集收尾**：docs/concepts/security-model.md（INV-0 三禁映射 A1–A8 + 验签门控，go 片段 go run 实证）+ framework-positioning.md（是什么/不是什么/竞品窄差异/何时不该用）
+- **Dependabot**（.github/dependabot.yml，github-actions weekly 分组更新）+ **ADOPTERS.md**（诚实空表 + 自报方式 + triage SLA）
+- **8.0 范围决定稿草案**（deliverables/gstack/8.0-范围决定稿-2026-10-12.md，待维护者逐项签署）：五组签署总表 + 七项 dry-run 实测前置条件 + 每项回退条件
+
+### Fixed — 供应链加固与前门/模板缺陷（全部实证复现后修复）
+
+- **release 工作流最小权限化 + action 全量 SHA pin + 工具链安全下限断言**（六个工作流；go1.26.9 修复 govulncheck 报出的 11 个可达标准库漏洞；x/net v0.58.0→v0.61.0 等）
+- **standalone 脚手架版本修复**：ap init/ap start 在仓库外不再锁死旧占位 v7.0.0（该 tag 早于 /v7 模块路径迁移，用户 tidy 直接失败）——ldflags 版本优先 + droprequire 后 go get @latest 兜底，GOWORK=off 隔离
+- **plugin 模板生成不可消费项目**：模板 import 框架 internal/tools（用户项目依法不能 import 依赖模块 internal/，仓库外永远编译不过）——改走公共面 ap.ToolResult/ap.NewToolResult；新增全模板 internal 引用断言测试
+- **ap version 显示 dev**：go install 构建经 build info 回填真实版本（仅接受干净语义化版本，伪版本拒绝）
+- **A2A 示例 nil 解构 panic ×2**；文档站首页坏命令（go install 旧 org 路径）+ 404 clone URL + 4 个编译不过的文档片段；gofmt 全树格式化（约 80 个文件从未格式化，CI 无 fmt 门）；三个散落 profiling 工件移出版本控制
+
+### Documentation — 治理与诚实性
+
+- **E-1 世界模型实验正式收口**（docs/E-1-世界模型最终报告.md）：112 对阴性（+5.4pp，官方 p=0.1796 / 独立复算 p=0.2379），门（+15pp 且 p<0.05）未达；**翻默认否决，D1 关闭**；披露口径链断裂（summary.json 的 89/95 无法从原始数据复现，8 种口径均不命中）；holdout_total=0；13 单元对照因端点凭据缺失未执行（定量评估：全翻也仅 +4.5pp）
+- **台账对账五项回填**（soak 停摆实况登记「暂停」/ E-4·E-5 v7.1 扩量阴性 / GA 状态 / E-1 终态）+ 四处范围外失断修复（版本规范登记表、实验性能力清单、V7 路线图、AGENTS.md）
+- **文档权威索引**登记 E-1 报告、版本路线、8.0 决定稿、三篇英文概念页、ADOPTERS、降级豁免台账
+
 ## [7.5.1] - 2026-09-29
 
 > **v7.5.0 作废说明**：v7.5.0 tag 首次推送时模块路径修复尚未完成（子目录模块不可被发现、缺 /v7 后缀、go.mod 含 replace），GOPROXY 代理已按版本不可变性缓存该损坏版本。v7.5.1 为修正后的正式发布版；请勿使用 v7.5.0。

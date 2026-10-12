@@ -198,3 +198,6 @@ agentprimordia/.ap.yaml
 
 .intel-tools/
 agentprimordia/tool-intelligence
+
+# 智能体工作区状态（非仓库内容）
+.workbuddy-ai/

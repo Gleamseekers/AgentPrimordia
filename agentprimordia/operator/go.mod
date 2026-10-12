@@ -1,6 +1,6 @@
 module github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/operator
 
-go 1.26.6
+go 1.26.9
 
 require (
 	github.com/go-logr/logr v1.4.3

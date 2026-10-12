@@ -17,13 +17,13 @@ jobs:
     name: Auto-tag based on source version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0  # 需完整 tag 历史做版本比较（浅检出会漏最新 tag 致重复打 tag 冲突）
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.26'
+          go-version: '1.26.9'
 
       - name: Extract source version
         id: version

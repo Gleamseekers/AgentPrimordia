@@ -73,7 +73,9 @@ TEST_OUTPUT="$(mktemp)"
 trap "rm -f $TEST_OUTPUT" EXIT
 
 set +e
-GOTOOLCHAIN="${GOTOOLCHAIN:-go1.26.4}" go test -count=1 -v -run "$GO_TEST_FILTER" "$EVAL_PKG" 2>&1 | tee "$TEST_OUTPUT"
+# 工具链下限：go1.26.9 起修复了 govulncheck 报出的可达标准库漏洞
+# （原默认值为 go1.26.4，与仓库其余部分的 1.26.9 基线不一致）
+GOTOOLCHAIN="${GOTOOLCHAIN:-go1.26.9}" go test -count=1 -v -run "$GO_TEST_FILTER" "$EVAL_PKG" 2>&1 | tee "$TEST_OUTPUT"
 TEST_EXIT=$?
 set -e
 

@@ -4,6 +4,23 @@
 .git
 .gitignore
 
+# 敏感文件（绝不进 build context）
+# 注意：docker build 不读 .gitignore，只读 .dockerignore。仓库根与 agentprimordia/
+# 下各存在一个含真实 API Key 的 .env.local（已被 .gitignore 覆盖、从未入库，CI 中
+# 也不存在），但本地或自建 runner 构建时会被 COPY . . 打进镜像层。
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.crt
+**/*.p12
+**/*.pfx
+**/id_rsa*
+**/id_ed25519*
+**/credentials.json
+**/.aws/
+**/.ssh/
+
 # 构建/缓存产物（任意深度）
 **/node_modules
 **/.gocache

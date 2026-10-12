@@ -1,6 +1,6 @@
 module github.com/Gleamseekers/AgentPrimordia/wasm
 
-go 1.26.6
+go 1.26.9
 
 require github.com/tetratelabs/wazero v1.12.0
 

@@ -1,6 +1,6 @@
 name: Agent Eval
 
-# 触发条件：每次 push / PR 触发 eval 套件
+# 触发条件：每次 push / PR 触发 eval 套件；亦支持手动触发并指定通过率阈值
 # 目的：检测 Agent 行为退化（输出质量、响应延迟、工具调用准确性）
 #
 # 与 CI workflow 的区别：
@@ -11,6 +11,16 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
+  # 手动触发入口：可指定阈值。
+  # 原实现中 job 名引用了未声明的 `inputs.threshold`（actionlint 报错），
+  # 且脚本阈值被硬编码为 0.8 —— 说明该输入从未真正接线。此处补齐声明并接线。
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: '最小通过率阈值，取值范围 [0, 1]'
+        required: false
+        default: '0.8'
+        type: string
 
 jobs:
   eval:
@@ -18,19 +28,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
-          go-version: '1.26.4'
+          go-version: '1.26.9'
 
       - name: Cache Go modules
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-1.26.4-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-1.26.9-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-1.26.4-
+            ${{ runner.os }}-go-1.26.9-
 
       - name: Download dependencies
         run: go mod download
@@ -45,23 +55,33 @@ jobs:
         id: eval
         env:
           CGO_ENABLED: 0
+          # 经 env 传入，避免把触发输入直接插值进 shell 命令行（注入面收敛）
+          EVAL_THRESHOLD: ${{ inputs.threshold || '0.8' }}
         run: |
+          set -uo pipefail
           cd agentprimordia
+          # 阈值合法性预检（run_eval.sh 亦会校验；此处提前失败并给出明确报错）
+          case "${EVAL_THRESHOLD}" in
+            ''|*[!0-9.]*)
+              echo "::error::threshold 必须为 [0,1] 之间的数值，got '${EVAL_THRESHOLD}'"
+              exit 1
+              ;;
+          esac
           chmod +x bench/eval-ci/run_eval.sh
           # 捕获退出码（shell -e 下需先 set +e 才能拿到非零退出码）
           set +e
-          ./bench/eval-ci/run_eval.sh --threshold 0.8 --json > eval-result.json
+          ./bench/eval-ci/run_eval.sh --threshold "${EVAL_THRESHOLD}" --json > eval-result.json
           EVAL_EXIT=$?
           set -e
           cat eval-result.json
           # 退出码非 0 即低于阈值：软失败（不阻断，仅标记 warning）
           if [ $EVAL_EXIT -ne 0 ]; then
-            echo "::warning::Eval suite did not meet threshold (soft-fail, see logs)"
+            echo "::warning::Eval suite did not meet threshold ${EVAL_THRESHOLD} (soft-fail, see logs)"
           fi
 
       - name: Upload eval results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: eval-result-${{ github.run_id }}
           path: agentprimordia/eval-result.json
@@ -69,7 +89,7 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request' && always()
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
         with:
           header: agent-eval
           message: |

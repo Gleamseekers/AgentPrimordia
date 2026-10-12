@@ -1,6 +1,6 @@
 module github.com/Gleamseekers/AgentPrimordia/pgvector
 
-go 1.26.6
+go 1.26.9
 
 require github.com/jackc/pgx/v5 v5.10.0
 

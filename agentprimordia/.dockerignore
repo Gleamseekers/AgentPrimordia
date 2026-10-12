@@ -1,5 +1,18 @@
 .git
 .gitignore
+# 敏感文件（同仓库根 .dockerignore；此文件在 context=agentprimordia/ 时生效）
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+credentials.json
+.aws/
+.ssh/
 *.exe
 *.dll
 *.so

@@ -9,7 +9,15 @@
 # ============================================================
 
 # ---- Stage 1: Go builder ----
-FROM golang:1.26-alpine AS go-builder
+# 基础镜像 pin 到精确补丁版：浮动 golang:1.26 无法保证拿到已修补工具链。
+# go1.26.9 修复了 govulncheck 报出的 11 个可达标准库漏洞
+# （net/http Range 头 DoS、html/template ×2、net/textproto、crypto/tls、os 等）。
+# 待补：进一步 pin 到 digest（需 registry 访问）：golang:1.26.9-alpine@sha256:<digest>
+FROM golang:1.26.9-alpine AS go-builder
+
+# 版本号经 build-arg 注入（原实现用 `git describe`，但 .dockerignore 排除了 .git，
+# 容器内必然失败并回退为 "dev" —— 导致镜像内 ap-admin 版本号恒为 dev）
+ARG VERSION=dev
 
 WORKDIR /build
 
@@ -21,10 +29,11 @@ COPY . .
 
 # 无 CGO（modernc.org/sqlite 为纯 Go 驱动）
 ENV CGO_ENABLED=0
-RUN go build -ldflags="-s -w -X main.Version=$(git describe --tags --always --dirty 2>/dev/null || echo dev)" \
+RUN go build -ldflags="-s -w -X main.Version=${VERSION}" \
     -o /bin/ap-admin ./agentprimordia/cmd/admin/
 
 # ---- Stage 2: Runtime ----
+# 待补：pin 到 digest，例如 alpine:3.20@sha256:<digest>
 FROM alpine:3.20
 
 # wget 用于 HEALTHCHECK 探针；ca-certificates 用于 HTTPS 出站（LLM API 等）

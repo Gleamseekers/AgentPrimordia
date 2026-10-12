@@ -6,7 +6,9 @@
 # 用法：在构建时传入 SBOM_PATH 参数
 #   docker build -f Dockerfile.sbomlabel --build-arg SBOM_PATH=sbom.json -t myapp:latest .
 
-FROM golang:1.26-alpine AS builder
+# 基础镜像 pin 到精确补丁版（见 Dockerfile.prod 同款说明）。
+# 待补：进一步 pin 到 digest（需 registry 访问）。
+FROM golang:1.26.9-alpine AS builder
 
 ARG SBOM_PATH=""
 ARG VERSION=dev
@@ -34,6 +36,7 @@ LABEL com.agentprimordia.sbom="${SBOM_PATH}"
 LABEL com.agentprimordia.sbom.format="cyclonedx-json"
 LABEL com.agentprimordia.build.timestamp=""
 
+# 待补：pin 到 digest，例如 alpine:3.20@sha256:<digest>
 FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata
 

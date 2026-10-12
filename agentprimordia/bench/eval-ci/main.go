@@ -36,7 +36,9 @@ func main() {
 		jsonOutput = flag.Bool("json", false, "输出 JSON 格式结果")
 		filter     = flag.String("filter", "TestExactMatch|TestEvalSuite|TestEvaluator", "go test -run 过滤正则")
 		pkg        = flag.String("pkg", "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/eval/...", "go test 包路径")
-		toolchain  = flag.String("toolchain", "go1.26.4", "Go toolchain")
+		// 工具链下限：go1.26.9 起修复了 govulncheck 报出的可达标准库漏洞
+		// （原默认值为 go1.26.4，与仓库其余部分的 1.26.9 基线不一致）
+		toolchain = flag.String("toolchain", "go1.26.9", "Go toolchain")
 	)
 	flag.Parse()
 

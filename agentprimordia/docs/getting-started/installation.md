@@ -186,18 +186,11 @@ package manager, or the installer from <https://go.dev/dl/>.
 
 ### Scaffolded project cannot resolve the framework
 
-`ap init` writes a `go.mod` that requires a framework version and `go mod tidy` resolves it
-from the module proxy. Older `ap` builds pin a version the proxy cannot resolve, which shows
-up as `missing github.com/Gleamseekers/AgentPrimordia/go.mod and .../v7/go.mod at revision
-vX.Y.Z`. Drop the pin and let `tidy` select the latest release:
-
-```bash
-go mod edit -droprequire=github.com/Gleamseekers/AgentPrimordia/v7 && go mod tidy
-```
-
-If you work **inside** a framework checkout, the scaffold wires a local `replace` instead —
-build with `GOWORK=off` or add the project to the workspace `go.work`
-(`go work use ./my-agent`). Details: [AP-开发手册-EN.md](../AP-开发手册-EN.md) FAQ.
+`ap init` writes a `go.mod` that requires the current released framework version, and
+`go mod tidy` resolves it from the module proxy. If you work **inside** a framework
+checkout, the scaffold wires a local `replace` instead — build with `GOWORK=off` or add the
+project to the workspace `go.work` (`go work use ./my-agent`). Details:
+[AP-开发手册-EN.md](../AP-开发手册-EN.md) FAQ.
 
 ## Next steps
 

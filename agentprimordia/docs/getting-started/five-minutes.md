@@ -41,13 +41,6 @@ Resolve dependencies once:
 go mod tidy
 ```
 
-> If `go mod tidy` cannot resolve the framework version pinned by the scaffold (older `ap`
-> builds pin an unresolvable version), drop the pin and let `tidy` pick the latest release:
->
-> ```bash
-> go mod edit -droprequire=github.com/Gleamseekers/AgentPrimordia/v7 && go mod tidy
-> ```
-
 ## Step 3 — Run it in Demo mode
 
 ```bash

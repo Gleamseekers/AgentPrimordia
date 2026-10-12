@@ -47,14 +47,6 @@ go mod tidy
 go run .
 ```
 
-> **Note:** if your `ap` build predates the scaffold fix, the generated `go.mod` may pin a
-> framework version the module proxy cannot resolve. Drop the pin and let `tidy` pick the
-> latest release:
->
-> ```bash
-> go mod edit -droprequire=github.com/Gleamseekers/AgentPrimordia/v7 && go mod tidy
-> ```
-
 With `AP_LLM_API_KEY` unset the scaffolded project runs in **Demo mode**: a keyword-matching
 provider (`ap.NewDemoProvider()`) so you can exercise the full ReAct loop — turns, tool
 dispatch, stats — before you own a single token. To switch to a real model:

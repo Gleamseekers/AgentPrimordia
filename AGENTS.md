@@ -77,7 +77,7 @@ internal/
 │   ├── a2a/        — Agent2Agent 协议实现（JSON-RPC / SSE / 任务管理）
 │   ├── planning/   — 任务规划器
 │   ├── reflection/ — Agent 自反思能力
-│   ├── worldmodel/ — 世界模型（实体/关系/因果算子状态图；自 v6.1 起经 WithWorldModel() opt-in，**默认仍关闭**——"v7.0 翻默认"未执行，见 docs/实验性能力清单.md）
+│   ├── worldmodel/ — 世界模型（实体/关系/因果算子状态图；自 v6.1 起经 WithWorldModel() opt-in，**默认仍关闭**——v6.1 命题 1 已跑完 112 对未达标（+5.4pp, p=0.1796（官方）/ 0.2379（独立复算）；门 +15pp 且 p<0.05），**翻默认否决（D1 关闭，2026-10-12 登记）**；证据见 docs/降级豁免登记-V7弧线.md E-1、docs/E-1-世界模型最终报告.md、docs/实验性能力清单.md）
 │   └── tool_learning/ — 工具学习/自动发现
 ├── concurrency/    — 文件锁等并发原语
 ├── config/         — 配置热加载

@@ -6,7 +6,9 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -126,14 +128,58 @@ data/
 	return files, nil
 }
 
-// apRequirePlaceholder 生成项目 go.mod 的框架 require 占位版本。
+// apRequirePlaceholder dev 构建（Version 未经 ldflags 注入，如 go install /
+// go build 出的二进制）时写入脚手架 go.mod 的框架 require 占位版本。
 //
-// 为什么不是 v6.0.0：框架模块路径为无 /vN 后缀的 `github.com/Gleamseekers/AgentPrimordia`，按 Go 语义化导入
-// 版本（SIV）规则，require 行不允许出现 v2+ 版本（tidy 直接报 invalid version）。
-// 在框架采用 github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/vN 路径或回落 v1.x 标签之前，replace 场景一律使用
-// v0.0.0 占位（replace 后版本号不参与解析）；standalone 场景由调用方提示补 replace。
-// 详见 github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/docs/版本规范.md「模块消费与语义化导入版本限制」。
+// 该占位未必已发布到代理，因此 init 的 standalone 分支会先移除它再执行
+// goGetFrameworkLatest（go get <module>@latest），使 require 落到当前发布版；
+// 用户若跳自动解析手动 tidy，tidy 也会以 @latest 补全缺失的 require（自愈）。
 const apRequirePlaceholder = "v7.0.0"
+
+// semverCoreRegexp 匹配 X.Y.Z 形式的语义化版本 core 段（允许 -prerelease/+build 后缀）。
+var semverCoreRegexp = regexp.MustCompile(`^[0-9]+\.[0-9]+\.[0-9]+`)
+
+// frameworkRequireVersion 返回脚手架 go.mod 中框架 require 行的版本：
+//   - Version 经 ldflags 注入为合法 semver（release.yml：-X main.Version=<tag 去 v>；
+//     ci.yml 部分 job 注入带 v 前缀的 ref_name）→ "v"+版本号，发布二进制生成的
+//     go.mod 离线也指向当前发布版；
+//   - 否则（dev 构建）→ 回退 apRequirePlaceholder，由 init 的 standalone 分支
+//     go get <module>@latest 升级到代理当前发布版。
+func frameworkRequireVersion() string {
+	v := strings.TrimPrefix(strings.TrimSpace(Version), "v")
+	if semverCoreRegexp.MatchString(v) {
+		return "v" + v
+	}
+	return apRequirePlaceholder
+}
+
+// goGetFrameworkLatest 在 standalone 模式下把框架 require 升级到代理当前发布版
+// （go get <module>@latest）。定义为包级变量以便测试注入替身——网络行为不可在
+// 单测中真实触发，测试只验证"何时调用、失败后的提示"，不触网。
+var goGetFrameworkLatest = func(dir string) error {
+	cmd := exec.Command("go", "get", frameworkModulePath+"@latest")
+	cmd.Dir = dir
+	// GOWORK=off：显式关闭 workspace，避免继承仓库 go.work 使框架解析到本地源码
+	// 而非代理发布版（clean-room 口径）。
+	cmd.Env = setEnvVar(os.Environ(), "GOWORK", "off")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("go get %s@latest 失败: %s", frameworkModulePath, strings.TrimSpace(string(out)))
+	}
+	return nil
+}
+
+// dropFrameworkRequire 从项目 go.mod 移除框架 require 行（go mod edit，纯本地无网络）。
+//
+// standalone 场景的占位版本可能尚未发布（dev 构建写 v7.0.0，而该 tag 未必已推代理），
+// 带着不可解析的旧 require 执行 go get @latest 会直接失败；先移除再 get，require
+// 才能干净地落到 @latest。移除失败不致命（go get 成功时会覆写该行；失败时用户
+// 手动 go mod tidy 也会以 @latest 补全）。
+func dropFrameworkRequire(dir string) {
+	cmd := exec.Command("go", "mod", "edit", "-droprequire="+frameworkModulePath)
+	cmd.Dir = dir
+	cmd.Env = setEnvVar(os.Environ(), "GOWORK", "off")
+	_ = cmd.Run()
+}
 
 // frameworkModulePath 框架主模块路径（v7.5：go.mod 位于仓库根，SIV 要求
 // v2+ 模块路径带 /vN 后缀；代码包位于 agentprimordia/ 子目录，import 路径
@@ -142,17 +188,19 @@ const frameworkModulePath = "github.com/Gleamseekers/AgentPrimordia/v7"
 
 // buildGoMod 生成脚手架项目的 go.mod 内容。
 //
-// 背景（v6.0 复测发现的断链问题）：框架根模块的
-// `replace github.com/Gleamseekers/AgentPrimordia/pgvector => ../pgvector` 不具传递性——生成的独立子项目
-// 经 pkg → internal/memory → github.com/Gleamseekers/AgentPrimordia/pgvector 引用链解析该模块时，
+// 背景（v6.0 复测发现的断链问题）：pgvector 是仓库内独立模块
+// （github.com/Gleamseekers/AgentPrimordia/pgvector），replace 不具传递性——
+// 生成的独立子项目经 pkg → internal/memory → pgvector 引用链解析该模块时，
 // 必须在自己的 go.mod 里自行 require+replace，否则 go mod tidy 直接失败
-// （仓库内 workspace 模式会掩盖此问题，独立构建必现）。
+// （仓库内 workspace 模式会掩盖此问题，独立构建必现；standalone 场景则经
+// 代理上已发布的 pgvector v0.0.0 解析，无需 replace）。
 //
 // 策略：
 //   - 从 projectDir 向上探测框架模块（go.mod 声明 module github.com/Gleamseekers/AgentPrimordia/v7）：
 //     找到 → 以相对路径 emit replace，并连带 pgvector 的 require+replace；
-//   - 未找到（standalone）→ 不 emit replace，依赖 GOPROXY 发布版，
-//     返回 standalone=true 供调用方打印提示。
+//   - 未找到（standalone）→ 不 emit replace，require 取 frameworkRequireVersion()
+//     （Version 注入即当前发布版，dev 构建为占位），返回 standalone=true 供调用方
+//     打印提示并执行 go get <module>@latest 落到代理当前发布版。
 func buildGoMod(projectName, projectDir string) (content string, standalone bool) {
 	// 统一转绝对路径：调用方可能传入相对目录（如 init 的 targetDir=name），
 	// 混用相对路径会使 filepath.Rel/向上探测产生错误层级
@@ -171,13 +219,15 @@ func buildGoMod(projectName, projectDir string) (content string, standalone bool
 
 	frameworkDir := resolveFrameworkDir(os.Getenv("AP_ROOT"), filepath.Dir(projectDir))
 	if frameworkDir == "" {
-		// standalone：无本地框架，依赖代理发布版
+		// standalone：无本地框架，依赖代理发布版。require 版本取 frameworkRequireVersion()
+		// （Version 注入时即当前发布版；dev 构建为占位，由调用方 go get @latest 升级），
+		// 返回 standalone=true 供调用方打印提示并触发自动解析。
 		return fmt.Sprintf(`module %s
 
 go 1.26
 
 require %s %s
-`, projectName, frameworkModulePath, apRequirePlaceholder), true
+`, projectName, frameworkModulePath, frameworkRequireVersion()), true
 	}
 	if real, err := filepath.EvalSymlinks(frameworkDir); err == nil {
 		frameworkDir = real
@@ -209,16 +259,16 @@ require %s %s
 
 replace %s => %s
 replace github.com/Gleamseekers/AgentPrimordia/pgvector => %s
-`, frameworkModulePath, apRequirePlaceholder, frameworkModulePath, frameRel, pgvRel))
+`, frameworkModulePath, frameworkRequireVersion(), frameworkModulePath, frameRel, pgvRel))
 	} else {
-		sb.WriteString(fmt.Sprintf("require %s %s\n\nreplace %s => %s\n", frameworkModulePath, apRequirePlaceholder, frameworkModulePath, frameRel))
+		sb.WriteString(fmt.Sprintf("require %s %s\n\nreplace %s => %s\n", frameworkModulePath, frameworkRequireVersion(), frameworkModulePath, frameRel))
 	}
 	return sb.String(), false
 }
 
 // resolveFrameworkDir 解析框架源码目录：AP_ROOT 显式指定优先，但必须
 // 含框架 go.mod（v7.5 布局：go.mod 位于仓库根，声明 module
-// github.com/Gleamseekers/AgentPrimordia）；无效（未设置/目录不存在/
+// github.com/Gleamseekers/AgentPrimordia/v7）；无效（未设置/目录不存在/
 // 无 go.mod——如指向旧 agentprimordia/ 子目录的过期值）则回退向上探测。
 func resolveFrameworkDir(apRoot, fallbackStart string) string {
 	if apRoot != "" {

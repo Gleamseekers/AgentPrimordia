@@ -9,6 +9,21 @@ import (
 	"strings"
 )
 
+// standaloneHint 返回 standalone 模式（未检测到本地框架源码）下的提示文案。
+//
+// v7.6 修正：replace 的模块路径曾漏写 /v7（写成 github.com/Gleamseekers/AgentPrimordia/agentprimordia），
+// 用户照抄后 go mod tidy 直接报 unknown module；正确路径为框架主模块
+// github.com/Gleamseekers/AgentPrimordia/v7（SIV 要求 v2+ 模块路径带 /vN 后缀）。
+//
+// autoResolve 区分调用方是否会自动执行依赖解析：ap init 会自动
+// go get <module>@latest（见 runInit），ap plugin create 仅生成文件不做解析。
+func standaloneHint(autoResolve bool) string {
+	if autoResolve {
+		return fmt.Sprintf("提示：未检测到本地框架源码。将自动执行 go get %s@latest 经 GOPROXY 解析当前发布版；如需改用本地框架源码，请在 go.mod 添加 replace %s => <框架源码目录>（详见 docs/版本规范.md）", frameworkModulePath, frameworkModulePath)
+	}
+	return fmt.Sprintf("提示：未检测到本地框架源码。请手动执行 go get %s@latest 经 GOPROXY 解析当前发布版，或在 go.mod 添加 replace %s => <框架源码目录>（详见 docs/版本规范.md）", frameworkModulePath, frameworkModulePath)
+}
+
 func runInit(args []string) error {
 	var (
 		name        string
@@ -237,29 +252,52 @@ data/
 		return fmt.Errorf("write .gitignore failed: %w", err)
 	}
 
-	// 生成 go.mod（统一策略：版本对齐 v6.0.0 + 框架内自动闭合 pgvector 依赖链）
+	// 生成 go.mod（统一策略：版本对齐 + 框架内自动闭合 pgvector 依赖链）
 	goMod, standalone := buildGoMod(name, targetDir)
 	if err := os.WriteFile(filepath.Join(targetDir, "go.mod"), []byte(goMod), 0o644); err != nil {
 		return fmt.Errorf("write go.mod failed: %w", err)
 	}
 	if standalone {
-		infof("提示：未检测到本地框架源码。请手动在 go.mod 添加 replace github.com/Gleamseekers/AgentPrimordia/agentprimordia => <框架源码目录>（详见 docs/版本规范.md）；框架经 GOPROXY 发布后亦可直接 require")
+		infof("%s", standaloneHint(true))
 	} else if findGoWorkUp(".") {
 		infof("提示：检测到上级 go.work。若在仓库内构建本项目，请将其加入 go.work 的 use 列表，或以 GOWORK=off 构建（replace 已指向本地框架与 pgvector）")
 	}
 
-	// 自动执行 go mod tidy（除非 --no-tidy 或 standalone 模式）
+	// 自动解析依赖（除非 --no-tidy）：
+	//   - standalone：占位版本未必已发布，先移除占位 require 再 go get <module>@latest
+	//     把 require 落到代理当前发布版，随后 tidy（GOWORK=off，不继承仓库 go.work）；
+	//   - 框架内：replace 已指向本地源码与 pgvector，直接 tidy。
 	tidyRan := false
-	if !noTidy && !standalone {
-		fmt.Printf("  运行 go mod tidy ...\n")
-		tidyCmd := exec.Command("go", "mod", "tidy")
-		tidyCmd.Dir = targetDir
-		if output, err := tidyCmd.CombinedOutput(); err != nil {
-			errorf("go mod tidy 失败: %s", strings.TrimSpace(string(output)))
-			infof("请手动执行: cd %s && go mod tidy", name)
-		} else {
-			tidyRan = true
-			successf("依赖安装完成")
+	if !noTidy {
+		getOK := true
+		if standalone {
+			dropFrameworkRequire(targetDir)
+			fmt.Printf("  运行 go get %s@latest ...\n", frameworkModulePath)
+			if err := goGetFrameworkLatest(targetDir); err != nil {
+				errorf("%v", err)
+				infof("请手动执行: cd %s && go get %s@latest && go mod tidy", name, frameworkModulePath)
+				getOK = false
+			}
+		}
+		if getOK {
+			fmt.Printf("  运行 go mod tidy ...\n")
+			tidyCmd := exec.Command("go", "mod", "tidy")
+			tidyCmd.Dir = targetDir
+			// standalone 同样显式 GOWORK=off：isolatedGoEnv 仅在检测到本地 replace 时
+			// 才关闭 workspace，而 standalone 无 replace；关闭是为了避免继承仓库 go.work
+			// 使框架解析到本地源码而非代理发布版（clean-room 口径）。
+			if standalone {
+				tidyCmd.Env = setEnvVar(os.Environ(), "GOWORK", "off")
+			} else {
+				tidyCmd.Env = isolatedGoEnv(targetDir)
+			}
+			if output, err := tidyCmd.CombinedOutput(); err != nil {
+				errorf("go mod tidy 失败: %s", strings.TrimSpace(string(output)))
+				infof("请手动执行: cd %s && go mod tidy", name)
+			} else {
+				tidyRan = true
+				successf("依赖安装完成")
+			}
 		}
 	}
 

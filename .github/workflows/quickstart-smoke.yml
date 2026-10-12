@@ -1,0 +1,116 @@
+name: Quickstart Smoke (Clean-Room)
+
+on:
+  pull_request:
+    # 仅当前门相关变更触发：CLI 脚手架源码、前门 README、快速开始文档。
+    # 三者共同决定外部用户的「第一印象」路径，任一变动都需重新验证 clean-room 可走通。
+    paths:
+      - 'agentprimordia/cmd/ap/**'
+      - 'agentprimordia/README.md'
+      - 'agentprimordia/docs/getting-started/**'
+  workflow_dispatch:
+
+# 安全基线（对齐 release.yml / ci.yml）：
+#   - 不使用工作流级 permissions，job 按最小权限精确声明（contents: read 足够——
+#     本门只读代码、构建、跑 Demo 模式，不写仓库、不发 Release）；
+#   - 第三方 action 一律 pin 到提交 SHA 并附 # vX 可读注释，避免上游 tag 被移动
+#     导致供应链投毒。
+
+jobs:
+  quickstart-smoke:
+    name: Clean-room Quickstart Smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          # 精确 pin：浮动 '1.26' 无法保证拿到已修补补丁版（go1.26.9 修复了
+          # govulncheck 报出的 11 个可达标准库漏洞，见 release.yml 同款断言）。
+          go-version: '1.26.9'
+
+      - name: Build ap binary (local build)
+        working-directory: agentprimordia
+        run: |
+          set -euo pipefail
+          echo "工具链: $(go version)"
+          # PR 级用本地构建的二进制，不依赖 go install 代理——验证的是本 PR 的脚手架代码
+          go build -o ap ./cmd/ap
+          test -s ap
+          echo "OK: ap 二进制构建完成"
+
+      - name: Clean-room init (outside repo)
+        # 关键口径：项目生成到仓库外临时目录（$RUNNER_TEMP/smoke），使 ap init 的
+        # 框架源码向上探测必然落空 → 走 standalone 分支（无本地 replace，经 GOPROXY
+        # 解析发布版），复现外部用户的真实消费路径。
+        run: |
+          set -euo pipefail
+          SMOKE_DIR="${RUNNER_TEMP}/smoke"
+          rm -rf "${SMOKE_DIR}"
+          mkdir -p "${SMOKE_DIR}"
+          cd "${SMOKE_DIR}"
+          "${GITHUB_WORKSPACE}/agentprimordia/ap" init smoke-agent --template quickstart
+          test -f smoke-agent/go.mod
+          test -f smoke-agent/main.go
+          echo "--- 生成的 go.mod（init 后）---"
+          cat smoke-agent/go.mod
+
+      - name: go mod tidy (GOWORK=off)
+        working-directory: ${{ runner.temp }}/smoke/smoke-agent
+        env:
+          # GOWORK=off：显式关闭 workspace 模式。临时目录虽在仓库外，仍以此杜绝
+          # 继承仓库 go.work 的可能——否则框架模块会经 go.work 的 use 列表解析到
+          # 本地源码而非代理发布版，standalone 路径将被 workspace 掩盖而失去门意义。
+          GOWORK: 'off'
+        run: |
+          set -euo pipefail
+          go mod tidy
+          echo "--- go.mod（tidy 后）---"
+          cat go.mod
+          # 回归锁（v7.6 修复点）：standalone 用户不得再锁死旧占位版本 v7.0.0。
+          # 修复前 init 写死 v7.0.0，用户 tidy 后拿到旧版而非当前发布版。
+          if grep -qF "github.com/Gleamseekers/AgentPrimordia/v7 v7.0.0" go.mod; then
+            echo "::error::standalone go.mod 仍锁死旧占位版本 v7.0.0（应解析为当前发布版）"
+            exit 1
+          fi
+          # 修复目标断言：解析到的框架版本必须等于代理当前发布版（@latest）
+          LATEST=$(go list -m -f '{{.Version}}' github.com/Gleamseekers/AgentPrimordia/v7@latest)
+          SELECTED=$(go list -m -f '{{.Version}}' github.com/Gleamseekers/AgentPrimordia/v7)
+          echo "代理当前发布版: ${LATEST} / 项目解析到: ${SELECTED}"
+          if [ "${SELECTED}" != "${LATEST}" ]; then
+            echo "::error::standalone 解析到的框架版本 ${SELECTED} 非当前发布版 ${LATEST}"
+            exit 1
+          fi
+          echo "OK: standalone 依赖解析到当前发布版 ${SELECTED}"
+
+      - name: go build (GOWORK=off)
+        working-directory: ${{ runner.temp }}/smoke/smoke-agent
+        env:
+          # 同 tidy：关闭 workspace，保证构建走代理发布版依赖图
+          GOWORK: 'off'
+        run: |
+          set -euo pipefail
+          go build .
+          test -s smoke-agent
+          echo "OK: quickstart 项目构建通过"
+
+      - name: Run demo mode and assert output
+        working-directory: ${{ runner.temp }}/smoke/smoke-agent
+        env:
+          # 同 tidy/build：关闭 workspace
+          GOWORK: 'off'
+          # 显式置空：不设 AP_LLM_API_KEY → quickstart 走 Demo 模式
+          # （关键词匹配响应，无外部 LLM 调用，CI 无需任何密钥）
+          AP_LLM_API_KEY: ''
+        run: |
+          set -euo pipefail
+          OUTPUT="$(go run . 2>&1)"
+          echo "${OUTPUT}"
+          # 断言关键字来自 cmd/ap/scaffold/quickstart/main.go 的真实输出
+          # （grep -F 固定串匹配，避免正则元字符歧义）
+          echo "${OUTPUT}" | grep -qF "AgentPrimordia 快速入门"
+          echo "${OUTPUT}" | grep -qF "未设置 AP_LLM_API_KEY，使用 Demo 模式"
+          echo "${OUTPUT}" | grep -qF "恭喜！你已成功运行第一个Agent"
+          echo "OK: Demo 模式运行输出符合预期"

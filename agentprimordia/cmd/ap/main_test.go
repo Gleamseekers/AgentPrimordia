@@ -118,8 +118,13 @@ func TestRunInit_BasicTemplate(t *testing.T) {
 	if !contains(string(modContent), "module my-agent") {
 		t.Error("go.mod 缺 module my-agent")
 	}
-	if !contains(string(modContent), "github.com/Gleamseekers/AgentPrimordia/v7 v7.0.0") {
-		t.Error("go.mod 缺框架模块依赖")
+	// v7.6 修复语义：standalone 用户 go mod tidy 后应得到当前发布版，不得再锁死
+	// 旧占位版本 v7.0.0（修复前 init 写死 v7.0.0，外部用户 tidy 后拿到旧版）。
+	// 不断言具体版本号：@latest 解析结果随发布变化，断言具体值会给测试引入网络
+	// 依赖、破坏 hermetic 性；否定式断言在「有网（解析到当前发布版）」与
+	// 「无网（占位已移除、无 require）」两种环境下均稳定成立。
+	if contains(string(modContent), "v7.0.0") {
+		t.Error("go.mod 不应再锁死旧占位版本 v7.0.0")
 	}
 }
 
@@ -379,7 +384,7 @@ func TestRunInit_QuickstartTemplate(t *testing.T) {
 	}
 }
 
-// TestRunInit_GoModVersion 验证生成的 go.mod 版本对齐（go 1.26 + v6.0.0）；
+// TestRunInit_GoModVersion 验证生成的 go.mod 版本策略（go 1.26 + 不锁死旧占位）；
 // TempDir 为 standalone 场景：不应包含 replace（框架不在上级）。
 func TestRunInit_GoModVersion(t *testing.T) {
 	tmpDir := t.TempDir()
@@ -395,8 +400,13 @@ func TestRunInit_GoModVersion(t *testing.T) {
 	if !contains(string(modContent), "go 1.26") {
 		t.Errorf("生成的 go.mod 应包含 go 1.26，实际: %s", string(modContent))
 	}
-	if !contains(string(modContent), "github.com/Gleamseekers/AgentPrimordia/v7 v7.0.0") {
-		t.Errorf("生成的 go.mod 应包含 require github.com/Gleamseekers/AgentPrimordia/v7（占位版本），实际: %s", string(modContent))
+	// v7.6 修复语义：standalone 用户 go mod tidy 后应得到当前发布版，不得再写死
+	// 旧占位版本 v7.0.0（修复前 init 生成 require ... v7.0.0，外部用户 tidy 后
+	// 拿到旧版而非当前发布版）。不断言具体版本号：@latest 解析结果随发布变化，
+	// 断言具体值会给测试引入网络依赖、破坏 hermetic 性；否定式断言在「有网
+	// （解析到当前发布版）」与「无网（占位已移除、无 require）」两种环境下均稳定。
+	if contains(string(modContent), "v7.0.0") {
+		t.Errorf("生成的 go.mod 不应再锁死旧占位版本 v7.0.0，实际: %s", string(modContent))
 	}
 	if contains(string(modContent), "replace") {
 		t.Errorf("standalone 场景 go.mod 不应包含 replace，实际: %s", string(modContent))

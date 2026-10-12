@@ -257,7 +257,9 @@ func pluginCreate(args []string) error {
 		return fmt.Errorf("write go.mod failed: %w", err)
 	}
 	if standalone {
-		infof("提示：未检测到本地框架源码。请手动在 go.mod 添加 replace github.com/Gleamseekers/AgentPrimordia/agentprimordia => <框架源码目录>（详见 docs/版本规范.md）；框架经 GOPROXY 发布后亦可直接 require")
+		// v7.6：replace 路径修正为框架主模块（带 /v7），与 init 共用同一提示构造函数；
+		// plugin create 不做自动依赖解析，故 autoResolve=false
+		infof("%s", standaloneHint(false))
 	} else if findGoWorkUp(".") {
 		infof("提示：检测到上级 go.work。若在仓库内构建本项目，请将其加入 go.work 的 use 列表，或以 GOWORK=off 构建（replace 已指向本地框架与 pgvector）")
 	}

@@ -1,6 +1,6 @@
 // Package main 是 {{.ProjectName}} LLM Provider 模板。
 //
-// Provider 协议（参见 internal/llm/provider.go）：
+// Provider 协议（公共面见 pkg/llm.go 的 Provider 接口）：
 //   - Name()        返回 provider 名称
 //   - Chat(ctx, req) 执行对话请求
 //   - Close()       关闭清理资源

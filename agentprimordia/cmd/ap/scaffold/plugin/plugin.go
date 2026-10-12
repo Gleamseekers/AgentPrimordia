@@ -1,6 +1,6 @@
 // Package main 是 {{.ProjectName}} 插件的入口。
 //
-// 插件协议（参见 internal/tools/types.go）：
+// 插件协议（公共面见 pkg/tools.go 的 ToolPlugin / Tool / ToolResult）：
 //   - Name()        返回插件唯一名称
 //   - Version()     返回 SemVer 版本字符串
 //   - Tools()       返回插件提供的工具列表
@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
 	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
@@ -96,7 +95,7 @@ func (t *EchoTool) Parameters() json.RawMessage {
 }
 
 // Execute 执行工具。
-func (t *EchoTool) Execute(_ context.Context, args json.RawMessage) (*tools.Result, error) {
+func (t *EchoTool) Execute(_ context.Context, args json.RawMessage) (*ap.ToolResult, error) {
 	var in struct {
 		Text string `json:"text"`
 	}
@@ -107,7 +106,7 @@ func (t *EchoTool) Execute(_ context.Context, args json.RawMessage) (*tools.Resu
 		return nil, fmt.Errorf("echo: 参数 text 不能为空")
 	}
 	out, _ := json.Marshal(map[string]any{"echo": in.Text})
-	return tools.NewResult(string(out)), nil
+	return ap.NewToolResult(string(out)), nil
 }
 
 // main 桩函数：仅保证 `go build ./...` 通过（模板本身被 -buildmode=plugin 构建时为 .so）。

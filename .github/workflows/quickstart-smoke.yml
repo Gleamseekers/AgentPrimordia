@@ -114,3 +114,58 @@ jobs:
           echo "${OUTPUT}" | grep -qF "未设置 AP_LLM_API_KEY，使用 Demo 模式"
           echo "${OUTPUT}" | grep -qF "恭喜！你已成功运行第一个Agent"
           echo "OK: Demo 模式运行输出符合预期"
+
+  all-templates-smoke:
+    name: Clean-room All-Templates Smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-go@40f1582b2485089dde7a1529aa768e1baff # v5
+        with:
+          go-version: '1.26.9'
+
+      - name: Build ap binary (local build)
+        working-directory: agentprimordia
+        run: |
+          set -euo pipefail
+          go build -o ap ./cmd/ap
+          test -s ap
+          echo "OK: ap 二进制构建完成"
+
+      - name: Sweep every template outside repo
+        # 制度缺口修补（2026-10-12）：此前本门只测 quickstart 模板，plugin 模板
+        # 生成 import 框架 internal/ 的项目（用户项目依法不能 import 依赖模块的
+        # internal/，仓库外永远编译不过）因此潜伏至今。本 job 对全部模板做
+        # 仓库外 init→tidy→build→vet 普查，任何模板退化为不可消费即红。
+        env:
+          GOWORK: 'off'
+        run: |
+          set -euo pipefail
+          AP="${GITHUB_WORKSPACE}/agentprimordia/ap"
+          SWEEP="${RUNNER_TEMP}/tpl-sweep"
+          rm -rf "${SWEEP}"; mkdir -p "${SWEEP}"
+          # 模板清单与 cmd/ap/scaffold/ 目录保持一致；新增模板不同步更新此处即漏测
+          TEMPLATES="agent-with-cache agent-with-metrics agent-with-rag basic multi-agent plugin provider quickstart with-tools"
+          FAILED=0
+          for t in ${TEMPLATES}; do
+            d="${SWEEP}/${t}"; mkdir -p "${d}"
+            if ! (cd "${d}" && "${AP}" init proj --template "${t}" >/dev/null 2>&1); then
+              echo "::error::模板 ${t}: ap init 失败"; FAILED=1; continue
+            fi
+            if ! (cd "${d}/proj" && go mod tidy >/dev/null 2>&1 && go build ./... >/dev/null 2>&1 && go vet ./... >/dev/null 2>&1); then
+              echo "::error::模板 ${t}: 仓库外 tidy/build/vet 失败（用户项目不可消费）"; FAILED=1; continue
+            fi
+            echo "OK: 模板 ${t} 仓库外可消费（init→tidy→build→vet）"
+          done
+          # 反向守护：模板数必须与 scaffold 目录一致，防新增模板漏登记
+          SCAFFOLDED=$(ls -1 "${GITHUB_WORKSPACE}/agentprimordia/cmd/ap/scaffold" | wc -l)
+          DECLARED=$(echo "${TEMPLATES}" | wc -w)
+          if [ "${SCAFFOLDED}" != "${DECLARED}" ]; then
+            echo "::error::模板清单(${DECLARED}) 与 scaffold 目录(${SCAFFOLDED}) 不一致——新增模板必须同步本 job 的 TEMPLATES 列表"
+            FAILED=1
+          fi
+          if [ "${FAILED}" != "0" ]; then exit 1; fi
+          echo "OK: 全部 ${DECLARED} 个模板仓库外可消费"

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
+	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
 )
 
 func TestPlugin_Name(t *testing.T) {
@@ -47,8 +47,8 @@ func TestPlugin_Tools(t *testing.T) {
 func TestPlugin_MatchesToolInterface(t *testing.T) {
 	p := New()
 	for _, tl := range p.Tools() {
-		// 必须实现 tools.Tool 接口
-		var _ tools.Tool = tl
+		// 必须实现 ap.Tool 接口（= tools.Tool 的公共 re-export）
+		var _ ap.Tool = tl
 		_ = tl.Name()
 		_ = tl.Description()
 		_ = tl.Parameters()

@@ -49,10 +49,10 @@ func (s *RealLearningService) Capabilities(ctx context.Context) ([]Capability, e
 func (s *RealLearningService) PipelineStats(ctx context.Context) (*PipelineStats, error) {
 	snap := s.selfModel.Snapshot()
 	return &PipelineStats{
-		TotalProcessed:  snap.TotalTasks,
-		TotalFactsWritten: len(snap.Capabilities),
+		TotalProcessed:       snap.TotalTasks,
+		TotalFactsWritten:    len(snap.Capabilities),
 		TotalPatternsWritten: len(snap.TopFailures),
-		LastProcessTime: snap.UpdatedAt.Format(time.RFC3339),
+		LastProcessTime:      snap.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 

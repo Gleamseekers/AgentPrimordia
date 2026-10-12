@@ -41,8 +41,8 @@ type gapItem struct {
 		Inline string `json:"inline"`
 	} `json:"fixtures,omitempty"`
 	SuccessAssert []struct {
-		Kind string `json:"kind"`
-		Path string `json:"path,omitempty"`
+		Kind     string `json:"kind"`
+		Path     string `json:"path,omitempty"`
 		Contains string `json:"contains,omitempty"`
 	} `json:"success_assert,omitempty"`
 }
@@ -380,7 +380,7 @@ type shellCommandTool struct {
 }
 
 func (t *shellCommandTool) Name() string        { return t.name }
-func (t *shellCommandTool) Description() string  { return t.desc }
+func (t *shellCommandTool) Description() string { return t.desc }
 func (t *shellCommandTool) Parameters() json.RawMessage {
 	return json.RawMessage(`{"type":"object","properties":{"args":{"type":"string","description":"传递给脚本的参数"}},"required":["args"]}`)
 }
@@ -415,37 +415,37 @@ func writeGapTool(reg *tools.Registry, sandbox, name, script string) {
 	}
 
 	descriptions := map[string]string{
-		"csv_stats":      "计算 CSV 文件每列的平均值",
-		"log_parser":     "统计日志文件中 ERROR 行数",
-		"json_merge":     "合并两个 JSON 数组并去重",
-		"xml_parser":     "从 XML 文件提取指定标签的值",
-		"date_calc":      "计算日期加上指定天数后的日期",
-		"hash_gen":       "计算文件的 SHA256 哈希",
-		"tsv_extract":    "从 TSV 文件提取指定列",
-		"yaml_get":       "从 YAML 文件提取指定字段值",
-		"stats_median":   "计算文件中数字的中位数",
-		"md_headings":    "提取 Markdown 文件的标题行",
-		"email_extract":  "从文件中提取所有邮箱地址",
-		"date_range":     "找出文件中最早和最晚日期",
-		"csv_transpose":  "将 CSV 文件行列互换",
-		"json_filter":    "从 JSON 数组中按条件过滤",
-		"word_freq":      "统计文件中词频最高的词",
-		"hex_convert":    "将十六进制数转为十进制",
-		"template_fill":  "替换模板文件中的占位符",
-		"matrix_det":     "计算 3x3 矩阵的行列式",
-		"url_domain":     "从 URL 列表中提取域名",
-		"base64_decode":  "解码 base64 编码的文件",
-		"stats_stddev":   "计算文件中数字的标准差",
-		"ini_parse":      "从 INI 文件提取指定 section 的数据",
+		"csv_stats":        "计算 CSV 文件每列的平均值",
+		"log_parser":       "统计日志文件中 ERROR 行数",
+		"json_merge":       "合并两个 JSON 数组并去重",
+		"xml_parser":       "从 XML 文件提取指定标签的值",
+		"date_calc":        "计算日期加上指定天数后的日期",
+		"hash_gen":         "计算文件的 SHA256 哈希",
+		"tsv_extract":      "从 TSV 文件提取指定列",
+		"yaml_get":         "从 YAML 文件提取指定字段值",
+		"stats_median":     "计算文件中数字的中位数",
+		"md_headings":      "提取 Markdown 文件的标题行",
+		"email_extract":    "从文件中提取所有邮箱地址",
+		"date_range":       "找出文件中最早和最晚日期",
+		"csv_transpose":    "将 CSV 文件行列互换",
+		"json_filter":      "从 JSON 数组中按条件过滤",
+		"word_freq":        "统计文件中词频最高的词",
+		"hex_convert":      "将十六进制数转为十进制",
+		"template_fill":    "替换模板文件中的占位符",
+		"matrix_det":       "计算 3x3 矩阵的行列式",
+		"url_domain":       "从 URL 列表中提取域名",
+		"base64_decode":    "解码 base64 编码的文件",
+		"stats_stddev":     "计算文件中数字的标准差",
+		"ini_parse":        "从 INI 文件提取指定 section 的数据",
 		"color_complement": "计算 RGB 颜色的互补色",
-		"roman_convert":  "将罗马数字转为阿拉伯数字",
-		"csv_rowsum":     "为 CSV 每行追加总和",
-		"text_censor":    "替换文本中的敏感词",
-		"json_pluck":     "从 JSON 数组中提取指定字段",
-		"cumsum":         "计算数字文件的累积和",
-		"md_table_csv":   "将 Markdown 表格转为 CSV",
-		"log_timestamps": "从日志中提取时间戳",
-		"avg_word_len":   "计算文件的平均词长",
+		"roman_convert":    "将罗马数字转为阿拉伯数字",
+		"csv_rowsum":       "为 CSV 每行追加总和",
+		"text_censor":      "替换文本中的敏感词",
+		"json_pluck":       "从 JSON 数组中提取指定字段",
+		"cumsum":           "计算数字文件的累积和",
+		"md_table_csv":     "将 Markdown 表格转为 CSV",
+		"log_timestamps":   "从日志中提取时间戳",
+		"avg_word_len":     "计算文件的平均词长",
 	}
 
 	desc := descriptions[name]
@@ -498,7 +498,7 @@ func systemPrompt(sandbox string, gapTools ...string) string {
 	if len(gapTools) > 0 {
 		base += "\n\n可用专用工具（通过 shell 执行）：\n"
 		for _, t := range gapTools {
-			base += fmt.Sprintf("- %s/%s（用法: bash %s/%s <参数>）\n", 
+			base += fmt.Sprintf("- %s/%s（用法: bash %s/%s <参数>）\n",
 				filepath.Join(sandbox, ".gap-tools"), t,
 				filepath.Join(sandbox, ".gap-tools"), t)
 		}

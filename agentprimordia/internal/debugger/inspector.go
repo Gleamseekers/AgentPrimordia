@@ -1,8 +1,8 @@
 package debugger
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
 	"context"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
 	"sync"
 	"time"
 )

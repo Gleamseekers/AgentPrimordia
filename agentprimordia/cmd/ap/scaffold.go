@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log/slog"
 	"embed"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"

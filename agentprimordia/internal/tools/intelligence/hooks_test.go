@@ -44,8 +44,8 @@ func (d *stubDetector) Detect(_ context.Context, _ []ToolCallRecord) ([]GapCandi
 
 // stubCreator 记录生成调用
 type stubCreator struct {
-	mu       sync.Mutex
-	created  []GapCandidate
+	mu      sync.Mutex
+	created []GapCandidate
 }
 
 func (c *stubCreator) Create(_ context.Context, gap GapCandidate) (*ToolArtifact, error) {

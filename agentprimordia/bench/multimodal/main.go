@@ -30,10 +30,10 @@ import (
 
 // mmTask 多模态题面
 type mmTask struct {
-	ID       string     `json:"id"`
-	Kind     string     `json:"kind"` // visual_qa / audio_transcribe / mixed_reasoning
-	Task     string     `json:"task"`
-	Expected string     `json:"expected"`
+	ID       string      `json:"id"`
+	Kind     string      `json:"kind"` // visual_qa / audio_transcribe / mixed_reasoning
+	Task     string      `json:"task"`
+	Expected string      `json:"expected"`
 	Fixtures []mmFixture `json:"fixtures"`
 }
 

@@ -45,7 +45,7 @@ func TestDataDrivenTuner_HighLatency(t *testing.T) {
 	profile := &intelligence.ToolProfile{
 		ToolName:    "web",
 		TotalCalls:  10,
-		SuccessRate: 0.8, // 高于阈值
+		SuccessRate: 0.8,              // 高于阈值
 		AvgDuration: 10 * time.Second, // 超过 5s 阈值
 	}
 
@@ -70,7 +70,7 @@ func TestDataDrivenTuner_GoodPerformance(t *testing.T) {
 	profile := &intelligence.ToolProfile{
 		ToolName:    "file",
 		TotalCalls:  10,
-		SuccessRate: 0.9, // 高于阈值
+		SuccessRate: 0.9,                    // 高于阈值
 		AvgDuration: 500 * time.Millisecond, // 低于阈值
 	}
 

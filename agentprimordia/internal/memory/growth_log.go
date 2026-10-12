@@ -13,9 +13,9 @@ import (
 // GrowthEvent 成长里程碑事件。
 type GrowthEvent struct {
 	ID        int64             `json:"id"`
-	Category  string            `json:"category"`  // "capability_unlocked" | "capability_mastered" | "failure_mitigated" | "consolidation"
-	Title     string            `json:"title"`      // 人类可读标题
-	Detail    string            `json:"detail"`     // 详细描述
+	Category  string            `json:"category"` // "capability_unlocked" | "capability_mastered" | "failure_mitigated" | "consolidation"
+	Title     string            `json:"title"`    // 人类可读标题
+	Detail    string            `json:"detail"`   // 详细描述
 	Metadata  map[string]string `json:"metadata,omitempty"`
 	CreatedAt time.Time         `json:"created_at"`
 }

@@ -312,7 +312,7 @@ func TestCoverProtoConvert_RoundTrip(t *testing.T) {
 		SecuritySchemes: []SecurityScheme{
 			{Scheme: AuthBearer, In: "header", Name: "Authorization", Scopes: []string{"*"}},
 		},
-		Skills: []AgentSkill{{ID: "s1", Name: "echo", InputModes: []string{"text"}}},
+		Skills:   []AgentSkill{{ID: "s1", Name: "echo", InputModes: []string{"text"}}},
 		Metadata: map[string]string{"k": "v"},
 	}
 	pc := toProtoAgentCard(card)

@@ -1,12 +1,13 @@
 // data-analysis-agent 示例演示一个数据分析 agent 的使用场景。
 //
 // 运行方式（从 monorepo 根目录）:
-//   go run ./ecosystem/examples/data-analysis-agent/
+//
+//	go run ./ecosystem/examples/data-analysis-agent/
 //
 // 本示例：
-//   1. 使用 DemoProvider 演示数据分析功能
-//   2. 展示如何与 agent 进行多轮对话
-//   3. 说明如何接入真实 LLM 和学习系统
+//  1. 使用 DemoProvider 演示数据分析功能
+//  2. 展示如何与 agent 进行多轮对话
+//  3. 说明如何接入真实 LLM 和学习系统
 package main
 
 import (

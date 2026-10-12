@@ -1,4 +1,3 @@
-
 // http_transport_api_full_test.go — HTTP 传输层公共 API 测试。
 // 2026-09-28：原文件被 //go:build ignore 禁用而腐烂（其测试的
 // tr.handleMessage/messageEndpoint/inboundBufSize 内部符号已随
@@ -18,11 +17,6 @@ import (
 	"testing"
 	"time"
 )
-
-
-
-
-
 
 // 测试 Send 方法设置 Content-Type 为 application/json
 func TestHTTPTransportAPI_ContentType(t *testing.T) {

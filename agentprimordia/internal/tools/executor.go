@@ -322,9 +322,9 @@ func (e *Executor) ExecuteBatch(ctx context.Context, calls []*FunctionCall) ([]*
 // 匹配——对 filePath/file/嵌套 {"request":{"path":...}}/MCP 风格
 // {"input":{...}} 全部返回空，executor 层 ScopePolicy 检查被静默跳过
 // （fail-open）。现改为：
-//   1. 完整 JSON 树递归遍历（对象/数组/嵌套全部覆盖）；
-//   2. 路径 key 集合扩充（含 camelCase 与常见简写）；
-//   3. 顺带返回第二个发现路径（copy src→dst 类多路径参数的第二个目标）。
+//  1. 完整 JSON 树递归遍历（对象/数组/嵌套全部覆盖）；
+//  2. 路径 key 集合扩充（含 camelCase 与常见简写）；
+//  3. 顺带返回第二个发现路径（copy src→dst 类多路径参数的第二个目标）。
 func extractPathFromArgs(args string) string {
 	first, _ := extractPathsFromArgs(args)
 	return first

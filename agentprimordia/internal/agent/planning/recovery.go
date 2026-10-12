@@ -13,7 +13,7 @@ import (
 // DeadlockDetector 死路检测器——连续失败超过阈值即判定死路
 type DeadlockDetector struct {
 	mu              sync.Mutex
-	threshold       int           // 连续失败阈值
+	threshold       int            // 连续失败阈值
 	consecutiveFail map[string]int // 子任务 ID → 连续失败次数
 }
 
@@ -59,8 +59,8 @@ func (d *DeadlockDetector) Reset() {
 
 // LLMRecoveryStrategy 使用 LLM 生成替代恢复路径
 type LLMRecoveryStrategy struct {
-	provider  llm.Provider
-	detector  *DeadlockDetector
+	provider llm.Provider
+	detector *DeadlockDetector
 }
 
 // NewLLMRecoveryStrategy 创建 LLM 恢复策略

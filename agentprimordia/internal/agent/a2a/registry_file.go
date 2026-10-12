@@ -25,9 +25,9 @@ type fileRegistryData struct {
 }
 
 type fileRegistryEntry struct {
-	Card      *AgentCard       `json:"card"`
-	Endpoints AgentEndpoints   `json:"endpoints"`
-	SeenAt    time.Time        `json:"seen_at"`
+	Card      *AgentCard     `json:"card"`
+	Endpoints AgentEndpoints `json:"endpoints"`
+	SeenAt    time.Time      `json:"seen_at"`
 }
 
 // NewFileRegistry 创建文件注册表。

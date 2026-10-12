@@ -39,13 +39,13 @@ import (
 
 // taskResult 单条任务单臂运行结果。
 type taskResult struct {
-	TaskID      string `json:"task_id"`
-	Prop        string `json:"prop"`
-	Arm         string `json:"arm"`         // "A" 或 "B"
-	Success     bool   `json:"success"`     // 断言是否全部通过
-	Turns       int    `json:"turns"`       // ReAct 轮数
-	DurationSec int    `json:"duration_sec"`
-	Error       string `json:"error,omitempty"`
+	TaskID       string `json:"task_id"`
+	Prop         string `json:"prop"`
+	Arm          string `json:"arm"`     // "A" 或 "B"
+	Success      bool   `json:"success"` // 断言是否全部通过
+	Turns        int    `json:"turns"`   // ReAct 轮数
+	DurationSec  int    `json:"duration_sec"`
+	Error        string `json:"error,omitempty"`
 	FailedAssert string `json:"failed_assert,omitempty"` // 首个失败断言描述
 }
 
@@ -67,14 +67,14 @@ type benchReport struct {
 
 func main() {
 	var (
-		prop      = flag.String("prop", "p1", "命题（p1/p2/p4/p5/all）")
-		model     = flag.String("model", "sensenova-6.8-flash-lite", "模型名称")
-		apiKey    = flag.String("api-key", "", "API key")
-		baseURL   = flag.String("base-url", "https://token.sensenova.cn/v1", "API base URL")
-		outDir    = flag.String("out", "bench/results/v72", "输出目录")
-		limit     = flag.Int("limit", 0, "限制任务数（0=全部）")
-		pace      = flag.Duration("pace", 8*time.Second, "任务间间隔")
-		maxTokens = flag.Int("max-tokens", 4096, "每次请求最大 token 数")
+		prop        = flag.String("prop", "p1", "命题（p1/p2/p4/p5/all）")
+		model       = flag.String("model", "sensenova-6.8-flash-lite", "模型名称")
+		apiKey      = flag.String("api-key", "", "API key")
+		baseURL     = flag.String("base-url", "https://token.sensenova.cn/v1", "API base URL")
+		outDir      = flag.String("out", "bench/results/v72", "输出目录")
+		limit       = flag.Int("limit", 0, "限制任务数（0=全部）")
+		pace        = flag.Duration("pace", 8*time.Second, "任务间间隔")
+		maxTokens   = flag.Int("max-tokens", 4096, "每次请求最大 token 数")
 		taskTimeout = flag.Duration("task-timeout", 10*time.Minute, "单臂任务超时时间")
 	)
 	flag.Parse()

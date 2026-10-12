@@ -37,11 +37,11 @@ import (
 
 // taskItem 题面
 type taskItem struct {
-	ID          string `json:"id"`
-	Task        string `json:"task"`
-	Expected    string `json:"expected"`
-	Kind        string `json:"kind"` // tool_create / tool_optimize / baseline
-	Fixtures    []struct {
+	ID       string `json:"id"`
+	Task     string `json:"task"`
+	Expected string `json:"expected"`
+	Kind     string `json:"kind"` // tool_create / tool_optimize / baseline
+	Fixtures []struct {
 		Path   string `json:"path"`
 		Inline string `json:"inline"`
 	} `json:"fixtures"`
@@ -117,7 +117,7 @@ type artifactTool struct {
 }
 
 func (t *artifactTool) Name() string        { return t.name }
-func (t *artifactTool) Description() string  { return t.desc }
+func (t *artifactTool) Description() string { return t.desc }
 func (t *artifactTool) Parameters() json.RawMessage {
 	return json.RawMessage(`{"type":"object","properties":{"args":{"type":"string","description":"传递给工具的参数"}},"required":["args"]}`)
 }

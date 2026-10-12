@@ -1,8 +1,8 @@
 package transport
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
 	"context"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
 )
 
 // Transport 跨进程 Agent 通信传输层接口

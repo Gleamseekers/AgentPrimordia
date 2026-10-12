@@ -313,113 +313,275 @@ func loadTasks() ([]taskItem, error) {
 		},
 		// ===== 扩量题面 live-006 ~ live-059（McNemar +20pp 需 59 题）=====
 		{ID: "live-006", Task: "计算 data.csv 的平均值，写入 result.txt", Expected: "50", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.csv", Inline: "10,20,30,40,50,60,70,80,90,100\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.csv", Inline: "10,20,30,40,50,60,70,80,90,100\n"}}},
 		{ID: "live-007", Task: "统计 words.txt 的行数，写入 result.txt", Expected: "5", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "words.txt", Inline: "hello\nworld\nfoo\nbar\nbaz\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "words.txt", Inline: "hello\nworld\nfoo\nbar\nbaz\n"}}},
 		{ID: "live-008", Task: "找出 scores.txt 中的最小值，写入 result.txt", Expected: "5", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "scores.txt", Inline: "25\n15\n5\n35\n45\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "scores.txt", Inline: "25\n15\n5\n35\n45\n"}}},
 		{ID: "live-009", Task: "将 input.txt 转为大写，写入 result.txt", Expected: "HELLO", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "input.txt", Inline: "hello world\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "input.txt", Inline: "hello world\n"}}},
 		{ID: "live-010", Task: "统计 numbers.txt 中偶数的个数，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "numbers.txt", Inline: "1\n2\n3\n4\n5\n6\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "numbers.txt", Inline: "1\n2\n3\n4\n5\n6\n"}}},
 		{ID: "live-011", Task: "计算 matrix.txt 每行的和，写入 result.txt", Expected: "6", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "matrix.txt", Inline: "1,2,3\n4,5,6\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "matrix.txt", Inline: "1,2,3\n4,5,6\n"}}},
 		{ID: "live-012", Task: "提取 config.txt 中的端口号，写入 result.txt", Expected: "8080", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "config.txt", Inline: "host=localhost\nport=8080\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "config.txt", Inline: "host=localhost\nport=8080\n"}}},
 		{ID: "live-013", Task: "统计 log.txt 中 WARN 的数量，写入 result.txt", Expected: "2", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "log.txt", Inline: "INFO ok\nWARN low\nERROR fail\nWARN high\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "log.txt", Inline: "INFO ok\nWARN low\nERROR fail\nWARN high\n"}}},
 		{ID: "live-014", Task: "将 names.txt 排序后写入 result.txt", Expected: "alice", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "names.txt", Inline: "charlie\nalice\nbob\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "names.txt", Inline: "charlie\nalice\nbob\n"}}},
 		{ID: "live-015", Task: "计算 prices.txt 的总和，写入 result.txt", Expected: "150", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "prices.txt", Inline: "10.5\n20.25\n30.75\n40.0\n48.5\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "prices.txt", Inline: "10.5\n20.25\n30.75\n40.0\n48.5\n"}}},
 		{ID: "live-016", Task: "找出 data.txt 中最长的行，写入 result.txt", Expected: "longest", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.txt", Inline: "short\nthis is the longest line\nmedium\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.txt", Inline: "short\nthis is the longest line\nmedium\n"}}},
 		{ID: "live-017", Task: "统计 text.txt 中元音字母数量，写入 result.txt", Expected: "5", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "text.txt", Inline: "hello world\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "text.txt", Inline: "hello world\n"}}},
 		{ID: "live-018", Task: "将 csv 第一列提取出来，写入 result.txt", Expected: "name", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.csv", Inline: "name,age\nalice,30\nbob,25\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.csv", Inline: "name,age\nalice,30\nbob,25\n"}}},
 		{ID: "live-019", Task: "计算 values.txt 的中位数，写入 result.txt", Expected: "30", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "values.txt", Inline: "10\n20\n30\n40\n50\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "values.txt", Inline: "10\n20\n30\n40\n50\n"}}},
 		{ID: "live-020", Task: "找出 logs/ 中最后一条 ERROR，写入 result.txt", Expected: "crash", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "logs/app.log", Inline: "ERROR fail\nINFO ok\nERROR crash\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "logs/app.log", Inline: "ERROR fail\nINFO ok\nERROR crash\n"}}},
 		{ID: "live-021", Task: "统计 unique.txt 去重后的行数，写入 result.txt", Expected: "3", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "unique.txt", Inline: "a\nb\na\nc\nb\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "unique.txt", Inline: "a\nb\na\nc\nb\n"}}},
 		{ID: "live-022", Task: "计算 nums.txt 的乘积，写入 result.txt", Expected: "120", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "nums.txt", Inline: "1\n2\n3\n4\n5\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "nums.txt", Inline: "1\n2\n3\n4\n5\n"}}},
 		{ID: "live-023", Task: "将 mixed.txt 中的数字提取出来，写入 result.txt", Expected: "123", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "mixed.txt", Inline: "abc123def456\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "mixed.txt", Inline: "abc123def456\n"}}},
 		{ID: "live-024", Task: "统计 data.txt 中空行的数量，写入 result.txt", Expected: "2", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.txt", Inline: "line1\n\nline2\n\nline3\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.txt", Inline: "line1\n\nline2\n\nline3\n"}}},
 		{ID: "live-025", Task: "找出 scores.txt 中及格的数量（>=60），写入 result.txt", Expected: "3", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "scores.txt", Inline: "45\n60\n75\n50\n90\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "scores.txt", Inline: "45\n60\n75\n50\n90\n"}}},
 		{ID: "live-026", Task: "将 text.txt 反转，写入 result.txt", Expected: "olleh", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "text.txt", Inline: "hello\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "text.txt", Inline: "hello\n"}}},
 		{ID: "live-027", Task: "计算 ages.txt 的平均年龄，写入 result.txt", Expected: "30", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "ages.txt", Inline: "20\n25\n30\n35\n40\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "ages.txt", Inline: "20\n25\n30\n35\n40\n"}}},
 		{ID: "live-028", Task: "统计 words.txt 中以 'a' 开头的词数，写入 result.txt", Expected: "2", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "words.txt", Inline: "apple\nbanana\navocado\ncherry\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "words.txt", Inline: "apple\nbanana\navocado\ncherry\n"}}},
 		{ID: "live-029", Task: "找出 data.csv 中第二列的最大值，写入 result.txt", Expected: "50", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.csv", Inline: "a,10\nb,50\nc,30\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.csv", Inline: "a,10\nb,50\nc,30\n"}}},
 		{ID: "live-030", Task: "将 input.txt 中空格替换为下划线，写入 result.txt", Expected: "hello_world", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "input.txt", Inline: "hello world\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "input.txt", Inline: "hello world\n"}}},
 		{ID: "live-031", Task: "计算 nums.txt 的累积和最后一行，写入 result.txt", Expected: "15", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "nums.txt", Inline: "1\n2\n3\n4\n5\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "nums.txt", Inline: "1\n2\n3\n4\n5\n"}}},
 		{ID: "live-032", Task: "统计 log.txt 中 INFO 的数量，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "log.txt", Inline: "INFO start\nERROR fail\nINFO ok\nINFO done\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "log.txt", Inline: "INFO start\nERROR fail\nINFO ok\nINFO done\n"}}},
 		{ID: "live-033", Task: "找出 items.txt 中出现最多的项，写入 result.txt", Expected: "apple", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "items.txt", Inline: "apple\nbanana\napple\ncherry\napple\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "items.txt", Inline: "apple\nbanana\napple\ncherry\napple\n"}}},
 		{ID: "live-034", Task: "将 lines.txt 每行加行号，写入 result.txt", Expected: "1", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "lines.txt", Inline: "first\nsecond\nthird\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "lines.txt", Inline: "first\nsecond\nthird\n"}}},
 		{ID: "live-035", Task: "计算 data.txt 的字符总数（不含换行），写入 result.txt", Expected: "10", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.txt", Inline: "hello\nworld\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.txt", Inline: "hello\nworld\n"}}},
 		{ID: "live-036", Task: "统计 nums.txt 中正数的个数，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "nums.txt", Inline: "-5\n10\n-3\n20\n30\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "nums.txt", Inline: "-5\n10\n-3\n20\n30\n"}}},
 		{ID: "live-037", Task: "找出 text.txt 中的第一个单词，写入 result.txt", Expected: "hello", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "text.txt", Inline: "hello world foo bar\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "text.txt", Inline: "hello world foo bar\n"}}},
 		{ID: "live-038", Task: "将 csv 按第二列排序，写入 result.txt", Expected: "alice", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.csv", Inline: "bob,30\nalice,20\ncharlie,40\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.csv", Inline: "bob,30\nalice,20\ncharlie,40\n"}}},
 		{ID: "live-039", Task: "计算 values.txt 的标准差，写入 result.txt", Expected: "14", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "values.txt", Inline: "10\n20\n30\n40\n50\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "values.txt", Inline: "10\n20\n30\n40\n50\n"}}},
 		{ID: "live-040", Task: "统计 files/ 目录下的文件数，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "files/a.txt", Inline: "a"}, {Path: "files/b.txt", Inline: "b"}, {Path: "files/c.txt", Inline: "c"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "files/a.txt", Inline: "a"}, {Path: "files/b.txt", Inline: "b"}, {Path: "files/c.txt", Inline: "c"}}},
 		{ID: "live-041", Task: "找出 data.txt 中的重复行，写入 result.txt", Expected: "test", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.txt", Inline: "test\nfoo\ntest\nbar\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.txt", Inline: "test\nfoo\ntest\nbar\n"}}},
 		{ID: "live-042", Task: "将 text.txt 每行首尾空白去除，写入 result.txt", Expected: "hello", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "text.txt", Inline: "  hello  \n  world  \n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "text.txt", Inline: "  hello  \n  world  \n"}}},
 		{ID: "live-043", Task: "计算 prices.txt 的总价，写入 result.txt", Expected: "100", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "prices.txt", Inline: "25\n25\n25\n25\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "prices.txt", Inline: "25\n25\n25\n25\n"}}},
 		{ID: "live-044", Task: "统计 log.txt 的时间戳数量，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "log.txt", Inline: "[10:00] start\n[10:01] ok\n[10:02] done\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "log.txt", Inline: "[10:00] start\n[10:01] ok\n[10:02] done\n"}}},
 		{ID: "live-045", Task: "找出 scores.txt 中的最高分，写入 result.txt", Expected: "95", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "scores.txt", Inline: "80\n95\n70\n85\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "scores.txt", Inline: "80\n95\n70\n85\n"}}},
 		{ID: "live-046", Task: "将 input.txt 去重，写入 result.txt", Expected: "a", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "input.txt", Inline: "a\nb\na\nc\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "input.txt", Inline: "a\nb\na\nc\n"}}},
 		{ID: "live-047", Task: "计算 nums.txt 中奇数的和，写入 result.txt", Expected: "9", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "nums.txt", Inline: "1\n2\n3\n4\n5\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "nums.txt", Inline: "1\n2\n3\n4\n5\n"}}},
 		{ID: "live-048", Task: "统计 data.csv 的列数，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.csv", Inline: "a,b,c\n1,2,3\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.csv", Inline: "a,b,c\n1,2,3\n"}}},
 		{ID: "live-049", Task: "找出 text.txt 中的最后一个单词，写入 result.txt", Expected: "world", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "text.txt", Inline: "hello beautiful world\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "text.txt", Inline: "hello beautiful world\n"}}},
 		{ID: "live-050", Task: "将 numbers.txt 转为逗号分隔，写入 result.txt", Expected: "1,2,3", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "numbers.txt", Inline: "1\n2\n3\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "numbers.txt", Inline: "1\n2\n3\n"}}},
 		{ID: "live-051", Task: "计算 ages.txt 的年龄总和，写入 result.txt", Expected: "100", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "ages.txt", Inline: "20\n25\n30\n25\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "ages.txt", Inline: "20\n25\n30\n25\n"}}},
 		{ID: "live-052", Task: "统计 items.txt 中不同项的数量，写入 result.txt", Expected: "3", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "items.txt", Inline: "apple\nbanana\napple\ncherry\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "items.txt", Inline: "apple\nbanana\napple\ncherry\n"}}},
 		{ID: "live-053", Task: "找出 data.txt 中最短的行，写入 result.txt", Expected: "hi", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.txt", Inline: "hello\nhi\nhey there\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.txt", Inline: "hello\nhi\nhey there\n"}}},
 		{ID: "live-054", Task: "将 mixed.txt 中的字母提取出来，写入 result.txt", Expected: "abc", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "mixed.txt", Inline: "a1b2c3\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "mixed.txt", Inline: "a1b2c3\n"}}},
 		{ID: "live-055", Task: "计算 values.txt 的方差，写入 result.txt", Expected: "200", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "values.txt", Inline: "10\n20\n30\n40\n50\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "values.txt", Inline: "10\n20\n30\n40\n50\n"}}},
 		{ID: "live-056", Task: "统计 log.txt 中包含 error 的行数，写入 result.txt", Expected: "2", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "log.txt", Inline: "error occurred\ninfo ok\nError failed\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "log.txt", Inline: "error occurred\ninfo ok\nError failed\n"}}},
 		{ID: "live-057", Task: "找出 names.txt 中按字母序第一个，写入 result.txt", Expected: "alice", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "names.txt", Inline: "bob\ncharlie\nalice\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "names.txt", Inline: "bob\ncharlie\nalice\n"}}},
 		{ID: "live-058", Task: "将 data.txt 每行反转，写入 result.txt", Expected: "olleh", Kind: "reactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "data.txt", Inline: "hello\nworld\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "data.txt", Inline: "hello\nworld\n"}}},
 		{ID: "live-059", Task: "计算 nums.txt 中相邻差值的和，写入 result.txt", Expected: "4", Kind: "proactive",
-			Fixtures: []struct{ Path string "json:\"path\""; Inline string "json:\"inline\"" }{{Path: "nums.txt", Inline: "1\n3\n6\n10\n"}}},
+			Fixtures: []struct {
+				Path   string "json:\"path\""
+				Inline string "json:\"inline\""
+			}{{Path: "nums.txt", Inline: "1\n3\n6\n10\n"}}},
 	}
 	return items, nil
 }

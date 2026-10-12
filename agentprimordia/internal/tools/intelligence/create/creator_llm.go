@@ -19,7 +19,7 @@ type LLMCompleter interface {
 // LLMCreator 基于 LLM 的工具生成器
 // 当 LLM 调用失败时自动降级到 LifecycleCreator 的硬编码模板
 type LLMCreator struct {
-	llm    LLMCompleter
+	llm      LLMCompleter
 	fallback *LifecycleCreator
 }
 

@@ -102,8 +102,8 @@ func (s *OpenInteropServer) handleJSONRPC(w http.ResponseWriter, r *http.Request
 
 func (s *OpenInteropServer) handleTaskSend(w http.ResponseWriter, id any, params json.RawMessage) {
 	var p struct {
-		ID       string        `json:"id"`
-		Message  OpenMessage   `json:"message"`
+		ID       string         `json:"id"`
+		Message  OpenMessage    `json:"message"`
 		Metadata map[string]any `json:"metadata"`
 	}
 	_ = json.Unmarshal(params, &p)

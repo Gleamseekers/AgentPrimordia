@@ -164,7 +164,7 @@ type artifactTool struct {
 	executor ArtifactExecutor
 }
 
-func (t *artifactTool) Name() string       { return t.name }
+func (t *artifactTool) Name() string        { return t.name }
 func (t *artifactTool) Description() string { return t.desc }
 
 // Parameters 返回简单的 JSON Schema，包含单个 "args" 字符串参数

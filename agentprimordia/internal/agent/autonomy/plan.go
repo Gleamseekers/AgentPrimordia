@@ -236,10 +236,10 @@ func (p *GoalPlan) Clone() *GoalPlan {
 	steps := make([]PlanStep, len(p.Steps))
 	copy(steps, p.Steps)
 	return &GoalPlan{
-		GoalID:      p.GoalID,
-		Steps:       steps,
-		Version:     p.Version,
-		CreatedAt:   p.CreatedAt,
+		GoalID:       p.GoalID,
+		Steps:        steps,
+		Version:      p.Version,
+		CreatedAt:    p.CreatedAt,
 		ReplanReason: p.ReplanReason,
 	}
 }

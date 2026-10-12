@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"context"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/autonomy"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/learning"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/planning"
@@ -14,7 +15,6 @@ import (
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/persist"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/tools"
-	"context"
 )
 
 // CapabilityAgent 是可组合能力的 Agent 包装器。

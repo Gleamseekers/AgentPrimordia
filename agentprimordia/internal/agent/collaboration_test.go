@@ -1,4 +1,3 @@
-
 package agent
 
 import (
@@ -71,7 +70,6 @@ func TestHandoff_MultipleTransfers(t *testing.T) {
 	}
 }
 
-
 func TestHandoff_AgentFails(t *testing.T) {
 	failAgent := &mockFailAgent{name: "fail-agent"}
 
@@ -87,7 +85,6 @@ func TestHandoff_AgentFails(t *testing.T) {
 		t.Error("expected error when agent fails")
 	}
 }
-
 
 func TestHandoff_SameAgentStops(t *testing.T) {
 	agent1 := mockAgentForOrch("agent-1", "same agent result")

@@ -1,8 +1,8 @@
 package transport
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
 	"context"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/bus"
 	"net"
 	"testing"
 	"time"

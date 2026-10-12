@@ -19,9 +19,9 @@ func TestExtractGapKey_DeterministicMultiPattern(t *testing.T) {
 		err  string
 		want string
 	}{
-		{"parse+invalid", "parse error: invalid CSV format", "missing_parser"},           // "parse error" 声明序先于 "invalid format"
-		{"notfound+nosuchfile", "no such file: not found", "missing_resource"},           // "not found" 先于 "no such file"
-		{"timeout+refused", "connection refused: timeout", "missing_service"},            // "connection refused" 先于 "timeout"
+		{"parse+invalid", "parse error: invalid CSV format", "missing_parser"},        // "parse error" 声明序先于 "invalid format"
+		{"notfound+nosuchfile", "no such file: not found", "missing_resource"},        // "not found" 先于 "no such file"
+		{"timeout+refused", "connection refused: timeout", "missing_service"},         // "connection refused" 先于 "timeout"
 		{"unsupported+notimpl", "not implemented: unsupported", "missing_capability"}, // "unsupported" 声明序先于 "not implemented"
 	}
 	for _, tc := range cases {

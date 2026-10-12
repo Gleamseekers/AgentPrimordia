@@ -36,8 +36,8 @@ func TestPlanCache_MissOnDissimilarTask(t *testing.T) {
 	cache := NewPlanCache(0.5)
 
 	plan := &Plan{
-		Goal:     "编写单元测试",
-		SubTasks: []SubTask{{ID: "1", Description: "分析代码", Status: TaskPending}},
+		Goal:      "编写单元测试",
+		SubTasks:  []SubTask{{ID: "1", Description: "分析代码", Status: TaskPending}},
 		CreatedAt: time.Now(),
 	}
 
@@ -147,7 +147,7 @@ func TestTokenize(t *testing.T) {
 		want  int // 仅验证 token 数量非零
 	}{
 		{"hello world", 2},
-		{"数据分析报告", 6}, // 每个汉字独立为一个 token
+		{"数据分析报告", 6},          // 每个汉字独立为一个 token
 		{"编写 单元测试，覆盖核心逻辑", 12}, // 每个 CJK 汉字独立为一个 token，逗号为分隔符
 		{"", 0},
 	}

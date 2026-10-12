@@ -1,12 +1,13 @@
 // a2a-connect 示例演示两个独立 agent 通过 A2A 开放协议进行通信。
 //
 // 运行方式（从 monorepo 根目录）:
-//   go run ./ecosystem/examples/a2a-connect/
+//
+//	go run ./ecosystem/examples/a2a-connect/
 //
 // 本示例：
-//   1. 启动 agent-a（数学计算服务），暴露 A2A 端点
-//   2. 启动 agent-b（编排者），通过 A2A 协议发现并调用 agent-a
-//   3. 展示完整的任务创建、执行、结果获取流程
+//  1. 启动 agent-a（数学计算服务），暴露 A2A 端点
+//  2. 启动 agent-b（编排者），通过 A2A 协议发现并调用 agent-a
+//  3. 展示完整的任务创建、执行、结果获取流程
 package main
 
 import (

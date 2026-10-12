@@ -234,7 +234,7 @@ func TestSoakResumeAcrossRestarts(t *testing.T) {
 	// 第二段（模拟重启）：全新 Soak/Runtime 实例加载同一状态文件——计数续计、
 	// 新段追加、时长累加；累计已达标，再跨一个注入间隔验证续计
 	soak2, _, _, fc2 := newSoakFixture(t, newCfg())
-	fc2.advance(90 * m) // 新段从上一段结束后开始
+	fc2.advance(90 * m)   // 新段从上一段结束后开始
 	soak2.Step(fc2.Now()) // 加载状态、追加在线段；累计已达标（返回值忽略）
 	fc2.advance(30 * m)
 	soak2.Step(fc2.Now()) // +120min：注入 #4（跨重启续计）

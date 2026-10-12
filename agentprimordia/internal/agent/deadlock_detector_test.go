@@ -20,10 +20,10 @@ import (
 // deadlockMockProvider 模拟 LLM Provider，跟踪 Complete 调用并返回预设 JSON 响应。
 // 用于测试 Recovery.Recover 的 LLM 调用路径。
 type deadlockMockProvider struct {
-	mu          sync.Mutex
-	content     string
-	callCount   int32
-	recoveryCh  chan struct{} // 首次 Recover 调用时关闭，用于测试同步
+	mu         sync.Mutex
+	content    string
+	callCount  int32
+	recoveryCh chan struct{} // 首次 Recover 调用时关闭，用于测试同步
 }
 
 func (p *deadlockMockProvider) Complete(_ context.Context, _ *llm.CompletionRequest) (*llm.CompletionResponse, error) {
@@ -85,7 +85,7 @@ func TestDeadlockDetector_ConsecutiveFailures(t *testing.T) {
 	// 但 RecordFailure 在 executePlanWithState 中仅调用一次（runPlanSubtask 返回后），
 	// 因此阈值=1 确保首次子任务失败即触发死路检测。
 	a := newReActAgent(ReActConfig{
-		Name: "deadlock-test",
+		Name:     "deadlock-test",
 		MaxTurns: 10,
 	})
 	a.capCache = &capabilityCache{planner: ep}

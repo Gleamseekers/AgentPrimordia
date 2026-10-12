@@ -1,7 +1,8 @@
 // Package main 生成 AgentPrimordia 性能基准测试报告。
 //
 // 运行方式：
-//   go run ./bench/performance/report/
+//
+//	go run ./bench/performance/report/
 package main
 
 import (
@@ -59,13 +60,13 @@ func main() {
 	var m1, m2 runtime.MemStats
 	runtime.GC()
 	runtime.ReadMemStats(&m1)
-	
+
 	// 创建多个 provider 模拟真实使用
 	providers := make([]*ap.DemoProvider, 100)
 	for i := 0; i < 100; i++ {
 		providers[i] = ap.NewDemoProvider()
 	}
-	
+
 	runtime.ReadMemStats(&m2)
 	heapDiff := m2.HeapInuse - m1.HeapInuse
 	heapDiffMB := float64(heapDiff) / 1024 / 1024
@@ -99,7 +100,7 @@ func main() {
 	fmt.Println("   目标: 支持 100+ 并发请求")
 	provider := ap.NewDemoProvider()
 	ctx := context.Background()
-	
+
 	concurrentStart := time.Now()
 	done := make(chan bool, 100)
 	for i := 0; i < 100; i++ {
@@ -113,7 +114,7 @@ func main() {
 			done <- true
 		}(i)
 	}
-	
+
 	// 等待所有完成
 	for i := 0; i < 100; i++ {
 		<-done
@@ -141,7 +142,7 @@ func main() {
 		DefaultOutputModes: []string{"text"},
 	}
 	cfg := ap.DefaultInteropConfig()
-	
+
 	a2aStart := time.Now()
 	for i := 0; i < 100; i++ {
 		server := ap.NewOpenInteropServer(card, cfg)

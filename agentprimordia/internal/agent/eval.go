@@ -1,8 +1,8 @@
 package agent
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/eval"
 	"context"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/eval"
 )
 
 // Evaluator 评估器接口

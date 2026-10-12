@@ -1,4 +1,3 @@
-
 package agent
 
 import (
@@ -170,7 +169,6 @@ func TestLifecycle_PausedCanCancel(t *testing.T) {
 		t.Errorf("expected cancelled, got %s", lc.Status())
 	}
 }
-
 
 func TestLifecycle_CanTransitionTo(t *testing.T) {
 	lc := NewLifecycle()
@@ -499,7 +497,6 @@ func TestLifecycle_StateSince(t *testing.T) {
 		t.Error("state since should be after the transition")
 	}
 }
-
 
 func TestLifecycle_OnTransition(t *testing.T) {
 	lc := NewLifecycle()

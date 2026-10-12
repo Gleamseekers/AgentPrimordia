@@ -101,28 +101,38 @@ func TestLoadEnv_TypeErrors(t *testing.T) {
 		envVal string
 	}{
 		{
-			name:   "非法整数",
-			cfg:    &struct{ N int `env:"N"` }{},
+			name: "非法整数",
+			cfg: &struct {
+				N int `env:"N"`
+			}{},
 			envKey: "AP_N", envVal: "not-a-number",
 		},
 		{
-			name:   "非法无符号整数",
-			cfg:    &struct{ U uint `env:"U"` }{},
+			name: "非法无符号整数",
+			cfg: &struct {
+				U uint `env:"U"`
+			}{},
 			envKey: "AP_U", envVal: "-5",
 		},
 		{
-			name:   "非法布尔",
-			cfg:    &struct{ B bool `env:"B"` }{},
+			name: "非法布尔",
+			cfg: &struct {
+				B bool `env:"B"`
+			}{},
 			envKey: "AP_B", envVal: "maybe",
 		},
 		{
-			name:   "非法浮点",
-			cfg:    &struct{ F float64 `env:"F"` }{},
+			name: "非法浮点",
+			cfg: &struct {
+				F float64 `env:"F"`
+			}{},
 			envKey: "AP_F", envVal: "abc",
 		},
 		{
-			name:   "不支持的字段类型",
-			cfg:    &struct{ M map[string]string `env:"M"` }{},
+			name: "不支持的字段类型",
+			cfg: &struct {
+				M map[string]string `env:"M"`
+			}{},
 			envKey: "AP_M", envVal: "x",
 		},
 	}
@@ -144,12 +154,12 @@ func TestLoadEnv_TypeErrors(t *testing.T) {
 // TestLoadEnv_AllKinds setField 全类型成功路径（string/int/uint/bool/float/slice）。
 func TestLoadEnv_AllKinds(t *testing.T) {
 	cfg := &struct {
-		S string    `env:"S"`
-		I int64     `env:"I"`
-		U uint16    `env:"U"`
-		B bool      `env:"B"`
-		F float32   `env:"F"`
-		T []string  `env:"T"`
+		S string   `env:"S"`
+		I int64    `env:"I"`
+		U uint16   `env:"U"`
+		B bool     `env:"B"`
+		F float32  `env:"F"`
+		T []string `env:"T"`
 	}{}
 	ldr := NewOrFatal(cfg)
 	t.Setenv("AP_S", "hello")

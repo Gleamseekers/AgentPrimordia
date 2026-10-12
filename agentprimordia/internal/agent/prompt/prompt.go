@@ -1,9 +1,9 @@
 package prompt
 
 import (
-	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
 	"bytes"
 	"fmt"
+	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent/core"
 	"strings"
 	"text/template"
 )

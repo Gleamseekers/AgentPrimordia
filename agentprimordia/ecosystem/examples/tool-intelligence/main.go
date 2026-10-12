@@ -16,12 +16,12 @@
 package main
 
 import (
-	"sort"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 
 	ap "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg"
@@ -297,7 +297,7 @@ func main() {
 		signed := &ap.ToolArtifact{
 			ID: "demo-signed", Name: "demo_signed", Description: "已签名演示",
 			ArtifactSHA: hex.EncodeToString(sum[:]), Artifact: scriptArtifact,
-			Signature:   sig, PublicKey: pub,
+			Signature: sig, PublicKey: pub,
 		}
 		acceptCreator := ap.NewRegisteringCreator(&demoArtifactCreator{art: signed}, reg, forgeDir).
 			WithVerifier(&demoPinnedVerifier{pub: pub})

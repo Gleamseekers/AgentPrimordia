@@ -10,9 +10,9 @@ import (
 // PolicyApprovalGate 基于策略的审批门
 // 维护需要审批的高风险动作列表，通过 channel 实现异步审批等待
 type PolicyApprovalGate struct {
-	mu             sync.Mutex
-	highRiskActions map[string]bool            // 需要审批的动作集合
-	pending         map[string]chan struct{}     // 等待审批的动作 → 通知 channel
+	mu              sync.Mutex
+	highRiskActions map[string]bool          // 需要审批的动作集合
+	pending         map[string]chan struct{} // 等待审批的动作 → 通知 channel
 }
 
 // NewPolicyApprovalGate 创建策略审批门

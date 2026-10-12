@@ -1,7 +1,8 @@
 // Package integration 提供 AgentPrimordia 集成测试。
 //
 // 运行方式：
-//   go test -v ./tests/integration/
+//
+//	go test -v ./tests/integration/
 //
 // 测试覆盖：
 //   - ap start 完整流程
@@ -51,7 +52,7 @@ func TestApStartFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ap start 失败: %v\n%s", err, output)
 	}
-	
+
 	// 验证输出
 	outputStr := string(output)
 	if !strings.Contains(outputStr, "创建项目") {
@@ -60,13 +61,13 @@ func TestApStartFlow(t *testing.T) {
 	if !strings.Contains(outputStr, "test-agent") {
 		t.Error("输出中未包含项目名称")
 	}
-	
+
 	// 验证项目目录
 	projectDir := filepath.Join(tmpDir, "test-agent")
 	if _, err := os.Stat(projectDir); os.IsNotExist(err) {
 		t.Error("项目目录未创建")
 	}
-	
+
 	// 验证关键文件
 	files := []string{"main.go", "go.mod", ".ap.yaml"}
 	for _, file := range files {
@@ -81,7 +82,7 @@ func TestApStartFlow(t *testing.T) {
 func TestMultiTurnConversation(t *testing.T) {
 	ctx := context.Background()
 	provider := ap.NewDemoProvider()
-	
+
 	// 模拟多轮对话
 	messages := []struct {
 		input    string
@@ -100,19 +101,19 @@ func TestMultiTurnConversation(t *testing.T) {
 			expected: []string{"不客气"},
 		},
 	}
-	
+
 	for i, msg := range messages {
 		req := &ap.CompletionRequest{
 			Messages: []ap.ChatMessage{
 				{Role: "user", Content: msg.input},
 			},
 		}
-		
+
 		resp, err := provider.Complete(ctx, req)
 		if err != nil {
 			t.Fatalf("第 %d 轮对话失败: %v", i+1, err)
 		}
-		
+
 		// 验证响应包含期望关键词
 		found := false
 		for _, keyword := range msg.expected {
@@ -133,12 +134,12 @@ func TestApProfileCommand(t *testing.T) {
 	tmpDir := t.TempDir()
 	origDir, _ := os.Getwd()
 	defer func() { _ = os.Chdir(origDir) }()
-	
+
 	// 切换到临时目录
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("切换目录失败: %v", err)
 	}
-	
+
 	// 编译 ap 命令
 	apBin := filepath.Join(tmpDir, "ap")
 	buildCmd := exec.Command("go", "build", "-o", apBin, "./cmd/ap")
@@ -146,20 +147,20 @@ func TestApProfileCommand(t *testing.T) {
 	if output, err := buildCmd.CombinedOutput(); err != nil {
 		t.Fatalf("编译 ap 失败: %v\n%s", err, output)
 	}
-	
+
 	// 创建项目
 	initCmd := exec.Command(apBin, "init", "profile-test")
 	initCmd.Dir = tmpDir
 	if output, err := initCmd.CombinedOutput(); err != nil {
 		t.Fatalf("ap init 失败: %v\n%s", err, output)
 	}
-	
+
 	// 切换到项目目录
 	projectDir := filepath.Join(tmpDir, "profile-test")
 	if err := os.Chdir(projectDir); err != nil {
 		t.Fatalf("切换项目目录失败: %v", err)
 	}
-	
+
 	// 运行 ap profile
 	profileCmd := exec.Command(apBin, "profile")
 	profileCmd.Dir = projectDir
@@ -167,7 +168,7 @@ func TestApProfileCommand(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ap profile 失败: %v\n%s", err, output)
 	}
-	
+
 	// 验证输出
 	outputStr := string(output)
 	if !strings.Contains(outputStr, "Agent Growth Profile") {
@@ -181,7 +182,7 @@ func TestApProfileCommand(t *testing.T) {
 // TestA2ACommunication 测试 A2A 通信
 func TestA2ACommunication(t *testing.T) {
 	ctx := context.Background()
-	
+
 	// 创建 Agent Card
 	card := ap.OpenAgentCard{
 		Name:               "test-agent",
@@ -191,21 +192,21 @@ func TestA2ACommunication(t *testing.T) {
 		DefaultInputModes:  []string{"text"},
 		DefaultOutputModes: []string{"text"},
 	}
-	
+
 	cfg := ap.DefaultInteropConfig()
-	
+
 	// 创建 server
 	server := ap.NewOpenInteropServer(card, cfg)
 	if server == nil {
 		t.Fatal("创建 server 失败")
 	}
-	
+
 	// 创建 client
 	client := ap.NewOpenInteropClient("http://localhost:9876")
 	if client == nil {
 		t.Fatal("创建 client 失败")
 	}
-	
+
 	// 获取 Agent Card
 	discoveredCard, err := client.FetchAgentCard(ctx)
 	if err != nil {
@@ -223,7 +224,7 @@ func TestA2ACommunication(t *testing.T) {
 func TestDemoProvider(t *testing.T) {
 	ctx := context.Background()
 	provider := ap.NewDemoProvider()
-	
+
 	tests := []struct {
 		input    string
 		expected []string
@@ -241,19 +242,19 @@ func TestDemoProvider(t *testing.T) {
 			expected: []string{"帮助", "能力"},
 		},
 	}
-	
+
 	for _, test := range tests {
 		req := &ap.CompletionRequest{
 			Messages: []ap.ChatMessage{
 				{Role: "user", Content: test.input},
 			},
 		}
-		
+
 		resp, err := provider.Complete(ctx, req)
 		if err != nil {
 			t.Fatalf("Complete 失败: %v", err)
 		}
-		
+
 		// 验证响应
 		found := false
 		for _, keyword := range test.expected {
@@ -279,7 +280,7 @@ func TestProjectStructure(t *testing.T) {
 	if err := os.Chdir(tmpDir); err != nil {
 		t.Fatalf("切换目录失败: %v", err)
 	}
-	
+
 	// 编译 ap 命令
 	apBin := filepath.Join(tmpDir, "ap")
 	buildCmd := exec.Command("go", "build", "-o", apBin, "./cmd/ap")
@@ -287,17 +288,17 @@ func TestProjectStructure(t *testing.T) {
 	if output, err := buildCmd.CombinedOutput(); err != nil {
 		t.Fatalf("编译 ap 失败: %v\n%s", err, output)
 	}
-	
+
 	// 创建项目
 	initCmd := exec.Command(apBin, "init", "structure-test")
 	initCmd.Dir = tmpDir
 	if output, err := initCmd.CombinedOutput(); err != nil {
 		t.Fatalf("ap init 失败: %v\n%s", err, output)
 	}
-	
+
 	// 验证项目结构
 	projectDir := filepath.Join(tmpDir, "structure-test")
-	
+
 	// 检查目录（data/ 由 sqlite memory backend 首次使用时惰性创建，不在 init 时生成）
 	dirs := []string{}
 	for _, dir := range dirs {
@@ -309,7 +310,7 @@ func TestProjectStructure(t *testing.T) {
 			t.Errorf("%s 不是目录", dir)
 		}
 	}
-	
+
 	// 检查文件
 	files := []string{"main.go", "go.mod", ".ap.yaml"}
 	for _, file := range files {
@@ -328,10 +329,10 @@ func TestPerformance(t *testing.T) {
 	if testing.Short() {
 		t.Skip("跳过性能测试")
 	}
-	
+
 	ctx := context.Background()
 	provider := ap.NewDemoProvider()
-	
+
 	// 测试响应时间
 	start := time.Now()
 	for i := 0; i < 100; i++ {
@@ -343,10 +344,10 @@ func TestPerformance(t *testing.T) {
 		_, _ = provider.Complete(ctx, req)
 	}
 	elapsed := time.Since(start)
-	
+
 	avgTime := elapsed / 100
 	t.Logf("平均响应时间: %v", avgTime)
-	
+
 	// 应该小于 100ms
 	if avgTime > 100*time.Millisecond {
 		t.Errorf("响应时间过长: %v", avgTime)

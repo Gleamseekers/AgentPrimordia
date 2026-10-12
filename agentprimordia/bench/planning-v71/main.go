@@ -352,7 +352,7 @@ func mcnemarAnalysis(results map[string]unitResult, items []longHorizonItem) {
 	// McNemar 检验
 	// 卡方 = (b - c)^2 / (b + c)，自由度=1
 	if b+c > 0 {
-		chi2 := float64((b - c) * (b - c)) / float64(b+c)
+		chi2 := float64((b-c)*(b-c)) / float64(b+c)
 		// 近似 p 值（自由度=1 的卡方分布）
 		pValue := chi2PValue(chi2)
 		fmt.Printf("\nMcNemar 检验:\n")

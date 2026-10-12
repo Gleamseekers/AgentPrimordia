@@ -90,6 +90,7 @@ var blockedCommandPatterns = []string{
 //   - 进程派生器：env / printenv（env 可执行任意程序）、find（-exec）、ln（符号链接逃逸）；
 //   - 代码解释器/编译器：python / python3 / node / go / make / cargo / rustc；
 //   - 通用 VCS：git（-c/alias/ext 可执行任意命令）。
+//
 // 确有需要的用户应经 WithWhitelist 显式追加，并自行承担相应风险
 // （显式 opt-in 是安全默认值与灵活性之间的边界）。
 var defaultWhitelist = []string{

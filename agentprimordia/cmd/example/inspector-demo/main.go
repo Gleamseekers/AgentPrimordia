@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/cmd/example/demo"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/agent"
 	"github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/debugger"
-	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"

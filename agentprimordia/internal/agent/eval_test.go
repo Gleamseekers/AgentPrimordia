@@ -1,4 +1,3 @@
-
 package agent
 
 import (
@@ -374,7 +373,6 @@ func TestCompositeEvaluator_Weighted(t *testing.T) {
 		t.Errorf("Score = %f, want ~0.4", result.Score)
 	}
 }
-
 
 func TestToolUsageEvaluator_PartialMatch(t *testing.T) {
 	e := &ToolUsageEvaluator{ExpectedTools: []string{"calculator", "datetime"}}

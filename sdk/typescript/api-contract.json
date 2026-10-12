@@ -5262,31 +5262,38 @@
       "types": [
         {
           "name": "Tracer",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
           "name": "TracerDebug",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
           "name": "NoopTracer",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
           "name": "OTLPConfig",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
           "name": "OTLPExporter",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
           "name": "TelemetryConfig",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
           "name": "TelemetryProvider",
-          "kind": "alias"
+          "kind": "alias",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         }
       ],
       "functions": [
@@ -5314,13 +5321,16 @@
       ],
       "variables": [
         {
-          "name": "NewNoopTracer"
+          "name": "NewNoopTracer",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
-          "name": "NewOTLPExporter"
+          "name": "NewOTLPExporter",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         },
         {
-          "name": "NewTelemetryProvider"
+          "name": "NewTelemetryProvider",
+          "doc": "Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 ..."
         }
       ]
     },

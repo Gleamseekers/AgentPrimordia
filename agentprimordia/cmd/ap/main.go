@@ -30,6 +30,7 @@ Commands:
   profile      display agent growth profile
   live            常驻长活模式（自唤醒/闲时自调度/崩溃自愈）
   a2a          A2A protocol interop (interop-check)
+  migrate      rewrite module import paths for the next major (v7 -> v8)
   realtime     realtime multimodal session (voice)
   create-edge-agent  create an Edge Agent project
   doctor       health check
@@ -89,6 +90,8 @@ func main() {
 		err = runCreateEdgeAgent(args)
 	case "doctor":
 		err = runDoctor(args)
+	case "migrate":
+		err = runMigrate(args)
 	case "completion":
 		err = runCompletion(args)
 	case "version", "-v", "--version":

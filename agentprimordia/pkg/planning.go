@@ -51,12 +51,16 @@ var (
 	//   - 超限即停止规划、退回直接执行。
 	// 需要护栏请改用 NewEnhancedPlannerWithBudget（阈值默认即上述护栏值，
 	// 可用 WithPlannerTurnRatio / WithMaxPlanDepth 收紧）。
+	// Deprecated: v7.2 A/B 实证反向显著（-47.8pp, p=0.001；A 臂 52.2% 12/23 vs B 臂 4.3% 1/23，McNemar p=0.001，锚点 docs/v7.2-验收实验报告.md §2.1/§2.2/§5.1）。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+	// Removed in v8.0.
 	NewEnhancedPlanner = planning.NewEnhancedPlanner
 	// NewManagedPlan 创建受管计划（状态机驱动：pending→active→blocked→completed/failed）
 	NewManagedPlan = planning.NewManagedPlan
 )
 
 // EnhancedPlanner 增强规划器（高风险动作需审批）
+// Deprecated: v7.2 A/B 实证反向显著（-47.8pp, p=0.001；A 臂 52.2% 12/23 vs B 臂 4.3% 1/23，McNemar p=0.001，锚点 docs/v7.2-验收实验报告.md §2.1/§2.2/§5.1）。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type EnhancedPlanner = planning.EnhancedPlanner
 
 // ManagedPlan 受管计划（状态机 + 转换审计）
@@ -101,6 +105,8 @@ var (
 	// 任务预算 25 turns 计（锚点：v7.2 报告的 ReAct 25 turns 上限）。
 	// 阈值默认即护栏值：规划 turns ≤ 总 turns 的 20%、递归分解深度 ≤ 2 层；
 	// 可用 WithPlannerTurnRatio / WithMaxPlanDepth 收紧。
+	// Deprecated: v7.2 A/B 实证反向显著（-47.8pp, p=0.001；A 臂 52.2% 12/23 vs B 臂 4.3% 1/23，McNemar p=0.001，锚点 docs/v7.2-验收实验报告.md §2.1/§2.2/§5.1）。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+	// Removed in v8.0.
 	NewEnhancedPlannerWithBudget = planning.NewEnhancedPlannerWithBudget
 	// WithPlannerTurnRatio 设置规划 turns 占比上限（如 0.1 = 10%）。
 	WithPlannerTurnRatio = planning.WithPlannerTurnRatio

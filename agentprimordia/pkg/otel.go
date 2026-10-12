@@ -20,20 +20,44 @@ import (
 	obsotel "github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/internal/observability/export/otel"
 )
 
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type Tracer = agent.Tracer
+
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type TracerDebug = agent.TracerDebug
+
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type NoopTracer = agent.NoopTracer
 
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 var NewNoopTracer = agent.NewNoopTracer
 
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type OTLPConfig = obsotel.OTLPConfig
+
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type OTLPExporter = obsotel.OTLPExporter
 
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 var NewOTLPExporter = obsotel.NewOTLPExporter
 
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type TelemetryConfig = obsotel.TelemetryConfig
+
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 type TelemetryProvider = obsotel.TelemetryProvider
 
+// Deprecated: 无外部采用证据的周边能力（OTel 遥测 re-export），v8.0 收敛 pkg 核心承诺面。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 var NewTelemetryProvider = obsotel.NewTelemetryProvider
 
 // WithTelemetry 将 TelemetryProvider 的 Tracer 与 Metrics 一次性注入 Agent，
@@ -41,6 +65,8 @@ var NewTelemetryProvider = obsotel.NewTelemetryProvider
 // 由 provider 经 OTLPExporter 导出（周期或 ExportNow）。
 //
 // Stability: Experimental
+// Deprecated: OTel 遥测生产接线点（cmd/ap/scaffold/quickstart 启动时调用），但属 v7.4 批量接线、无外部采用证据；v8.0 移出 pkg 后由 CLI 改走 internal/observability/export/otel。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 func WithTelemetry(tp *obsotel.TelemetryProvider) agent.Option {
 	opts := []agent.Option{agent.WithTracer(tp.Tracer())}
 	if tp.MetricsEnabled() {
@@ -69,6 +95,8 @@ func WithTelemetry(tp *obsotel.TelemetryProvider) agent.Option {
 // 返回的 Provider 含后台导出 goroutine，调用方必须在退出时调用 Shutdown()。
 //
 // Stability: Experimental
+// Deprecated: OTel 遥测生产接线点（cmd/ap/scaffold/quickstart 启动时调用），但属 v7.4 批量接线、无外部采用证据；v8.0 移出 pkg 后由 CLI 改走 internal/observability/export/otel。v8.0 将从 pkg 公共面移除（实现保留在 internal/，CLI 不受影响）。[v8.0-cut]
+// Removed in v8.0.
 func TelemetryFromEnv() (*TelemetryProvider, bool, error) {
 	endpoint := strings.TrimSpace(os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"))
 	enabled := isEnvTruthy(os.Getenv("AP_OTEL_ENABLED")) || endpoint != ""

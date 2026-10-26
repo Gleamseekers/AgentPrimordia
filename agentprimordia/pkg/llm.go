@@ -124,6 +124,12 @@ var (
 	// 注意: GLMProvider 的 CallTools 当前返回 ErrNotSupported（智谱 OpenAI 兼容层对 tool_calls
 	// 协议支持有限）。如需tool调用，请使用 OpenAI/Anthropic/Gemini/Qwen。
 	NewGLMProvider = llm.NewGLMProvider
+	// NewDeepSeekProvider 创建 DeepSeek 提供者实例（OpenAI 兼容模式）
+	//
+	// 此前该 Provider 仅有 internal 实现而未在 pkg 层 re-export，README 的
+	// "10+ LLM Provider" 列表含 DeepSeek 但公共 API 无对应构造器——
+	// 文档与可用面不一致，此处补齐导出使命名与事实一致。
+	NewDeepSeekProvider = llm.NewDeepSeekProvider
 	// ConfigFromEnv 从环境变量读取 LLM 配置（AP_LLM_API_KEY, AP_LLM_BASE_URL, AP_LLM_MODEL 等）
 	ConfigFromEnv = llm.ConfigFromEnv
 )

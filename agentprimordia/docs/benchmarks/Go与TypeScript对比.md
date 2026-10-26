@@ -43,22 +43,46 @@ cd sdk/typescript
 # 先编译
 npm run build
 
-# 运行所有基准
+# 运行所有基准（vitest bench；`--run` 必须带——vitest 1.6.x 的 bench 默认进 watch，非交互环境会挂住不退出）
 npm run bench
 
-# 或单独运行
-node bench/memory.bench.js
-node bench/vector.bench.js
-node bench/pool.bench.js
+# 或单独运行（基准文件在 tests/bench/）
+npx vitest bench --run tests/bench/memory.bench.ts
+npx vitest bench --run tests/bench/vector.bench.ts
+npx vitest bench --run tests/bench/jsonutil.bench.ts
 ```
 
-### 使用对比脚本
+### 双线真实 LLM 基准对照
+
+Go 与 TS 两侧跑同一模型、同一用例集，再由对照表生成器做"用例集一致"门禁：
 
 ```bash
-# 同时运行两个 SDK 的基准并生成对比报告
-cd agentprimordia
-bash scripts/bench-compare.sh
+# 在 agentprimordia/ 下
+go run ./bench/llm-bench --provider openai --model gpt-4o-mini \
+  --version nightly --threshold 0 --retries 1 --out go-llm-bench-report.json
+(cd ../sdk/typescript && npx --yes tsx bench/llm-bench/main.mts \
+  --model gpt-4o-mini --threshold 0 --out ../agentprimordia/ts-llm-bench-report.json)
+node ../scripts/dual-bench-compare.mjs \
+  --go-report go-llm-bench-report.json \
+  --ts-report ts-llm-bench-report.json \
+  --out bench/results/dual
 ```
+
+CI 对应 job：`nightly.yml` 的 `dual-bench`，产物 `bench/results/dual/dual-bench-comparison.{json,md}`。
+详见 [`../guides/验证手册.md`](../guides/验证手册.md)。
+
+> **可复现性如实说明（2026-10-17 复核）**：上述命令与 `nightly.yml:308-332` 逐字一致，但**本机从未真实执行成功过**——
+> ① `tsx` 不在 `sdk/typescript/devDependencies` 中（`npx --yes tsx` 需联网拉取）；
+> ② 无 `OPENAI_API_KEY` 时该 job 在前置步骤就 `exit 0`，故这段从未被 CI 跑过。
+> 交叉印证：`bench/llm-bench/main.mts` 存在且其文件头注释自述用法与本段一致；`scripts/dual-bench-compare.mjs` 在线且被 nightly 消费。
+> 待补：把 `tsx` 固化进 `devDependencies`（改用 `npx --no-install tsx`）或改指 CI 已跑的 `npx vitest run tests/integration/llm-bench.test.ts`。
+>
+> **注意 `--threshold 0` 不是关闭门禁**：判据为 `maxOf(*threshold, baselineRate)`（`bench/llm-bench/main.go:98/166`），仍强制"分数只升不降"。
+
+> **退役记录（2026-10-17）**：旧脚本 `scripts/bench-compare.sh`（2026-07 引入）已删除。
+> 它按 `sdk/typescript/bench/*.bench.js` 收集 TS 侧结果，而该目录下并无此类文件（现为 `tests/bench/*.bench.ts`，经 `npm run bench` 运行），
+> 且生成的报告链接 `docs/benchmarks/go-vs-typescript.md` 亦不存在——即"文档里的命令必然失败"。
+> 其功能已由 `make benchmark`（Go 侧）与 `scripts/dual-bench-compare.mjs` + nightly `dual-bench` job（双线对照）覆盖。
 
 ## 参考数据
 

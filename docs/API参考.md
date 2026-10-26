@@ -2,7 +2,7 @@
 
 > 包路径：`agentprimordia/pkg` → 导入别名 `ap`
 >
-> 版本：`ap.Version` = `"7.5.1"` (Go) / `@agentprimordia/sdk` `7.5.1` (TypeScript)
+> 版本：`ap.Version` = `"7.5.2"` (Go) / `@agentprimordia/sdk` `7.5.2` (TypeScript)
 >
 > **TypeScript SDK 与 Go 框架 100% 功能对等**，下方 API 参考 covers Go 公共 API。
 > TypeScript SDK 完整 API 参考见 [sdk/typescript/docs/api/index.md](../sdk/typescript/docs/api/index.md)。

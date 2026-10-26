@@ -7,7 +7,7 @@
 相反，请通过以下方式私下报告：
 
 - 📧 发送邮件到：security@agentprimordia.dev
-- 🔒 使用 GitHub 的 [Private Vulnerability Reporting](https://github.com/AgentPrimordia/agentprimordia/security/advisories/new)
+- 🔒 使用 GitHub 的 [Private Vulnerability Reporting](https://github.com/Gleamseekers/AgentPrimordia/security/advisories/new)
 
 ## 报告流程
 
@@ -87,7 +87,7 @@
 
 - **安全问题**：security@agentprimordia.dev
 - **一般问题**：support@agentprimordia.dev
-- **GitHub Issues**：https://github.com/AgentPrimordia/agentprimordia/issues
+- **GitHub Issues**：https://github.com/Gleamseekers/AgentPrimordia/issues
 
 ---
 

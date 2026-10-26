@@ -3,7 +3,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.0+-3178C6?logo=typescript&style=for-the-badge" alt="TypeScript">
   <img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=for-the-badge" alt="License">
   <img src="https://img.shields.io/badge/Zero_CGO-✓-brightgreen?style=for-the-badge" alt="Zero CGO">
-  <img src="https://img.shields.io/badge/version-v7.3.0-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/version-v7.5.2-blue?style=for-the-badge" alt="Version">
 </p>
 
 <h1 align="center">⚡ AgentPrimordia</h1>
@@ -60,7 +60,7 @@
 | 🔄 **多 Agent 调度** | Pool 信号量并发 + 会话隔离 + AutoScaler + 事件通知 |
 | 🔒 **安全沙箱** | ACL + Sandbox + 路径穿越/symlink 逃逸防护 + Guardrails/PII |
 | 🪝 **20+ 生命周期 Hook** | 审计/告警/成本追踪等关键节点插桩 |
-| 📊 **可观测性** | Prometheus 指标 + OpenTelemetry + 35 个结构化错误码 |
+| 📊 **可观测性** | Prometheus 指标 + OpenTelemetry + 47 个结构化错误码 |
 | 🧭 **多模式编排** | Pipeline / Handoff / Parallel / DAG / GroupChat / Debate / Workflow |
 
 > 每项能力的代码示例与详解见 [docs/index.md](docs/index.md) 与 [docs/concepts/](docs/concepts/)。V4 新增能力（自治/技能/互操作/实时）见上方速览表。
@@ -70,8 +70,12 @@
 ## 🚀 Quick Start
 
 ```bash
-go get agentprimordia
+go get github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/pkg
 ```
+
+> 曾写作 `go get agentprimordia`——该模块路径不存在（本仓主模块为
+> `github.com/Gleamseekers/AgentPrimordia/v7`，公共 API 在 `agentprimordia/pkg` 子包），
+> 直接复制会以 `malformed module path` 失败。
 
 ```go
 package main
@@ -220,7 +224,7 @@ go run ./ecosystem/examples/realtime-voice/    # v3.6 语音多轮 + 打断
 | **安全沙箱** | ✅ ACL+Sandbox+路径穿越检测 | ❌ | ❌ |
 | **长期自治 / 技能进化** | ✅ v3.3 / v3.4 内建 | ❌ | ❌ |
 | **Prometheus** | ✅ 内建 | 需自行集成 | 需自行集成 |
-| **结构化错误码** | ✅ 35 个错误码 | ❌ |  |
+| **结构化错误码** | ✅ 47 个错误码 | ❌ |  |
 | **TypeScript SDK** | ✅ 官方对等 | 社区 | ❌ |
 | **单二进制部署** | ✅ | ❌ | ❌ |
 

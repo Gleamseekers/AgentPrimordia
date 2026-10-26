@@ -1,5 +1,5 @@
 {
-  "version": "7.5.1",
+  "version": "7.5.2",
   "generated_at": "",
   "modules": [
     {
@@ -1680,7 +1680,7 @@
         },
         {
           "name": "Version",
-          "value": "\"7.5.1\"",
+          "value": "\"7.5.2\"",
           "doc": "Version 是 AgentPrimordia 框架的当前版本号"
         }
       ],
@@ -4364,6 +4364,10 @@
         {
           "name": "NewGLMProvider",
           "doc": "NewGLMProvider 创建智谱 GLM 提供者实例（OpenAI 兼容模式）"
+        },
+        {
+          "name": "NewDeepSeekProvider",
+          "doc": "NewDeepSeekProvider 创建 DeepSeek 提供者实例（OpenAI 兼容模式）"
         },
         {
           "name": "ConfigFromEnv",

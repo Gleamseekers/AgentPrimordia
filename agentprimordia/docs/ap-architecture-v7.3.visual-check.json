@@ -6,8 +6,8 @@
   "visualReview": "pending",
   "artifact": {
     "path": "/Volumes/yangchen/AgentPrimordia/agentprimordia/docs/ap-architecture-v7.3.html",
-    "sha256": "458ae915ce3db0799ef0d65e5d96b1c1a6f19d8644ad2aae703b6b37c18b9bdf",
-    "bytes": 724142
+    "sha256": "5e6f58662b302f0182dff49ee6abcb2731b62731d078d9b0041cd4c996fe49c6",
+    "bytes": 725278
   },
   "state": {
     "detail": "read",
@@ -55,5 +55,6 @@
     "receipt": "ap-architecture-v7.3.visual-check.json",
     "contactSheet": "ap-architecture-v7.3.visual-check.html"
   },
-  "error": "Chrome or Chromium is unavailable. Set ARCHIFY_CHROME to its executable path."
+  "error": "Chrome or Chromium is unavailable. Set ARCHIFY_CHROME to its executable path.",
+  "maintainerNote": "2026-10-17 维护者为该 v7.3 快照在页内添加\"快照说明\"横幅（不改图形内容与数字口径），产物字节随之变化，故此处 sha256/bytes 已按标注后的产物更新；visual-check 的 skipped/ok:false 结论保持不变（本机仍无 Chrome）。"
 }

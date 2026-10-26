@@ -4,6 +4,52 @@
 
 ## [Unreleased]
 
+## [7.5.2] - 2026-10-26
+
+> 补丁版：**门禁可信度修复**（死门 `cover-check`、孤儿门 S0-3 双线召回、A4 断言从未进 CI）+ shell jail 逃逸修复 + A1 断言面加固 + 文档与实测对账。
+> Go 生产代码变更 2 处（`internal/tools/builtin/shell.go` jail 修复、`pkg/llm.go` 补导出 `NewDeepSeekProvider`）+ 测试加固 2 处（`shell_security_test.go`、`internal/security/host_boundary_test.go`），另有版本常量推进 `pkg/agent.go` `const Version`；无 API 破坏、无依赖变更。
+> **安全行为收紧**：shell 工具相对路径 `../../` 逃逸 workdir 自此被拒。**本版不含** wasm 沙箱默认翻转与 GLM/Qwen 多模态重构（按 `版本规范.md` §Experimental 推迟至 v7.6.0）。完整说明见 [发布说明-v7.5.2.md](发布说明-v7.5.2.md)。
+
+### Fixed
+
+- `make cover-check` 死门：Makefile 每条 recipe 行独立 shell，跨行变量丢失导致阈值判断恒真（`[: -eq: unary operator expected` 后仍打印 OK）。
+  改为单条 shell 块，并补 ①`go test` 退出码非 0 即 FAIL ②覆盖率为空按 FAIL（原为 SKIP）③分层阈值镜像 CI（`internal/agent:80`/`internal/llm:65`/`pkg:65`）。
+- `scripts/dual-line-recall-check.mjs`（S0-3 双线召回对账门）自落地起全仓零消费者：接入 CI job `dual-line-recall` 与 `make dual-line-recall`，
+  并按"先重跑两侧真臂、再对账、最后断言夹具零 diff"的顺序执行（两侧同步漂移同样会被发现）。
+- A4 断言（`wasm/runtime_boundary_test.go` 零值配置回退）此前无任何 CI job 覆盖：新增 job `workspace-modules`
+  对 `wasm/`/`pgvector/`/`gateway/` 三模块执行 `go build ./...` + `go test -count=1 ./...`（`CGO_ENABLED=0`）。
+- 文档统计漂移：internal 包口径统一为「顶层 28 包 / `internal/agent` 子包 34 个 / agent 子树 Go 包 37 个」；
+  `docs/发布说明-v7.5.1.md` 版本表改为该版自身真相；`docs/实验性能力清单.md` 证据行号修正；`sdk/typescript/AGENTS.md` 版本 7.3.0 → 7.5.2（该路径被 `.gitignore` 的 `AGENTS.md` 规则排除，仅本机生效、不入库，故不受任何 CI 门禁约束）。
+- 文档死链门漏扫 **HTML 内嵌链接**：`check-docs-links.mjs` 只扫 `[text](path)`，导致 README 用 HTML 写的架构图与"交互式架构图"入口
+  （模块路径迁移后遗留 `github.com/Gleamseekers/...` 前缀）双双 404 而门禁长期全绿。现补扫 `src`/`href`，并修正 README 两处路径与版本徽标指向。
+- **shell 工具 workdir jail 逃逸**：`looksLikeAbsolutePath` 只禁锢绝对路径形态，`cat ../../etc/passwd` 因"不是绝对路径"被整条跳过，而 `cmd.Dir` 正是受禁锢 workdir——一句相对路径即可废弃 filesystem 的 rootDir jail。
+  改为 `resolveWithinWorkdir`：相对 token 按生效 workdir `filepath.Join`（内部 Clean 折叠 `..`）解析后再判定；`WithAllowedWorkdirs` 将允许集统一归一为绝对路径（混着相对 RootDir `"."` 会误拒 jail 内合法相对路径）。新增 `shell_security_test.go` 双向固化。
+- **A1 宿主边界断言面**：`host_boundary_test.go` 的 `moduleRoots` 只含主模块与根 `wasm` 模块（pgvector/gateway/operator 全在扫描面外），且 wazero 匹配为精确等值——改 import `wazero/api` 子包即可绕过 A1。
+  现 `moduleRoots` 覆盖 `go.work` 全部模块、匹配器 `importsWazero()` 含全部子包、新增 `TestA1_WazeroImportMatcher`，静态扫描 fail-closed（grep 不可用不再等同于"无违例"）。
+- `pkg/llm.go` 补齐 `NewDeepSeekProvider` 导出：`internal/llm` 早有该构造器却从未 re-export，README「10+ LLM Provider」与公共 API 面不一致。
+
+### Removed
+
+- `scripts/bench-compare.sh`：孤儿脚本（0 消费者）且其文档指引必然失败（按不存在的 `bench/*.bench.js` 收集 TS 结果、报告链接亦不存在）；
+  功能已由 `make benchmark` 与 `scripts/dual-bench-compare.mjs` + nightly `dual-bench` job 覆盖，故退役并同步修正引用文档。
+
+### Added
+
+- `scripts/doc-version-consistency.mjs` 新增锚点：agent 子树 Go 包数（37）、`AGENTS.md` 完整 28 包表格、`CONTRIBUTING.md` 完整 28 包，
+  与既有的测试文件/Go 文件/包目录统计锚点共同把"文档数字 = 实测数字"变成硬门禁。
+- 新增规划权威文档 `docs/V7.5现状对账与V7.6目标.md`（A1–A8 断言→测试→CI 映射、模块盘点、孤儿门禁台账、v7.6 目标与验收口径）。
+
+### Changed
+
+- 版本真值推进 7.5.1 → 7.5.2：`pkg/agent.go` / `agentprimordia/VERSION` / `sdk/typescript/package.json` + `package-lock.json` /
+  Helm `values.yaml` 镜像 tag 与 `Chart.yaml` appVersion / `api-contract.json`（再生成，仅版本字段）/ README 徽标 / 版本声明类文档全链同步。
+- `dual-line-recall` 门加固：Makefile 目标改为"**先删两份夹具**再重生成"（堵住"env 丢失/过滤不中 → 四步全绿零验证"的假绿）、
+  追加 `git status --porcelain` untracked/删除态兜底、对账脚本新增档位数与 `topK` 一致性校验；
+  CI job 改为单步 `make -C agentprimordia dual-line-recall`（步骤只定义一处），触发面新增 `dual-line` 过滤（`docs/evals/**`、门脚本、工作流、Makefile、两份夹具）。
+- `agentprimordia/docs/ap-architecture-v7.3.html` 加页内快照说明（数字为 v7.3 口径、不得当作现行；视觉校验侧车为 `ok:false/skipped`，未经浏览器渲染校验）；
+  新增当前口径 `ap-architecture-v7.5.{html,json}`（34 子包 / 37 Go 包 / 5 模块，HEAD v7.5.1 与工作树 v7.5.2 分标），README 与文档权威索引入口切换；
+  结构校验 9/9 通过，但**视觉校验仍 `skipped`（无 Chrome）**——按事实记录，不表述为"视觉通过"。
+
 ## [7.5.1] - 2026-09-29
 
 > **v7.5.0 作废说明**：v7.5.0 tag 首次推送时模块路径修复尚未完成（子目录模块不可被发现、缺 /v7 后缀、go.mod 含 replace），GOPROXY 代理已按版本不可变性缓存该损坏版本。v7.5.1 为修正后的正式发布版；请勿使用 v7.5.0。

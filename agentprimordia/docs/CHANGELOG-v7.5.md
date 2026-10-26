@@ -1,10 +1,25 @@
-# AgentPrimordia v7.5 发布说明（当前补丁 v7.5.1）
+# AgentPrimordia v7.5 发布说明（当前补丁 v7.5.2）
 
 > **v7.5.0 作废**：模块路径发布链路修复（go.mod 移至仓库根、/v7 后缀、移除 replace）在 v7.5.0 tag 首次推送后才完成，代理已缓存损坏版本。v7.5.1 为正式发布版，安装命令见文末。
 
-> 发布日期：2026-09-29  
-> 版本：v7.5.1（v7.5.0 已作废，见文首说明）  
+> 发布日期：2026-09-29（v7.5 线）／2026-10-17（补丁 v7.5.2）  
+> 版本：v7.5.2（v7.5.0 已作废，见文首说明）  
 > 代号：评估修复战役（Assessment Remediation）
+
+---
+
+## 补丁 v7.5.2（2026-10-26）
+
+**门禁可信度修复 + shell jail 逃逸修复 + A1 断言面加固 + 文档与实测对账**；Go 生产代码变更 2 处（`internal/tools/builtin/shell.go`、`pkg/llm.go` 补导出 `NewDeepSeekProvider`），另有 `pkg/agent.go` 的 `const Version` 推进；无 API 破坏，但含一处**安全行为收紧**（shell 相对路径 `../../` 逃逸自此被拒）。
+wasm 沙箱默认 fail-closed 翻转与 GLM/Qwen 多模态重构**不在本版**——按 `版本规范.md` §实验性 API（wasm 的不兼容变更应发生在次版本号）推迟至 v7.6.0。
+
+- 修死门：`make cover-check` 覆盖率阈值判断因 Makefile 跨行变量丢失而恒真（此前不达标也打印 OK），并补齐退出码检查与空覆盖率 FAIL。
+- 接孤儿门：S0-3 双线召回对账门（`scripts/dual-line-recall-check.mjs`）此前全仓零消费者，现接入 CI job `dual-line-recall` 与 `make dual-line-recall`，且以"重跑两侧真臂 → 对账 → 夹具零 diff"三步执行。
+- 补断言：A4（wasm 零值配置回退）此前无 CI 覆盖，新增 job `workspace-modules`（wasm/pgvector/gateway 三模块编译 + 测试）。
+- 堵禁锢洞：`shell` 工具的 workdir jail 原只校验绝对路径形态，`cat ../../etc/passwd` 从受禁锢的 `cmd.Dir` 出发即可越界；现按生效 workdir 解析（`filepath.Join` 折叠 `..`）后再判定，允许集统一归一为绝对路径，并新增 `shell_security_test.go` 固化。
+- 加固 A1：`host_boundary_test.go` 的 `moduleRoots` 由 2 个扩为 `go.work` 全部模块，wazero 匹配由精确等值改为覆盖全部子包（原实现换一条 `wazero/api` 导入即可绕过），并新增 `TestA1_WazeroImportMatcher` 与 grep fail-closed。
+- 文档对齐实测：internal 包口径统一为「顶层 28 包 / agent 子包 34 个 / agent 子树 Go 包 37 个」，并入 `doc-version-consistency.mjs` 锚点。
+- 完整明细见 [`docs/发布说明-v7.5.2.md`](../../docs/发布说明-v7.5.2.md)。
 
 ---
 

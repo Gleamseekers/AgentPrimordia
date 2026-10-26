@@ -418,7 +418,7 @@ CI 已有性能回归检查（`bench-regression-check.sh`），但缺少官方�
 **涉及文件**：
 - `agentprimordia/bench/suite/` — 6 个基准测试套件
 - `agentprimordia/bench/results/` — 结果存储
-- `scripts/bench-compare.sh` — 对比脚本
+- `scripts/bench-compare.sh` — 对比脚本（**2026-10-17 已退役删除**：按 `bench/*.bench.js` 收集结果、与实际目录不符且 0 消费者；现由 `make benchmark` + `scripts/dual-bench-compare.mjs` 取代）
 - `agentprimordia/docs/benchmarks/` — 文档输出
 
 **实施步骤**：

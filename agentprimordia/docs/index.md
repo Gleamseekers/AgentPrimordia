@@ -74,18 +74,32 @@ ap run
     )
 
     func main() {
-        agent := ap.NewAgent("HelloAgent", "你是一个智能助手",
-            ap.NewOpenAIProvider(ap.Config{
-                APIKey: os.Getenv("OPENAI_API_KEY"),
-                Model:  "gpt-4o",
-            }),
+        provider, err := ap.NewOpenAIProvider(ap.Config{
+            APIKey: os.Getenv("OPENAI_API_KEY"),
+            Model:  "gpt-4o",
+        })
+        if err != nil {
+            panic(err)
+        }
+
+        agent, err := ap.NewAgent("HelloAgent", "你是一个智能助手",
+            provider,
             ap.WithMaxTurns(10),
         )
+        if err != nil {
+            panic(err)
+        }
 
-        resp, _ := agent.Run(context.Background(), ap.UserMessage("你好"))
+        resp, err := agent.Run(context.Background(), ap.UserMessage("你好"))
+        if err != nil {
+            panic(err)
+        }
         fmt.Println(resp.Content)
     }
     ```
+
+> 注意：`ap.NewOpenAIProvider` 与 `ap.NewAgent` 均返回 `(值, error)` 两个值，
+> 不可省略 error 分支后直接内联为参数——此处按真实签名书写，可直接复制编译。
 
 === "TypeScript"
 

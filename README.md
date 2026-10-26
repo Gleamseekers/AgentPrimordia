@@ -4,13 +4,14 @@
 
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/go-1.26+-00ADD8.svg)](https://golang.org)
-[![Version](https://img.shields.io/badge/version-7.5.1-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.3.md)
+[![Version](https://img.shields.io/badge/version-7.5.2-2ea44f.svg)](agentprimordia/docs/CHANGELOG-v7.5.md)
 [![Tests](https://img.shields.io/badge/tests-659%20files-green.svg)](agentprimordia/internal/)
 
 <p align="center">
-  <img src="github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
+  <img src="agentprimordia/docs/ap-architecture.svg" alt="AgentPrimordia Architecture" width="90%">
   <br>
-  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="github.com/Gleamseekers/AgentPrimordia/v7/agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a></sub>
+  <sub>交互式架构图（缩放 / 主题切换 / 引导视图）：<a href="agentprimordia/docs/ap-architecture-v7.5.html">ap-architecture-v7.5.html</a>
+  ——当前口径（工作树 v7.5.2：<code>internal/agent · 34 子包</code> / 37 Go 包 / 5 个 workspace 模块；结构化校验 9/9 通过，但<strong>视觉校验被跳过</strong>——本机无 Chrome，未经浏览器渲染校验）。旧版 <a href="agentprimordia/docs/ap-architecture-v7.3.html">ap-architecture-v7.3.html</a> 为 v7.3 冻结快照（其 32 子包为当时口径）。现行结构以 <a href="agentprimordia/internal/AGENTS.md">internal/AGENTS.md</a> 为准</sub>
 </p>
 
 ```bash
@@ -202,7 +203,7 @@ task, _ := client.SendTask(ctx, &ap.TaskSendRequest{...})
 AgentPrimordia/
 ├── agentprimordia/          # 核心框架主模块（161 个包，1355 个 Go 文件）
 │   ├── cmd/ap/              # CLI（20 个子命令）
-│   ├── internal/            # 29 个内部包
+│   ├── internal/            # 28 个内部包
 │   │   ├── agent/           # ReAct 引擎 + 微内核（34 个子包）
 │   │   ├── pool/            # 多 Agent 并发调度
 │   │   ├── tools/           # 工具系统

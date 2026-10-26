@@ -5,7 +5,12 @@
 
 ## 模块总览
 
-本目录包含顶层 29 个子包；其中 `agent/` 下另有 32 个子包，本表仅列常被跨包引用的 a2a/planning/reflection/tool_learning 等（完整清单见 `internal/agent/` 目录）。
+本目录包含顶层 28 个子包；其中 `agent/` 下另有 34 个子包（Go 包口径 37 个），本表仅列常被跨包引用的 a2a/planning/reflection/tool_learning 等（完整清单见 `internal/agent/` 目录）。
+
+> 计数口径（2026-10-17 于 **HEAD `fa622aac` = v7.5.1 基线 + 当日 v7.5.2 工作树**实测，`scripts/doc-version-consistency.mjs` 已将其纳入 CI 门禁）：
+> 顶层子包 = `ls -d internal/*/ | wc -l` = 28；`agent/` 子包 = `ls -d internal/agent/*/ | wc -l` = 34；
+> `agent/` 子树 Go 包 = `go list ./internal/agent/... | wc -l` = 37（= 含 .go 文件的目录数，含 `a2a/proto/a2a/v1`、`learning/pipeline`）；
+> 主模块包总数 = `go list ./... | wc -l` = 161（在 `agentprimordia/` 下执行）。新增包时需同步本行。
 
 | 子包 | 职责 |
 |------|------|

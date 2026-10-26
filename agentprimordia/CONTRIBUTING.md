@@ -94,7 +94,7 @@ agentprimordia/
 │   ├── config/        # 配置管理
 │   ├── events/        # 事件系统
 │   ├── security/      # 安全工具
-│   └── ...            # 其余横向支撑包：audit/chaos/eval/governance/health/jsonutil/logger/marketplace/multi_agent/observability/resilience/self_bootstrap/studio（完整 29 包见 internal/AGENTS.md）
+│   └── ...            # 其余横向支撑包：audit/chaos/eval/governance/health/jsonutil/logger/marketplace/multi_agent/observability/resilience/self_bootstrap/studio（完整 28 包见 internal/AGENTS.md）
 ├── pkg/               # 公共 API（类型别名导出）
 ├── cmd/               # 命令行工具
 │   ├── ap/           # CLI 工具

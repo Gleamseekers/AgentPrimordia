@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AgentPrimordia v7.5 通用 Go Agent 框架架构",
+    "locale": "zh-CN",
+    "output": "ap-architecture-v7.5.html",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1300,
+      820
+    ],
+    "views": [
+      {
+        "id": "run-path",
+        "label": "Agent 执行流",
+        "focus": [
+          "cli",
+          "pkg",
+          "kernel",
+          "llm",
+          "tools",
+          "extllm"
+        ],
+        "note": "CLI 入口 → pkg 公共 API → ReActLoop 内核 → LLM 抽象与工具调用的主执行路径"
+      },
+      {
+        "id": "host-boundary",
+        "label": "宿主边界与安全信任链",
+        "focus": [
+          "guard",
+          "a1a8",
+          "wasm",
+          "tools"
+        ],
+        "note": "INV-0 宿主零写入零编译零加载，A1–A8 断言把关；wazero 仅限两处 wasm 模块，验签后方可注册为工具"
+      },
+      {
+        "id": "dual-line",
+        "label": "双线对等与 workspace 模块",
+        "focus": [
+          "pkg",
+          "kernel",
+          "tssdk",
+          "pool"
+        ],
+        "note": "Go 为权威实现面，TS/Python/Rust 经同一契约对齐；沙箱执行 Go-only 走既有豁免"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "cli",
+      "type": "frontend",
+      "label": "CLI (ap)",
+      "sublabel": "init / run / loop / autonomy",
+      "pos": [
+        150,
+        40
+      ],
+      "size": [
+        215,
+        64
+      ]
+    },
+    {
+      "id": "tssdk",
+      "type": "external",
+      "label": "TS / Python / Rust SDK",
+      "sublabel": "协议对等 · 沙箱执行 Go-only",
+      "pos": [
+        1020,
+        40
+      ],
+      "size": [
+        250,
+        64
+      ],
+      "tag": "B4/#3 豁免"
+    },
+    {
+      "id": "pkg",
+      "type": "backend",
+      "label": "pkg/ 公共 API",
+      "sublabel": "类型别名 + 构造器 re-export",
+      "pos": [
+        490,
+        150
+      ],
+      "size": [
+        300,
+        62
+      ]
+    },
+    {
+      "id": "kernel",
+      "type": "backend",
+      "label": "ReActLoop 内核（协议式微内核）",
+      "sublabel": "internal/agent · 34 子包 / 37 Go 包",
+      "pos": [
+        470,
+        264
+      ],
+      "size": [
+        340,
+        84
+      ]
+    },
+    {
+      "id": "memory",
+      "type": "database",
+      "label": "Memory Store",
+      "sublabel": "SQLite · InMemory · RAG · Vector",
+      "pos": [
+        70,
+        470
+      ],
+      "size": [
+        205,
+        66
+      ]
+    },
+    {
+      "id": "tools",
+      "type": "backend",
+      "label": "Tool System",
+      "sublabel": "注册表 + 执行器 + MCP",
+      "pos": [
+        310,
+        470
+      ],
+      "size": [
+        205,
+        66
+      ]
+    },
+    {
+      "id": "pool",
+      "type": "backend",
+      "label": "AgentPool",
+      "sublabel": "多 Agent 调度 + 会话管理",
+      "pos": [
+        550,
+        470
+      ],
+      "size": [
+        205,
+        66
+      ]
+    },
+    {
+      "id": "llm",
+      "type": "backend",
+      "label": "LLM 抽象层",
+      "sublabel": "Provider 接口 · OpenAI / Ollama",
+      "pos": [
+        790,
+        470
+      ],
+      "size": [
+        205,
+        66
+      ]
+    },
+    {
+      "id": "extllm",
+      "type": "external",
+      "label": "外部生态",
+      "sublabel": "LLM API · PostgreSQL · K8s",
+      "pos": [
+        1040,
+        470
+      ],
+      "size": [
+        200,
+        66
+      ]
+    },
+    {
+      "id": "guard",
+      "type": "security",
+      "label": "护栏 + 治理 + 审计",
+      "sublabel": "guardrail · governance · audit",
+      "pos": [
+        70,
+        672
+      ],
+      "size": [
+        235,
+        66
+      ]
+    },
+    {
+      "id": "a1a8",
+      "type": "security",
+      "label": "A1–A8 宿主边界断言",
+      "sublabel": "host_boundary_test · sandbox_boundary_test",
+      "pos": [
+        420,
+        672
+      ],
+      "size": [
+        260,
+        66
+      ]
+    },
+    {
+      "id": "wasm",
+      "type": "security",
+      "label": "wazero WASM 沙箱",
+      "sublabel": "仅 2 处：agentprimordia/wasm · wasm/",
+      "pos": [
+        730,
+        672
+      ],
+      "size": [
+        230,
+        66
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Go workspace · go.work（5 个模块）｜主模块 AgentPrimordia/v7",
+      "wraps": [
+        "cli",
+        "pkg",
+        "kernel",
+        "memory",
+        "tools",
+        "pool",
+        "llm"
+      ],
+      "pad": 26
+    },
+    {
+      "kind": "security-group",
+      "label": "宿主边界 INV-0 · 断言 A1–A8（含治理 / 审计）",
+      "wraps": [
+        "guard",
+        "a1a8",
+        "wasm"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "cli-pkg",
+      "from": "cli",
+      "to": "pkg",
+      "label": "ap run",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pkg-kernel",
+      "from": "pkg",
+      "to": "kernel",
+      "label": "ap.NewAgent()",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 26
+    },
+    {
+      "id": "pkg-ts",
+      "from": "pkg",
+      "to": "tssdk",
+      "label": "协议契约对等",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "kernel-memory",
+      "from": "kernel",
+      "to": "memory",
+      "label": "读写记忆",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        172,
+        445
+      ]
+    },
+    {
+      "id": "kernel-tools",
+      "from": "kernel",
+      "to": "tools",
+      "label": "工具调用",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        412,
+        445
+      ]
+    },
+    {
+      "id": "kernel-pool",
+      "from": "kernel",
+      "to": "pool",
+      "label": "会话调度",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        652,
+        445
+      ]
+    },
+    {
+      "id": "kernel-llm",
+      "from": "kernel",
+      "to": "llm",
+      "label": "Completion",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelAt": [
+        892,
+        445
+      ]
+    },
+    {
+      "id": "llm-ext",
+      "from": "llm",
+      "to": "extllm",
+      "label": "HTTPS",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "guard-tools",
+      "from": "guard",
+      "to": "tools",
+      "label": "策略校验 + 审计",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "a1a8-wasm",
+      "from": "a1a8",
+      "to": "wasm",
+      "label": "签名前置 + 导入段白名单",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left",
+      "labelDy": 57
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "规模口径（实测）",
+      "items": [
+        "工作树 v7.5.2 发布准备（未提交）· HEAD fa622aac = v7.5.1",
+        "包目录 161 · Go 文件 1355 · 测试文件 659",
+        "internal 顶层包 28 · agent 子包 34 · agent 子树 Go 包 37"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "宿主边界（安全承诺）",
+      "items": [
+        "INV-0：宿主运行期零写入 / 零编译 / 零加载 agent 生成代码",
+        "A1–A8 确定性断言全部进 CI、失败即红",
+        "wazero 仅限 agentprimordia/wasm 与根 wasm/ 两处"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Go workspace（go.work · 5 模块）",
+      "items": [
+        "…/AgentPrimordia/v7（根，含 agentprimordia/）· …/pgvector",
+        "…/v7/agentprimordia/operator · …/gateway · …/wasm",
+        "A4 断言宿主为独立 wasm 模块（CI job workspace-modules）"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "双线对等与豁免",
+      "items": [
+        "Go 为唯一权威实现面，SDK 经同一契约对齐",
+        "Go / TS / Helm 三方版本对账；Python / Rust 版本线独立（2.0.0）",
+        "沙箱执行 Go-only（docs/双线豁免矩阵.md B4/#3）"
+      ]
+    }
+  ]
+}

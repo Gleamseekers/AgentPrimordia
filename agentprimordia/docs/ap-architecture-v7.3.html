@@ -4957,6 +4957,16 @@
         <div class="pulse-dot"></div>
         <h1>AgentPrimordia v7.3 通用 Go Agent 框架</h1>
       </div>
+      <p class="ap-snapshot-note" style="margin:12px 0 0;padding:10px 14px;border-left:3px solid #d0a000;background:rgba(208,160,0,0.10);font-size:13px;line-height:1.7;">
+        <strong>快照说明（维护者 2026-10-17 添加）</strong>：本页由 <code>archify 2.16.0</code> 于 2026-09-10 生成，记录的是
+        <strong>v7.3 时点</strong>的框架结构；页内包数等数字均为当时口径（例如 <code>internal/agent · 32 子包</code>
+        的现行实测值为 <strong>34</strong>，<code>internal/</code> 顶层包为 <strong>28</strong>，工作区模块为 <strong>5</strong>）。
+        <strong>请勿将本页数字当作现行口径</strong>；现行结构见仓库 <code>README.md</code> 的「项目结构」段与
+        <code>agentprimordia/internal/AGENTS.md</code>。
+        另：本产物的视觉校验侧车 <code>ap-architecture-v7.3.visual-check.json</code> 状态为
+        <code>ok:false / status:skipped</code>（生成时本机无 Chrome / <code>ARCHIFY_CHROME</code>），即本页
+        <strong>未经浏览器渲染校验</strong>，仅通过结构化生成。
+      </p>
     </div>
 
     <script id="archify-guided-views-data" type="application/json">[{"id":"agent-flow","label":"Agent 执行流","focus":["cli","pkg","agent","llm","tools","ext"],"note":"从用户请求到 LLM 响应再到工具调用的完整执行路径"},{"id":"multi-agent","label":"多 Agent 协作","focus":["pkg","agent","planning","a2a","ext"],"note":"Pool 会话调度 + 规划反思 + A2A 跨节点协议协作链路"},{"id":"trust-chain","label":"安全信任链","focus":["security","events","agent","tools","ext"],"note":"输入护栏 → ACL/沙箱 → 工具执行 → 输出护栏 → 审计事件全链路"}]</script>

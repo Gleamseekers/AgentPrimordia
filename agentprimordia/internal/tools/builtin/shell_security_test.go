@@ -192,6 +192,150 @@ func TestAttack_ShellNoPathConfinement(t *testing.T) {
 	}
 }
 
+// ===== 攻击链 5b：相对路径穿越（../）绕过路径禁锢 =====
+
+// TestAttack_ShellRelativePathTraversal 固化攻击链 5 的遗漏形态：攻击链 5 只用
+// 绝对路径取证，而 shell.go 的禁锢循环以 looksLikeAbsolutePath 为前置门控——
+// "../../etc/passwd" 形态上不是绝对路径，被 `continue` 整条跳过。cmd.Dir 恰是
+// 受禁锢的 workdir 本身，相对路径从它出发即可越界。原注释断言"相对路径由 cmd.Dir
+// 决定，不构成逃逸向量"，该论证错误：逃逸取决于解析基准，而基准正是被禁锢的目录。
+func TestAttack_ShellRelativePathTraversal(t *testing.T) {
+	root := t.TempDir()
+	outside := t.TempDir()
+	secret := filepath.Join(outside, "secret.txt")
+	if err := os.WriteFile(secret, []byte("TOPSECRET"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	// 构造从 root 出发的相对穿越路径（如 ../002/secret.txt）
+	rel, err := filepath.Rel(root, secret)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sh := NewShell().WithAllowedWorkdirs([]string{root})
+	out := mustExecShell(t, sh, map[string]any{
+		"action":  "execute",
+		"command": "cat " + rel,
+		"workdir": root,
+	})
+	if strings.Contains(out, "TOPSECRET") {
+		t.Fatalf("攻击链 5b 复现：相对路径 %q 越狱读取了 allowedWorkdirs 之外的文件 -> %s", rel, out)
+	}
+}
+
+// ===== 攻击链 5c：省略 workdir 使禁锢检查整体不执行 =====
+
+// TestAttack_ShellOmittedWorkdirFallsBackToJail workdir 参数缺省时的执行基准。
+// 原实现的禁锢校验被 `workdir != ""` 门控：省略 workdir 时整条检查不执行，
+// 且 cmd.Dir 不设置，命令相对宿主进程 cwd 解析——等于没有 jail。
+// 修复后必须回退到 allowedWorkdirs[0] 执行。以 jail 内 marker 可读为判据
+// （若仍继承宿主 cwd，则读不到该文件）——该判据与进程 cwd 无关，确定可复现。
+func TestAttack_ShellOmittedWorkdirFallsBackToJail(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "marker.txt"), []byte("INJAIL"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	sh := NewShell().WithAllowedWorkdirs([]string{root})
+	out := mustExecShell(t, sh, map[string]any{
+		"action":  "execute",
+		"command": "cat marker.txt",
+	})
+	if !strings.Contains(out, "INJAIL") {
+		t.Fatalf("省略 workdir 时未回退到禁锢目录执行（应能读到 jail 内 marker.txt）: %s", out)
+	}
+}
+
+// TestAttack_ShellOmittedWorkdirStillJailed 省略 workdir 时禁锢必须**显式拒绝**
+// 越界路径，而不只是"碰巧没读到"（后者可能因进程 cwd 不同而文件不存在，
+// 是假阴性）。拒绝文案是禁锢生效的直接证据。
+func TestAttack_ShellOmittedWorkdirStillJailed(t *testing.T) {
+	root := t.TempDir()
+	outside := t.TempDir()
+	secret := filepath.Join(outside, "secret.txt")
+	if err := os.WriteFile(secret, []byte("TOPSECRET"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	rel, err := filepath.Rel(root, secret)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sh := NewShell().WithAllowedWorkdirs([]string{root})
+	out := mustExecShell(t, sh, map[string]any{
+		"action":  "execute",
+		"command": "cat " + rel,
+	})
+	if strings.Contains(out, "TOPSECRET") {
+		t.Fatalf("攻击链 5c 复现：省略 workdir 后仍可越狱读取 -> %s", out)
+	}
+	if !strings.Contains(out, "outside the allowed directories") {
+		t.Fatalf("省略 workdir 时禁锢检查未生效（应显式拒绝越界路径）: %s", out)
+	}
+}
+
+// TestShell_RelativePathInsideJailAllowed 正向对照：jail 内的合法相对路径必须放行。
+// 固化"只堵穿越、不堵合法相对路径"——防止修复退化成把一切相对路径拒尽，
+// 那会让 shell 工具在默认 toolkit 下基本不可用。
+func TestShell_RelativePathInsideJailAllowed(t *testing.T) {
+	root := t.TempDir()
+	sub := filepath.Join(root, "sub")
+	if err := os.MkdirAll(sub, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(sub, "ok.txt"), []byte("INSIDE"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	sh := NewShell().WithAllowedWorkdirs([]string{root})
+	for _, cmd := range []string{
+		"cat sub/ok.txt",
+		"cat ./sub/ok.txt",
+		"cat sub/../sub/ok.txt", // 含 .. 但回落 jail 内
+	} {
+		out := mustExecShell(t, sh, map[string]any{
+			"action":  "execute",
+			"command": cmd,
+			"workdir": root,
+		})
+		if !strings.Contains(out, "INSIDE") {
+			t.Errorf("jail 内合法相对路径被误拒: %q -> %s", cmd, out)
+		}
+	}
+}
+
+// TestResolveWithinWorkdir 禁锢判定的纯函数表驱动测试（跨平台：路径用
+// filepath.Join 构造，不硬编码 "/"）。
+func TestResolveWithinWorkdir(t *testing.T) {
+	sep := string(filepath.Separator)
+	root := sep + filepath.Join("srv", "app")
+	allowed := []string{root}
+	cases := []struct {
+		name    string
+		tok     string
+		workdir string
+		want    bool
+	}{
+		{"jail 内相对路径", filepath.Join("sub", "ok.txt"), root, true},
+		{"jail 内点前缀", "." + sep + filepath.Join("sub", "ok.txt"), root, true},
+		{"jail 内含 .. 但回落", filepath.Join("sub", "..", "sub", "ok.txt"), root, true},
+		{"相对穿越逃逸", filepath.Join("..", "..", "etc", "passwd"), root, false},
+		{"单层相对穿越", filepath.Join("..", "secret"), root, false},
+		{"绝对路径在 jail 内", filepath.Join(root, "sub", "ok.txt"), root, true},
+		{"绝对路径逃逸", sep + filepath.Join("etc", "passwd"), root, false},
+		{"前缀边界不越界", root + "-secret" + sep + "x", root, false},
+		{"workdir 缺省回退 jail 内", filepath.Join("sub", "ok.txt"), "", true},
+		{"workdir 缺省仍堵穿越", filepath.Join("..", "..", "etc", "passwd"), "", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := resolveWithinWorkdir(c.tok, c.workdir, allowed); got != c.want {
+				t.Errorf("resolveWithinWorkdir(%q, workdir=%q) = %v, want %v", c.tok, c.workdir, got, c.want)
+			}
+		})
+	}
+	// 未配置禁锢时无从判定，一律放行（保持既有"无 jail"语义）。
+	if !resolveWithinWorkdir(sep+filepath.Join("etc", "passwd"), "", nil) {
+		t.Error("未配置 allowedWorkdirs 时不应拒绝（无 jail 语义）")
+	}
+}
+
 // ===== 攻击链 7：敏感文件模式缺口 =====
 
 func TestAttack_SensitivePatternGaps(t *testing.T) {

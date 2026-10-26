@@ -32,22 +32,27 @@ func isWithinAllowedWorkdirs(p string, allowed []string) bool {
 	return false
 }
 
-// looksLikeAbsolutePath 判断 token 是否呈绝对路径形态（Unix "/x"、"~/"、
-// Windows "C:\x" / "\\x"）。仅对绝对路径实施禁锢——相对路径由 cmd.Dir
-// （即已校验的 workdir）或调用方显式设定的 cwd 决定，不构成逃逸向量。
-func looksLikeAbsolutePath(tok string) bool {
-	if tok == "" {
-		return false
-	}
-	if strings.HasPrefix(tok, "/") || strings.HasPrefix(tok, "~") || strings.HasPrefix(tok, `\`) {
+// resolveWithinWorkdir 判定 argv 中的路径 token 是否落在允许的工作目录内。
+//
+// 相对 token 以生效 workdir 为基准解析后判定——这是修复的关键：此前只校验
+// looksLikeAbsolutePath 为真的 token，"../../etc/passwd" 形态上不是绝对路径，
+// 被整条跳过；而 cmd.Dir 恰是受禁锢的 workdir，相对路径从它出发即可越界
+// （filesystem 的 rootDir jail 可被一句 "cat ../../etc/passwd" 废弃）。
+// workdir 缺省时回退到 allowedWorkdirs[0]（调用方已保证非空）。
+// 未配置禁锢（allowed 为空）时无从判定，返回 true 保持"无 jail"语义。
+func resolveWithinWorkdir(tok, workdir string, allowed []string) bool {
+	if len(allowed) == 0 {
 		return true
 	}
-	// Windows 盘符路径（C:\ / c:/ ）
-	if len(tok) >= 3 && tok[1] == ':' && (tok[2] == '\\' || tok[2] == '/') {
-		c := tok[0]
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+	p := tok
+	if !filepath.IsAbs(p) {
+		base := workdir
+		if base == "" {
+			base = allowed[0]
+		}
+		p = filepath.Join(base, p) // Join 内部 Clean，正确折叠 ".."
 	}
-	return false
+	return isWithinAllowedWorkdirs(p, allowed)
 }
 
 // blockedCommandNames 黑名单模式下的规范化命令名集合（按 token basename 匹配）。
@@ -169,9 +174,22 @@ func (s *Shell) WithBlacklist() *Shell {
 	return s
 }
 
-// WithAllowedWorkdirs 限制命令执行的工作目录范围
+// WithAllowedWorkdirs 限制命令执行的工作目录范围。
+//
+// 目录在此归一为绝对路径：调用方常传入相对 RootDir（如 DefaultToolkit 的 "."），
+// 而禁锢判定是前缀比对——若允许集里混着相对路径，"sub/x" 解析出的相对 token
+// 将无法通过 "./" 前缀比对，jail 内的合法相对路径会被误拒。统一以绝对路径为
+// 基准后，相对 token 与绝对 token 走同一套判定。
 func (s *Shell) WithAllowedWorkdirs(dirs []string) *Shell {
-	s.allowedWorkdirs = dirs
+	abs := make([]string, 0, len(dirs))
+	for _, d := range dirs {
+		if a, err := filepath.Abs(d); err == nil {
+			abs = append(abs, filepath.Clean(a))
+		} else {
+			abs = append(abs, filepath.Clean(d))
+		}
+	}
+	s.allowedWorkdirs = abs
 	return s
 }
 
@@ -242,8 +260,9 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 	//   3. argv 构建（args 路径与 command 字符串路径归一）；
 	//   4. 元字符检查：command 字符串 + argv 每一个元素（修复：args 曾完全绕过）；
 	//   5. 白名单/黑名单判定（基于 argv[0] basename）；
-	//   6. 路径禁锢：argv 中的绝对路径 token 过 allowedWorkdirs / Sandbox
-	//      （修复：shell 曾可 cat rootDir 之外任意文件）；
+	//   6. 路径禁锢：argv 中的**每一个** token（相对路径按生效 workdir 解析后）
+	//      都过 allowedWorkdirs / Sandbox（修复：shell 曾可 cat rootDir 之外任意
+	//      文件；再修复：曾只覆盖绝对路径 token，相对穿越 ../ 被整条跳过）；
 	//   7. Sandbox.CanExecute 统一门。
 
 	// 1. timeout（clamp 防溢出）
@@ -279,12 +298,29 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 			return tools.NewErrorResult(deniedErr.Error()), deniedErr
 		}
 	}
-	if workdir != "" && len(s.allowedWorkdirs) > 0 {
+	// 生效 workdir：显式参数优先；缺省但配置了禁锢目录时回退到 allowedWorkdirs[0]。
+	// 此前此处被 `workdir != ""` 门控——省略 workdir 时整条禁锢校验不执行，
+	// 且 cmd.Dir 不设置，命令相对宿主进程 cwd 解析，等于没有 jail（攻击链 5c）。
+	effectiveWorkdir := workdir
+	if effectiveWorkdir == "" && len(s.allowedWorkdirs) > 0 {
+		effectiveWorkdir = s.allowedWorkdirs[0]
+	}
+	if effectiveWorkdir != "" && len(s.allowedWorkdirs) > 0 {
 		// 使用 filepath.Clean + 分隔符边界检查，与 scope.go 的 Allow 实现一致。
 		// 防止 "/home/app" 被路径 "/home/app-secret" 绕过。
-		if !isWithinAllowedWorkdirs(workdir, s.allowedWorkdirs) {
-			return tools.NewErrorResult(fmt.Sprintf("workdir '%s' is not in the allowed directories", workdir)), nil
+		// 相对 workdir 先以宿主进程 cwd 解析为绝对路径——否则 "./sub" 这类
+		// 合法相对 workdir 无法通过绝对基准的前缀比对，会被误拒。
+		checkDir := effectiveWorkdir
+		if !filepath.IsAbs(checkDir) {
+			if a, aerr := filepath.Abs(checkDir); aerr == nil {
+				checkDir = a
+			}
 		}
+		if !isWithinAllowedWorkdirs(checkDir, s.allowedWorkdirs) {
+			return tools.NewErrorResult(fmt.Sprintf("workdir '%s' is not in the allowed directories", checkDir)), nil
+		}
+		// 后续相对 token 的解析与 cmd.Dir 都基于已归一的有效 workdir。
+		effectiveWorkdir = checkDir
 	}
 
 	// Sandbox 路径验证（workdir）
@@ -362,14 +398,13 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 		}
 	}
 
-	// 6. 路径禁锢：argv 中的绝对路径 token 必须在 allowedWorkdirs 内，
+	// 6. 路径禁锢：argv 中的**每一个** token 都必须在 allowedWorkdirs 内，
 	// 且通过 Sandbox.ValidatePath（若注入）。修复前 shell 对命令参数中的
-	// 路径零校验，filesystem 工具的 rootDir jail 可被一句 cat 废弃。
+	// 路径零校验，filesystem 工具的 rootDir jail 可被一句 cat 废弃；
+	// 2026-09-28 补齐时又只覆盖 looksLikeAbsolutePath 为真的 token，
+	// 相对穿越路径（../../etc/passwd）被整条跳过（攻击链 5b）。
 	for _, tok := range cmdArgs {
-		if !looksLikeAbsolutePath(tok) {
-			continue
-		}
-		if len(s.allowedWorkdirs) > 0 && !isWithinAllowedWorkdirs(tok, s.allowedWorkdirs) {
+		if len(s.allowedWorkdirs) > 0 && !resolveWithinWorkdir(tok, effectiveWorkdir, s.allowedWorkdirs) {
 			return tools.NewErrorResult(fmt.Sprintf("path '%s' is outside the allowed directories", tok)), nil
 		}
 		if s.sandbox != nil {
@@ -404,8 +439,8 @@ func (s *Shell) Execute(ctx context.Context, args json.RawMessage) (*tools.Resul
 		}
 	}
 
-	if workdir != "" {
-		cmd.Dir = workdir
+	if effectiveWorkdir != "" {
+		cmd.Dir = effectiveWorkdir
 	}
 
 	output, err := cmd.CombinedOutput()

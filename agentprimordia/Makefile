@@ -1,4 +1,5 @@
 .PHONY: build test test-race test-short test-integration test-distributed-backends lint lint-all lint-go lint-ts cover cover-html cover-check \
+        dual-line-recall \
         deprecation-check benchmark api-diff api-extract cover-trend clean run-hello run-multi run-production \
         docker-build docker-run docker-clean \
         pgo-profile pgo-build pgo-clean test-ts test-affected
@@ -29,7 +30,10 @@ test-race:
 	go test -v -race -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
 
-# 跨平台友好的测试（无 -race，Windows 无 gcc 也能跑）
+# 跨平台友好的全量测试（语义 = 无 -race，Windows 无 gcc 也能跑）
+# 注意：名字里的 "short" 是历史遗留，本目标**不传** -short。全仓仅 6 个测试文件使用
+# testing.Short()，一旦传 -short 会静默少跑用例，故此处保持全量。需要真正的短测请显式
+# go test -short ./...（2026-10-17 澄清，避免"门禁其实只跑了一部分"的误判）。
 test-short:
 	go test -v -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out -o coverage.html
@@ -57,25 +61,46 @@ cover-html:
 	go tool cover -html=coverage.out -o coverage.html
 	@echo "已生成 coverage.html，浏览器打开查看"
 
-# 覆盖率门槛检查（Phase 7.2 引入）
+# 覆盖率门槛检查（Phase 7.2 引入；默认镜像 CI 分层门 ci.yml: "internal/agent:80" "internal/llm:65" "pkg:65"）
+# 实现约束：整段必须落在**同一个 shell** 内。Makefile 每条 recipe 行各起一个 shell，
+# 旧实现把 fail=0 / for / if [ $fail -eq 1 ] 拆成三行，变量不跨 shell 共享，失败分支
+# 永远不触发（实测报 `[: -eq: unary operator expected` 后仍打印 OK）——2026-10-17 修复。
+# 另外三点（同日复核补）：
+#   ① 必须检查 `go test` 退出码——测试失败时 go test 仍会打印覆盖率，只比对数字会假绿；
+#   ② 解析不出覆盖率时按 FAIL 处理（旧实现把"没有测试文件"和"编译失败"一起放进 SKIP 假绿）；
+#   ③ 本目标只做「覆盖率抽检」，不是全量测试门（全量测试见 make test-short / CI test job），
+#      且 `./internal/agent` 只统计该单包（不含子包），与 CI 同口径。
+AGENT_COVER_THRESH ?= 80
+COVER_THRESH ?= 65
+
 cover-check:
-	@go test -coverprofile=/tmp/cover-check.out ./internal/... ./pkg/... > /dev/null 2>&1
-	@echo "=== 覆盖率门槛检查 ==="
-	@fail=0
-	@for pkg in internal/agent internal/llm pkg; do \
-		cov=$$(go test -cover ./$$pkg 2>&1 | grep -oE '[0-9.]+%' | head -1 | tr -d '%'); \
-		if [ -z "$$cov" ]; then echo "  $$pkg: SKIP (no test)"; continue; fi; \
-		echo "  $$pkg: $$cov%"; \
-		awk -v c=$$cov 'BEGIN { if (c < 65) exit 1 }' && continue; \
-		fail=1; \
-	done
-	@if [ $$fail -eq 1 ]; then \
+	@echo "=== 覆盖率门槛检查（agent ≥ $(AGENT_COVER_THRESH)% / llm、pkg ≥ $(COVER_THRESH)%）==="
+	@fail=0; \
+	for tier in internal/agent:$(AGENT_COVER_THRESH) internal/llm:$(COVER_THRESH) pkg:$(COVER_THRESH); do \
+		pkg=$${tier%%:*}; thresh=$${tier##*:}; \
+		out=$$(go test -cover ./$$pkg 2>&1); rc=$$?; \
+		if [ $$rc -ne 0 ]; then \
+			echo "  FAIL: $$pkg go test 退出码 $${rc}（测试或编译失败）"; \
+			fail=1; continue; \
+		fi; \
+		cov=$$(printf '%s\n' "$$out" | grep -oE '[0-9.]+%' | head -1 | tr -d '%'); \
+		if [ -z "$$cov" ]; then \
+			echo "  FAIL: $$pkg 无法解析覆盖率输出（是否根本没有测试文件？）"; \
+			fail=1; continue; \
+		fi; \
+		echo "  $$pkg: $$cov% (门槛 $$thresh%)"; \
+		if awk -v c=$$cov -v t=$$thresh 'BEGIN { exit !(c < t) }'; then \
+			echo "  FAIL: $$pkg 覆盖率 $$cov% < $$thresh%"; \
+			fail=1; \
+		fi; \
+	done; \
+	if [ $$fail -eq 1 ]; then \
 		echo ""; \
-		echo "FAIL: 核心包 (internal/llm, pkg) 覆盖率 < 65%"; \
+		echo "FAIL: 核心包覆盖率未达门槛（agent ≥ $(AGENT_COVER_THRESH)% / llm、pkg ≥ $(COVER_THRESH)%）"; \
 		exit 1; \
-	fi
-	@echo ""
-	@echo "OK: 核心包覆盖率门槛通过"
+	fi; \
+	echo ""; \
+	echo "OK: 核心包覆盖率门槛通过"
 
 # Phase 12.1: API 变化对比
 api-diff:
@@ -92,6 +117,28 @@ cover-trend:
 # Phase 12.3: Deprecated 标注完整性检查
 deprecation-check:
 	bash ../scripts/deprecation-check.sh
+
+# S0-3 双线召回对账门（Go 臂 × TS 臂）。CI 对应 job：ci.yml `dual-line-recall`（CI 直接调用本目标，避免两处步骤漂移）。
+# 2026-10-17 接线：此前 scripts/dual-line-recall-check.mjs 全仓零消费者（门存在但从不运行）。
+# 步骤：① 先删两份夹具，再真跑两侧 lexical 底档臂（AP_WRITE_S03_RESULTS=1，离线无需端点）——
+#          "先删后跑"是必要防线：若环境变量丢失或 -run 过滤不中，go test 仍会 exit 0 且 [no tests to run]，
+#          夹具写不出来 → ②对账脚本报"结果文件缺失"即红（否则会出现"四步全绿零验证"的假绿）。
+#       ② 对账双线差 ≤0.02 / 降级位臂 / 缓存基线；③ 断言重生成结果与已提交夹具逐字节一致，
+#          且两路径不得处于 untracked/删除态（git diff --exit-code 对 untracked 无感）。
+# 前置：sdk/typescript 已 npm ci（本地跑 TS 臂需要 vitest）。失败中断后请 `git -C .. checkout -- <两夹具>` 恢复。
+dual-line-recall:
+	@echo "① Go 臂重生成（lexical 底档，先删夹具）"
+	@rm -f bench/results/s0-3-recall-go.json ../sdk/typescript/bench/results/s0-3-recall-ts.json
+	CGO_ENABLED=0 AP_WRITE_S03_RESULTS=1 go test ./internal/memory/ -run 'TestEmbeddingCorpusRecall' -count=1
+	@echo "① TS 臂重生成"
+	cd ../sdk/typescript && AP_WRITE_S03_RESULTS=1 npx --no-install vitest run src/llm/__tests__/embedding-recall.test.ts
+	@echo "② 双线对账"
+	node ../scripts/dual-line-recall-check.mjs
+	@echo "③ 夹具确定性（重生成须零 diff，且不得留下 untracked/删除态）"
+	git -C .. diff --exit-code -- agentprimordia/bench/results/s0-3-recall-go.json sdk/typescript/bench/results/s0-3-recall-ts.json
+	@test -z "$$(git -C .. status --porcelain -- agentprimordia/bench/results/s0-3-recall-go.json sdk/typescript/bench/results/s0-3-recall-ts.json)" \
+		|| { echo "FAIL: 夹具处于未跟踪/删除/脏状态（git status --porcelain 非空）"; exit 1; }
+	@echo "OK: S0-3 双线召回对账通过（重生成夹具零 diff 且均为已跟踪干净态）"
 
 # Phase 12.4: 性能基准
 benchmark:

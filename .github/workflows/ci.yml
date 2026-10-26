@@ -19,6 +19,8 @@ jobs:
       ts: ${{ steps.filter.outputs.ts }}
       py: ${{ steps.filter.outputs.py }}
       rust: ${{ steps.filter.outputs.rust }}
+      workspace: ${{ steps.filter.outputs.workspace }}
+      dual-line: ${{ steps.filter.outputs.dual-line }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -33,6 +35,18 @@ jobs:
               - 'sdk/python/**'
             rust:
               - 'sdk/rust/**'
+            workspace:
+              - 'wasm/**'
+              - 'pgvector/**'
+              - 'gateway/**'
+            # 双线召回门的共享输入：任一变更都可能让两份夹具"同向过期"，必须触发对账 job。
+            dual-line:
+              - 'docs/evals/**'
+              - 'scripts/dual-line-recall-check.mjs'
+              - '.github/workflows/ci.yml'
+              - 'agentprimordia/Makefile'
+              - 'agentprimordia/bench/results/s0-3-recall-go.json'
+              - 'sdk/typescript/bench/results/s0-3-recall-ts.json'
 
   test:
     name: Go Test (${{ matrix.os }}, Go ${{ matrix.go-version }})
@@ -593,6 +607,100 @@ jobs:
         env:
           CGO_ENABLED: 0
         run: go test -tags=etcd -count=1 -timeout=10m -v ./internal/agent/cluster/...
+
+  # ===== 工作区子模块门禁（wasm A4 / pgvector / gateway） =====
+  # 背景：上面的 test job 只在 agentprimordia/ 下跑 `go test ./...`，嵌套模块
+  # （wasm/、pgvector/、gateway/）不在其 ./... 范围内 —— 于是 A4（零值配置回退边界，
+  # 断言定义见 docs/提案-code层沙箱受控释放.md §二）长期无 CI 覆盖，与 AGENTS.md
+  # §2.3「断言测试全部进 CI、失败即红」不符。本 job 补齐该缺口（2026-10-17）。
+  # 触发面覆盖三个模块本身：changes filters 的 `workspace` = wasm/** + pgvector/** + gateway/**。
+  workspace-modules:
+    name: Workspace Modules (wasm A4 / pgvector / gateway)
+    runs-on: ubuntu-latest
+    needs: [changes]
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.workspace == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-1.26-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-1.26-
+
+      - name: Test root wasm module (含 A4 边界断言)
+        working-directory: wasm
+        env:
+          CGO_ENABLED: 0
+        run: |
+          go build ./...
+          go test -count=1 ./...
+
+      - name: Test pgvector module
+        working-directory: pgvector
+        env:
+          CGO_ENABLED: 0
+        run: |
+          go build ./...
+          go test -count=1 ./...
+
+      - name: Test gateway module
+        working-directory: gateway
+        env:
+          CGO_ENABLED: 0
+        run: |
+          go build ./...
+          go test -count=1 ./...
+
+  # ===== S0-3 双线召回对账门（Go 臂 × TS 臂） =====
+  # 背景：scripts/dual-line-recall-check.mjs 自 S0-3 落地起就是"门存在但从不运行"——
+  # 全仓（CI / Makefile / nightly / release）零消费者，对账结论只存在于人工批次里。
+  # 本 job 把它接线进 CI，并且不只做"已提交夹具互相对账"（那种对账在两侧同步漂移时仍绿），
+  # 而是先用 AP_WRITE_S03_RESULTS=1 真跑两侧 lexical 底档臂，再对账，最后断言
+  # 重生成结果与已提交夹具逐字节一致（夹具确定性）。两臂均为离线 lexical 降级位臂
+  # （semantic=false，语义臂 ≥0.95 需真实端点，带降级豁免），实测重生成零 diff。
+  dual-line-recall:
+    name: Dual-Line Recall Reconciliation (S0-3)
+    runs-on: ubuntu-latest
+    needs: [changes]
+    # 触发面必须覆盖"两臂共享输入"：语料 docs/evals/**、门脚本 scripts/**、工作流自身与两份夹具
+    # （否则改语料 → 两夹具同向过期 → job 不跑 → 假绿）。
+    # 注：带连字符的 output 名用**方括号**取值（`outputs['dual-line']`）——点号写法在生态中虽常见
+    # （如 actions/cache 的 `steps.cache.outputs.cache-hit`），但 GitHub 官方表达式文档未对连字符做
+    # 明文承诺；方括号写法无歧义，故此处取零风险形式（2026-10-17 复核建议）。
+    if: >-
+      needs.changes.outputs.go == 'true' ||
+      needs.changes.outputs.ts == 'true' ||
+      needs.changes.outputs['dual-line'] == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: sdk/typescript/package-lock.json
+
+      - name: Install npm dependencies
+        working-directory: sdk/typescript
+        run: npm ci
+
+      # 单一真源：四步（先删夹具重生成两臂 → 对账 → 夹具零 diff/无 untracked）都定义在
+      # agentprimordia/Makefile 的 dual-line-recall 目标里，CI 不再复制一份步骤（避免两处漂移）。
+      - name: S0-3 双线召回对账（make -C agentprimordia dual-line-recall）
+        env:
+          CGO_ENABLED: 0
+        run: make -C agentprimordia dual-line-recall
 
   # ===== API 契约基线检查（防 pkg/ 公共 API 契约过期） =====
 

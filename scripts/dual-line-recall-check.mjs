@@ -11,6 +11,13 @@
 //   TS: sdk/typescript/bench/results/s0-3-recall-ts.json
 // 语义臂（≥0.95，需真实端点）结果落 *-semantic.json，本门不做数值对账
 //（端点浮点有噪声），只在校验模式 --with-semantic 下要求两侧同时存在且 ≥0.95。
+//
+// 接线（2026-10-17）：本门此前全仓零消费者（门存在但从不运行）。现由
+//   - CI: .github/workflows/ci.yml job `dual-line-recall`（重生成两侧 → 对账 → 断言夹具零 diff）；
+//   - 本地: `make -C agentprimordia dual-line-recall`
+// 消费。两臂均为离线 lexical 底档臂（semantic=false，无需端点），实测重生成逐字节一致。
+// 本脚本本身只对账"已落盘的两份夹具"；夹具是否与真跑一致由调用方的
+// `git diff --exit-code` 步骤负责（两侧同步漂移时仅靠本脚本无法发现）。
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,8 +39,17 @@ const ts = JSON.parse(readFileSync(tsPath, 'utf8'));
 const errors = [];
 const MAX_DIFF = 0.02;
 
-if (go.semantic !== false || ts.semantic !== false) {
-  errors.push('两侧都应是 lexical 降级位臂（semantic=false）');
+if (go.semantic !== false) {
+  errors.push('Go 侧应是 lexical 降级位臂（semantic=false）');
+}
+if (ts.semantic !== false) {
+  errors.push('TS 侧应是 lexical 降级位臂（semantic=false）');
+}
+if (go.tiers.length !== ts.tiers.length) {
+  errors.push(`档位数不一致: go ${go.tiers.length} vs ts ${ts.tiers.length}（截断的档位不得被 Math.min 静默跳过）`);
+}
+if (go.topK !== ts.topK) {
+  errors.push(`topK 不一致: go ${go.topK} vs ts ${ts.topK}`);
 }
 if (go.corpus !== ts.corpus || go.corpus !== 'docs/evals/embedding-corpus-v1.json') {
   errors.push(`语料不一致: ${go.corpus} vs ${ts.corpus}`);
@@ -50,9 +66,10 @@ console.log('  corpus:', go.corpus, `(${go.chunks} chunks / ${go.queries} querie
 console.log('  seeds:', JSON.stringify(go.seeds), ' topK:', go.topK);
 console.log('');
 console.log('  tier(seed)      Go        TS       diff');
-for (let i = 0; i < Math.min(go.tiers.length, ts.tiers.length); i++) {
+for (let i = 0; i < go.tiers.length; i++) {
   const g = go.tiers[i];
   const t = ts.tiers[i];
+  if (!t) continue; // 档位数不一致已在上文报错
   if (g.seed !== t.seed) { errors.push(`档位种子错位: ${g.seed} vs ${t.seed}`); continue; }
   const diff = Math.abs(g.recall_at_10 - t.recall_at_10);
   console.log(`  seed ${g.seed}      ${g.recall_at_10.toFixed(4)}    ${t.recall_at_10.toFixed(4)}    ${diff.toFixed(4)}`);

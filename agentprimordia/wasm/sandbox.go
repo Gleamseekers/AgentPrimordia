@@ -21,12 +21,22 @@ type SandboxConfig struct {
 }
 
 // DefaultSandboxConfig 返回默认配置。
+//
+// AllowedImports 默认空集 = 拒绝一切宿主导入。checkImportWhitelist 以批准集建表
+// 后逐条比对，空集下任何导入都命中「未批准的宿主导入」，天然 fail-closed。
+//
+// 历史矛盾（v7.5.2 整改）：此处曾默认放行 wasi_snapshot_preview1，与
+// INV-0 断言 A4「WASI 默认关闭」（wasm/runtime_boundary_test.go，根 wasm 模块
+// DefaultConfig().EnableWASI=false）以及根模块 EnhancedSandbox 的默认
+// （sandbox_enhanced.go: AllowedImports=[]string{}，注释「默认不允许 WASI imports」）
+// 构成两条确定性不变式相互矛盾。统一为 fail-closed：需要 WASI 的工件必须显式
+// 设置 AllowedImports，不得由默认配置静默授予。
 func DefaultSandboxConfig() SandboxConfig {
 	return SandboxConfig{
 		MaxMemoryPages:   256,
 		MaxExecutionTime: 30 * time.Second,
 		MaxFuel:          1_000_000_000,
-		AllowedImports:   []string{"wasi_snapshot_preview1"},
+		AllowedImports:   []string{},
 	}
 }
 

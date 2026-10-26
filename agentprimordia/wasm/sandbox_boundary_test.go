@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -94,25 +95,30 @@ func TestA6_RegisterRequiresSignature(t *testing.T) {
 
 // ===== A7：导入段白名单 =====
 
-// TestA7_ImportWhitelist 未批准宿主导入拒绝；WASI 未批准时其导入拒绝；
-// 批准后放行；干净模块零导入直接通过。
+// TestA7_ImportWhitelist 未批准宿主导入拒绝；默认配置（空批准集）拒绝 wasi；
+// 显式批准后放行；干净模块零导入直接通过。
 func TestA7_ImportWhitelist(t *testing.T) {
 	t.Run("默认配置拒绝 wasi 导入", func(t *testing.T) {
-		s := NewSandbox(DefaultSandboxConfig()) // AllowedImports 含 wasi_snapshot_preview1
-		defer s.Close()
-		// wasi 模块的导入在默认批准集内 → 通过（默认配置显式批准了 wasi）
-		if err := s.Load("wasi-mod", wasiImportWasm(t)); err != nil {
-			t.Fatalf("默认批准集含 wasi，应通过: %v", err)
-		}
-	})
-	t.Run("未启用 WASI 的批准集拒绝 wasi 导入", func(t *testing.T) {
-		cfg := DefaultSandboxConfig()
-		cfg.AllowedImports = []string{} // 未显式启用 WASI
-		s := NewSandbox(cfg)
+		// 默认配置 AllowedImports 为空集——与 A4「WASI 默认关闭」同向。
+		// 历史缺陷：默认曾放行 wasi_snapshot_preview1，本子测试**名为"拒绝"
+		// 而断言体为"应通过"**，名与体相互矛盾，且与 A4 的确定性断言冲突。
+		s := NewSandbox(DefaultSandboxConfig())
 		defer s.Close()
 		err := s.Load("wasi-mod", wasiImportWasm(t))
-		if err == nil || !strings.Contains(err.Error(), "未批准的宿主导入") {
-			t.Fatalf("未启用 WASI 时 wasi 导入必须拒绝: %v", err)
+		if err == nil {
+			t.Fatal("A4/A7 违例：默认配置不得放行 wasi 导入（WASI 默认关闭）")
+		}
+		if !strings.Contains(err.Error(), "未批准的宿主导入") {
+			t.Fatalf("拒绝原因应指向导入段白名单: %v", err)
+		}
+	})
+	t.Run("显式批准 wasi 后放行", func(t *testing.T) {
+		cfg := DefaultSandboxConfig()
+		cfg.AllowedImports = []string{"wasi_snapshot_preview1"} // 显式 opt-in
+		s := NewSandbox(cfg)
+		defer s.Close()
+		if err := s.Load("wasi-mod", wasiImportWasm(t)); err != nil {
+			t.Fatalf("显式批准 wasi 后应放行: %v", err)
 		}
 	})
 	t.Run("干净模块零导入通过", func(t *testing.T) {
@@ -135,12 +141,22 @@ func TestA7_ImportWhitelist(t *testing.T) {
 
 // ===== A8：宿主文件系统零写入 =====
 
-// TestA8_HostTreeUnchanged 工具执行前后，宿主工作树（Go 代码目录 + 配置
-// 目录）哈希不变；生成物只允许落在沙箱数据目录（t.TempDir）。
+// TestA8_HostTreeUnchanged 工具执行前后，宿主工作树（Go 代码目录）哈希不变；
+// 生成物只允许落在沙箱数据目录（t.TempDir）。
+//
+// 历史缺陷（v7.5.2 整改）：原实现用 findModuleRoot 向上找 go.mod——本仓主模块
+// go.mod 在**仓库根**（源码在 agentprimordia/ 子目录），于是拼出
+// root/{wasm,internal,pkg,cmd}；其中 internal/pkg/cmd 在仓库根并不存在，被
+// hashGoTree 的 `if err != nil { return nil }` 静默跳过，A8 实际只哈希了
+// root/wasm——即沙箱模块自身（信任方，非被保护对象）。守卫集与意图脱靶，
+// 断言退化为同义反复：执行路径本就不碰文件系统，哈希必然相等。
 func TestA8_HostTreeUnchanged(t *testing.T) {
-	root := findModuleRoot(t)
-	dirs := []string{filepath.Join(root, "wasm"), filepath.Join(root, "internal"), filepath.Join(root, "pkg"), filepath.Join(root, "cmd")}
-	hashBefore := hashGoTree(t, dirs)
+	root := findRepoRoot(t)
+	dirs := hostTreeDirs(root)
+	hashBefore, err := hashGoTree(dirs)
+	if err != nil {
+		t.Fatalf("A8 前置哈希失败（守卫目标必须存在且可读）: %v", err)
+	}
 
 	// 执行一次完整的「加载→签名注册→执行」工具链路
 	s := NewSandbox(DefaultSandboxConfig())
@@ -161,20 +177,94 @@ func TestA8_HostTreeUnchanged(t *testing.T) {
 		t.Fatalf("执行失败: %v", err)
 	}
 
-	hashAfter := hashGoTree(t, dirs)
+	hashAfter, err := hashGoTree(dirs)
+	if err != nil {
+		t.Fatalf("A8 后置哈希失败（守卫目标必须存在且可读）: %v", err)
+	}
 	if hashBefore != hashAfter {
 		t.Fatal("A8 违例：工具执行前后宿主工作树哈希发生变化")
 	}
 }
 
-// hashGoTree 对目录集内全部普通文件做确定性哈希（路径+内容串联后 sha256）。
-func hashGoTree(t *testing.T, dirs []string) string {
-	t.Helper()
+// TestA8_DetectorCanFail 证明 A8 的检测器本身能失败——否则"哈希不变"是无意义的永真断言。
+// 三条负样本：内容变化、新增文件、守卫目标缺失（后者必须报错而非静默通过）。
+func TestA8_DetectorCanFail(t *testing.T) {
+	base := t.TempDir()
+	target := filepath.Join(base, "internal")
+	if err := os.MkdirAll(filepath.Join(target, "tools"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	file := filepath.Join(target, "tools", "a.go")
+	if err := os.WriteFile(file, []byte("package tools\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	h1, err := hashGoTree([]string{target})
+	if err != nil {
+		t.Fatalf("首次哈希应成功: %v", err)
+	}
+
+	// ① 内容变化必须改变哈希
+	if err := os.WriteFile(file, []byte("package tools\n// mutated\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h2, err := hashGoTree([]string{target})
+	if err != nil {
+		t.Fatalf("二次哈希应成功: %v", err)
+	}
+	if h1 == h2 {
+		t.Error("A8 检测器失效：文件内容变化后哈希未变（断言永真）")
+	}
+
+	// ② 新增文件必须改变哈希
+	if err := os.WriteFile(filepath.Join(target, "tools", "b.go"), []byte("package tools\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	h3, err := hashGoTree([]string{target})
+	if err != nil {
+		t.Fatalf("三次哈希应成功: %v", err)
+	}
+	if h3 == h2 {
+		t.Error("A8 检测器失效：新增文件后哈希未变（断言永真）")
+	}
+
+	// ③ 守卫目标缺失必须报错（fail-closed）——原实现此处静默跳过，
+	//    使得"目录不存在"与"无违例"不可区分，A8 因而可被无意间架空。
+	if _, err := hashGoTree([]string{filepath.Join(base, "nonexistent")}); err == nil {
+		t.Error("A8 检测器失效：守卫目标缺失时未报错（fail-open）")
+	}
+}
+
+// hostTreeDirs A8 守卫的宿主工作树目录（相对仓库根）。这些目录承载 agent
+// 框架源码，是 INV-0「宿主零写入」真正要保护的对象。
+func hostTreeDirs(root string) []string {
+	return []string{
+		filepath.Join(root, "agentprimordia", "internal"),
+		filepath.Join(root, "agentprimordia", "pkg"),
+		filepath.Join(root, "agentprimordia", "cmd"),
+	}
+}
+
+// hashGoTree 对目录集内全部 .go/.mod/.sum 文件做确定性哈希（路径+内容串联后 sha256）。
+//
+// fail-closed：守卫目标缺失、不是目录、或遍历失败一律返回 error——
+// 调用方必须显式失败，不允许把"扫不到"当成"没违规"。
+func hashGoTree(dirs []string) (string, error) {
 	h := sha256.New()
 	for _, dir := range dirs {
-		_ = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-			if err != nil || d.IsDir() {
-				return nil // 不存在的目录（如 root 下无 internal）跳过
+		info, err := os.Stat(dir)
+		if err != nil {
+			return "", fmt.Errorf("A8 守卫目标不可访问: %s: %w", dir, err)
+		}
+		if !info.IsDir() {
+			return "", fmt.Errorf("A8 守卫目标不是目录: %s", dir)
+		}
+		werr := filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if d.IsDir() {
+				return nil
 			}
 			if !strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, ".mod") && !strings.HasSuffix(path, ".sum") {
 				return nil
@@ -187,23 +277,32 @@ func hashGoTree(t *testing.T, dirs []string) string {
 			h.Write(data)
 			return nil
 		})
+		if werr != nil {
+			return "", fmt.Errorf("A8 遍历守卫目标失败: %s: %w", dir, werr)
+		}
 	}
-	return hex.EncodeToString(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-// findModuleRoot 向上定位主模块目录（含 go.mod 的 github.com/Gleamseekers/AgentPrimordia/）。
-func findModuleRoot(t *testing.T) string {
+// findRepoRoot 向上定位仓库根（含 .git 的目录）。不用 go.mod 判定——本仓主模块
+// go.mod 就在仓库根，而 A8 的守卫目标位于仓库根的 agentprimordia/ 子目录下，
+// 两者不是同一层，用 go.mod 定位曾导致守卫集拼错一层。
+func findRepoRoot(t *testing.T) string {
 	t.Helper()
 	dir, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
-	for i := 0; i < 6; i++ {
-		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+	for i := 0; i < 8; i++ {
+		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
 			return dir
 		}
-		dir = filepath.Dir(dir)
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
 	}
-	t.Fatal("未找到模块根")
+	t.Fatal("未找到仓库根（.git）")
 	return ""
 }
